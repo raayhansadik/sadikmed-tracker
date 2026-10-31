@@ -2,8 +2,8 @@
   "enabled": false,
   "service": "gmail",
   "auth": {
-    "user": "info.raayhansadik@gmail.com",
+    "user": "noreply.sadikmed@gmail.com",
     "pass": "PASTE_YOUR_16_CHAR_GMAIL_APP_PASSWORD_HERE"
   },
-  "from": "SadikMed Tracker <info.raayhansadik@gmail.com>"
+  "from": "SadikMed Tracker <noreply.sadikmed@gmail.com>"
 }

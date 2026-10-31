@@ -62,7 +62,7 @@ async function dispatchMail(mailOptions) {
   }
 
   // Google Gmail Credentials
-  const user = process.env.GMAIL_USER || (config.auth && config.auth.user) || 'info.raayhansadik@gmail.com';
+  const user = process.env.GMAIL_USER || (config.auth && config.auth.user) || 'noreply.sadikmed@gmail.com';
   const rawPass = process.env.GMAIL_PASS || (config.auth && config.auth.pass);
   const pass = rawPass ? rawPass.replace(/\s+/g, '') : '';
   const isRealPass = pass && !pass.includes('PASTE_YOUR');
