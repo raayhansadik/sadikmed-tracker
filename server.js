@@ -26,7 +26,7 @@ const otpCleanupTimer = setInterval(() => {
 }, 60000);
 if (otpCleanupTimer.unref) otpCleanupTimer.unref();
 
-// Helper: Outbound Email Dispatcher
+// Helper: Google Gmail SMTP Dispatcher
 async function dispatchMail(mailOptions) {
   const configFile = path.join(BASE_DIR, 'data', 'email-config.json');
   let config = { enabled: false };
@@ -40,65 +40,24 @@ async function dispatchMail(mailOptions) {
     return { sent: false, reason: 'nodemailer module not installed' };
   }
 
-  // Detect email credentials from environment variables or data/email-config.json
-  const user = process.env.GMAIL_USER || process.env.SMTP_USER || (config.auth && config.auth.user);
-  const rawPass = process.env.GMAIL_PASS || process.env.SMTP_PASS || (config.auth && config.auth.pass);
+  // Google Gmail Credentials
+  const user = process.env.GMAIL_USER || (config.auth && config.auth.user) || 'info.raayhansadik@gmail.com';
+  const rawPass = process.env.GMAIL_PASS || (config.auth && config.auth.pass);
   const pass = rawPass ? rawPass.replace(/\s+/g, '') : '';
   const isRealPass = pass && !pass.includes('PASTE_YOUR');
 
-  // 1. Outbound delivery via Resend API (if configured)
-  const resendKey = process.env.RESEND_API_KEY || (config.resend && config.resend.apiKey);
-  if (resendKey) {
-    try {
-      const resendRes = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: process.env.MAIL_FROM || 'SadikMed Tracker <onboarding@resend.dev>',
-          to: [mailOptions.to],
-          subject: mailOptions.subject,
-          html: mailOptions.html,
-          text: mailOptions.text
-        })
-      });
-      const resendJson = await resendRes.json();
-      if (resendRes.ok) {
-        console.log(`[RESEND INBOX DELIVERED] Sent to: ${mailOptions.to} (ID: ${resendJson.id})`);
-        return { sent: true, realSmtp: true, messageId: resendJson.id };
-      } else {
-        console.error(`[RESEND ERROR]:`, resendJson);
-      }
-    } catch (resendErr) {
-      console.error(`[RESEND FETCH ERROR]:`, resendErr.message);
-    }
-  }
-
-  // 2. Real outbound SMTP delivery (Gmail App Password or custom SMTP)
+  // 1. Send via Google Gmail SMTP (smtp.gmail.com:465 SSL)
   if (isRealPass && user) {
     try {
-      const isGmail = (process.env.SMTP_SERVICE || config.service || 'gmail').toLowerCase() === 'gmail';
-      const transporter = isGmail
-        ? nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-              user,
-              pass
-            }
-          })
-        : nodemailer.createTransport({
-            host: process.env.SMTP_HOST || config.host,
-            port: parseInt(process.env.SMTP_PORT || config.port || '587', 10),
-            secure: (process.env.SMTP_SECURE === 'true') || (config.secure === true),
-            auth: {
-              user,
-              pass
-            }
-          });
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user,
+          pass
+        }
+      });
 
       const senderFrom = process.env.MAIL_FROM || config.from || `"SadikMed Tracker" <${user}>`;
       const info = await transporter.sendMail({
@@ -108,14 +67,14 @@ async function dispatchMail(mailOptions) {
         html: mailOptions.html,
         text: mailOptions.text
       });
-      console.log(`[REAL INBOX DELIVERED] Sent to: ${mailOptions.to} (Message ID: ${info.messageId})`);
+      console.log(`[GOOGLE GMAIL DELIVERED] Sent to: ${mailOptions.to} (Message ID: ${info.messageId})`);
       return { sent: true, realSmtp: true, messageId: info.messageId };
     } catch (smtpErr) {
-      console.error(`[REAL SMTP ERROR]:`, smtpErr.message);
+      console.error(`[GOOGLE GMAIL SMTP ERROR]:`, smtpErr.message);
     }
   }
 
-  // 3. Fallback to Ethereal Webmail Sandbox when SMTP credentials are not yet configured
+  // 2. Fallback to Ethereal Webmail Sandbox when Google App Password is not yet set
   try {
     const testAccount = await nodemailer.createTestAccount();
     const testTransporter = nodemailer.createTransport({
@@ -128,7 +87,7 @@ async function dispatchMail(mailOptions) {
       }
     });
     const info = await testTransporter.sendMail({
-      from: `"SadikMed Tracker" <verify@sadikmed.com>`,
+      from: `"SadikMed Tracker" <${user}>`,
       to: mailOptions.to,
       subject: mailOptions.subject,
       html: mailOptions.html,
