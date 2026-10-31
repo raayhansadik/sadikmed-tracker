@@ -16,6 +16,27 @@ const BASE_DIR = fs.existsSync(path.join(__dirname, 'index.html'))
   : (fs.existsSync(path.join(process.cwd(), 'index.html')) ? process.cwd() : __dirname);
 const PARENT_ASSETS_DIR = path.resolve(BASE_DIR, '..', 'assets');
 
+// Load environment variables from .env.local or .env if present
+try {
+  const envLocal = path.join(BASE_DIR, '.env.local');
+  if (fs.existsSync(envLocal)) {
+    if (typeof process.loadEnvFile === 'function') {
+      process.loadEnvFile(envLocal);
+    } else {
+      const lines = fs.readFileSync(envLocal, 'utf8').split('\n');
+      for (const line of lines) {
+        const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+        if (match) {
+          const key = match[1];
+          let val = (match[2] || '').trim();
+          if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+          if (!process.env[key]) process.env[key] = val;
+        }
+      }
+    }
+  }
+} catch (e) {}
+
 // SadikMed In-Memory OTP Store
 const sadikmedOtps = new Map(); // key: recipient, value: { code, expiresAt, channel }
 const otpCleanupTimer = setInterval(() => {
