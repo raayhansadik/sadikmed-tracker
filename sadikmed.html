@@ -2120,12 +2120,13 @@ button:disabled, button.a:disabled, button.p:disabled {
       <div class="c" style="max-width:560px">
         <h2>Notifications & Alerts</h2>
         
-        <div style="background:var(--mint);padding:14px;border-radius:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+        <div style="background:var(--mint);padding:14px;border-radius:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
           <div>
             <b>Desktop / Push Notifications</b>
-            <div class="sub">Receive native browser reminders when doses are due</div>
+            <div class="sub" id="push-notif-sub">Receive native browser reminders when doses are due</div>
+            <div class="sub" id="push-notif-hint" style="color:var(--bad);margin-top:6px;font-weight:600" hidden></div>
           </div>
-          <button class="a s" id="enable-push-btn">Enable</button>
+          <button class="a s" id="enable-push-btn" style="white-space:nowrap">Enable</button>
         </div>
 
         <label>Reminder Channel</label>
@@ -3195,6 +3196,7 @@ function show(v) {
   $("dd").hidden = true;
   window.scrollTo(0, 0);
   if (v === "reports") prepareClinicalReport();
+  if (v === "settings") updateNotificationUI();
 }
 document.addEventListener("click", e => {
   const b = e.target.closest(".nv [data-v], #dd [data-v]");
@@ -3716,18 +3718,140 @@ $("cpw-btn").onclick = async () => {
   showToast("Password updated!");
 };
 
-// TEST NOTIFICATIONS
+// SERVICE WORKER REGISTRATION (Mobile Android & Desktop Background Push)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// UNIFIED DISPATCHER (Supports ServiceWorker.showNotification & native Notification with audio)
+async function dispatchPushNotification(title, options = {}) {
+  const notifOpts = {
+    icon: '/assets/sadikmed-logo.png',
+    badge: '/assets/favicon-48x48.png',
+    vibrate: [200, 100, 200],
+    requireInteraction: true,
+    ...options
+  };
+
+  // 1. Try Service Worker showNotification (vital for Android & modern PWAs)
+  if ('serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      if (reg && typeof reg.showNotification === 'function') {
+        await reg.showNotification(title, notifOpts);
+        return true;
+      }
+    } catch (swErr) {
+      console.warn("SW showNotification fallback:", swErr);
+    }
+  }
+
+  // 2. Fallback to desktop Notification constructor
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      const notif = new Notification(title, notifOpts);
+      notif.onclick = () => {
+        window.focus();
+        if (typeof show === 'function') show('dash');
+        notif.close();
+      };
+      return true;
+    } catch (e) {
+      console.warn("Notification constructor fallback:", e);
+    }
+  }
+  return false;
+}
+
+// UPDATE NOTIFICATION UI IN SETTINGS
+function updateNotificationUI() {
+  const btn = $("enable-push-btn");
+  const sub = $("push-notif-sub");
+  const hint = $("push-notif-hint");
+  if (!btn) return;
+
+  if (!("Notification" in window)) {
+    btn.textContent = "Not Supported";
+    btn.disabled = true;
+    btn.className = "outline s";
+    if (sub) sub.textContent = "Notifications are not supported in this browser.";
+    return;
+  }
+
+  const perm = Notification.permission;
+  if (perm === "granted") {
+    btn.textContent = "Active ✓ (Test Alert)";
+    btn.disabled = false;
+    btn.className = "a s";
+    btn.style.background = "var(--teal)";
+    if (sub) sub.textContent = "Notifications are active! Tap to send an instant test alert.";
+    if (hint) { hint.hidden = true; hint.textContent = ""; }
+  } else if (perm === "denied") {
+    btn.textContent = "Blocked ✕";
+    btn.disabled = false;
+    btn.className = "outline s";
+    btn.style.color = "var(--bad)";
+    btn.style.borderColor = "var(--bad)";
+    btn.style.background = "var(--bad-bg)";
+    if (sub) sub.textContent = "Notification permission was blocked in this browser.";
+    if (hint) {
+      hint.hidden = false;
+      hint.textContent = "⚠️ Click the site lock/settings icon in your browser address bar and allow Notifications.";
+    }
+  } else {
+    btn.textContent = "Enable";
+    btn.disabled = false;
+    btn.className = "a s";
+    btn.style.background = "";
+    btn.style.color = "";
+    btn.style.borderColor = "";
+    if (sub) sub.textContent = "Receive native browser reminders when doses are due.";
+    if (hint) { hint.hidden = true; hint.textContent = ""; }
+  }
+}
+
+// ENABLE OR TEST PUSH NOTIFICATIONS
 $("enable-push-btn").onclick = async () => {
   if (!("Notification" in window)) {
     alert("Desktop notifications are not supported by your browser.");
     return;
   }
-  const perm = await Notification.requestPermission();
-  if (perm === "granted") {
-    new Notification("SadikMed Tracker", { body: "Notifications enabled! You will be reminded when doses are due." });
-    showToast("Notifications enabled!");
-  } else {
-    alert("Notification permission was denied.");
+
+  const currentPerm = Notification.permission;
+  if (currentPerm === "granted") {
+    // Already granted: trigger an immediate test notification with sound!
+    await dispatchPushNotification("⏰ SadikMed Dose Reminder (Test)", {
+      body: "Native notifications are active! You will be alerted when medication doses are due.",
+      tag: "test-dose-alert"
+    });
+    playChime('alert');
+    showToast("Test notification sent!");
+    updateNotificationUI();
+    return;
+  }
+
+  if (currentPerm === "denied") {
+    alert("Notifications are currently blocked by your browser settings.\n\nPlease tap the lock or settings icon in your address bar, set Notifications to 'Allow', and refresh the page.");
+    updateNotificationUI();
+    return;
+  }
+
+  // Request permission
+  try {
+    const perm = await Notification.requestPermission();
+    updateNotificationUI();
+    if (perm === "granted") {
+      await dispatchPushNotification("SadikMed Tracker", {
+        body: "Notifications enabled! You will be reminded when your doses are due.",
+        tag: "welcome-alert"
+      });
+      playChime('success');
+      showToast("Notifications enabled!");
+    } else if (perm === "denied") {
+      showToast("Notification permission denied");
+    }
+  } catch (err) {
+    console.error("Error requesting notification permission:", err);
   }
 };
 
@@ -3764,28 +3888,70 @@ $("test-email-btn").onclick = async () => {
   }
 };
 
-// PUSH REMINDER INTERVAL (RUNS EVERY 30S IN UTC+06:00 WITH DUPLICATE GUARD)
-let lastNotifiedMinute = "";
-setInterval(() => {
-  if (!cur || !("Notification" in window) || Notification.permission !== "granted") return;
+// PUSH REMINDER INTERVAL (RUNS EVERY 20S IN UTC+06:00 WITH SMART OFFSET & DUE ALERTS)
+const sentAlertsKey = "sm_sent_alerts_" + ymd(new Date());
+let sentAlerts = new Set();
+try {
+  const savedAlerts = JSON.parse(sessionStorage.getItem(sentAlertsKey) || "[]");
+  sentAlerts = new Set(savedAlerts);
+} catch (e) {}
+
+function markAlertSent(key) {
+  sentAlerts.add(key);
+  try {
+    sessionStorage.setItem(sentAlertsKey, JSON.stringify(Array.from(sentAlerts)));
+  } catch (e) {}
+}
+
+setInterval(async () => {
+  if (!cur || !("Notification" in window) || Notification.permission !== "granted" || !S || !S.meds) return;
   const currentHM = getNowHM();
   const todayStr = ymd(new Date());
-  const checkKey = `${todayStr}-${currentHM}`;
-  if (lastNotifiedMinute === checkKey) return;
-  lastNotifiedMinute = checkKey;
+  const remindBeforeMin = parseInt(S.set && S.set.nb ? S.set.nb : 0, 10);
 
-  S.meds.forEach(m => {
-    getMedTimes(m).forEach(t => {
-      if (t === currentHM && status(m, todayStr, t) === "p") {
-        new Notification("⏰ Dose Due: " + m.name, {
-          body: `It's time for your ${m.name} (${m.dose}). Click to log your dose.`,
-          requireInteraction: true
-        });
-        playChime('alert');
+  const hmToMin = (hm) => {
+    const [h, m] = hm.split(":").map(Number);
+    return h * 60 + m;
+  };
+  const currentTotalMins = hmToMin(currentHM);
+
+  for (const m of S.meds) {
+    const times = getMedTimes(m);
+    for (const t of times) {
+      const doseTotalMins = hmToMin(t);
+      const doseStatus = status(m, todayStr, t);
+
+      // 1. Advance Reminder (e.g. 15 min before dose)
+      if (remindBeforeMin > 0) {
+        const advanceAlertMins = doseTotalMins - remindBeforeMin;
+        if (currentTotalMins === advanceAlertMins && doseStatus === "p") {
+          const advKey = `adv-${todayStr}-${m.id}-${t}`;
+          if (!sentAlerts.has(advKey)) {
+            markAlertSent(advKey);
+            await dispatchPushNotification(`🔔 Upcoming Dose: ${m.name}`, {
+              body: `In ${remindBeforeMin} mins (${fmtTime(t)}): ${m.name} (${m.dose}).`,
+              tag: advKey
+            });
+            playChime('alert');
+          }
+        }
       }
-    });
-  });
-}, 30000);
+
+      // 2. Exact Due Time Alert (Dose Due Now)
+      if (currentTotalMins === doseTotalMins && doseStatus === "p") {
+        const dueKey = `due-${todayStr}-${m.id}-${t}`;
+        if (!sentAlerts.has(dueKey)) {
+          markAlertSent(dueKey);
+          await dispatchPushNotification(`⏰ Dose Due Now: ${m.name}`, {
+            body: `It is time to take your ${m.name} (${m.dose})! Click to open tracker.`,
+            tag: dueKey
+          });
+          playChime('alert');
+        }
+      }
+    }
+  }
+}, 20000);
 
 // AUTHENTICATION & OTP FLOW
 let pendingAuth = null;
@@ -3832,6 +3998,7 @@ async function enter(a) {
   $("app").hidden = false;
   show("dash");
   await load();
+  updateNotificationUI();
 }
 
 function out() {
@@ -4177,6 +4344,7 @@ resetForm();
       setMode("in");
     }
   }
+  updateNotificationUI();
 }
 </script>
 </body>
