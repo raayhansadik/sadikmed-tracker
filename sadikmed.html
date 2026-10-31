@@ -3554,7 +3554,7 @@ function setMode(m) {
   $("fc").hidden = m === "in";
   $("auth-main-fields").hidden = false;
   $("auth-otp-step").hidden = true;
-  $("ab").textContent = m === "in" ? "Continue to Verification" : "Send Verification Code";
+  $("ab").textContent = m === "in" ? "Sign in" : "Send Verification Code";
   $("at").textContent = m === "in" ? "Welcome back. Sign in to track your medication." : "Create an account with email verification.";
   $("ae").textContent = "";
 }
@@ -3635,10 +3635,13 @@ async function submit() {
   const pw = $("ap").value;
 
   if (mode === "in") {
-    // LOGIN FLOW
+    // LOGIN FLOW (NO OTP REQUIRED FOR EXISTING USERS)
     const login = $("lid").value.trim().toLowerCase();
     if (!login) { e.textContent = "Please enter your registered phone number or email."; return; }
     if (!pw) { e.textContent = "Please enter your password."; return; }
+
+    $("ab").disabled = true;
+    $("ab").textContent = "Signing in...";
 
     const L = accts();
     let a = L.find(x => (x.login && x.login.toLowerCase() === login) || (x.phone && x.phone === login) || (x.email && x.email.toLowerCase() === login));
@@ -3647,6 +3650,8 @@ async function submit() {
     if (a) {
       // User found in this browser's localStorage
       if (await hx(pw, a.salt) !== a.hash) {
+        $("ab").disabled = false;
+        $("ab").textContent = "Sign in";
         e.textContent = "Incorrect phone/email or password.";
         return;
       }
@@ -3661,56 +3666,35 @@ async function submit() {
         });
         const json = await loginRes.json();
         if (!json.success || !json.user) {
+          $("ab").disabled = false;
+          $("ab").textContent = "Sign in";
           e.textContent = json.error || "Incorrect phone/email or password.";
           return;
         }
         a = json.user;
         serverData = json.data;
       } catch (err) {
+        $("ab").disabled = false;
+        $("ab").textContent = "Sign in";
         e.textContent = "Could not connect to authentication server. Please check your connection.";
         return;
       }
     }
 
-    // Two-factor security verification for login
-    const recipient = a.phone || a.email || a.login;
-    const channel = recipient.includes('@') ? 'email' : 'phone';
+    // Direct entry: existing users sign in immediately without OTP
+    const idx = L.findIndex(x => x.id === a.id);
+    if (idx >= 0) L[idx] = a;
+    else L.push(a);
+    localStorage.setItem(AK, JSON.stringify(L));
 
-    $("ab").disabled = true;
-    $("ab").textContent = "Sending code...";
-    const otpRes = await requestOtp(recipient, channel, 'login', a.name);
+    if (serverData) {
+      localStorage.setItem("sm_" + a.id, JSON.stringify(serverData));
+    }
+
     $("ab").disabled = false;
-    $("ab").textContent = "Continue to Verification";
-
-    if (!otpRes.success) {
-      e.textContent = otpRes.error || "Failed to send verification code. Please try again.";
-      return;
-    }
-
-    pendingAuth = {
-      type: 'login',
-      account: a,
-      userData: serverData,
-      recipient,
-      channel,
-      token: otpRes.otpToken || null
-    };
-
-    $("auth-main-fields").hidden = true;
-    $("auth-otp-step").hidden = false;
-    $("otp-title").textContent = "Security Login Verification";
-    $("otp-subtitle").textContent = channel === 'email' 
-      ? `6-digit verification code sent to ${recipient}` 
-      : `6-digit verification code sent to ${recipient} (SMS)`;
-    $("otp-code-input").value = "";
-    $("otp-error").textContent = "";
-    if (otpRes.emailDelivery && otpRes.emailDelivery.realSmtp === false && otpRes.emailDelivery.previewUrl) {
-      $("otp-notice").innerHTML = `⚠️ <strong>Note:</strong> Real inbox delivery requires Gmail App Password in Vercel. For now, view your email at: <a href="${otpRes.emailDelivery.previewUrl}" target="_blank" style="color:#00A889;text-decoration:underline;font-weight:600">Open Webmail Inbox</a>`;
-    } else {
-      $("otp-notice").textContent = channel === 'email' 
-        ? "Please check your email inbox for the verification code." 
-        : "Please check your phone for the verification code.";
-    }
+    $("ab").textContent = "Sign in";
+    enter(a);
+    return;
   } else {
     // REGISTRATION FLOW (OTP SENT EXCLUSIVELY TO USER EMAIL)
     const name = $("an").value.trim();
