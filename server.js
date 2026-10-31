@@ -84,6 +84,7 @@ async function dispatchMail(mailOptions) {
       const info = await transporter.sendMail({
         from: senderFrom,
         to: mailOptions.to,
+        replyTo: mailOptions.replyTo || 'info.raayhansadik@gmail.com',
         subject: mailOptions.subject,
         html: mailOptions.html,
         text: mailOptions.text,
@@ -111,6 +112,7 @@ async function dispatchMail(mailOptions) {
     const info = await testTransporter.sendMail({
       from: `"SadikMed Tracker" <${user}>`,
       to: mailOptions.to,
+      replyTo: mailOptions.replyTo || 'info.raayhansadik@gmail.com',
       subject: mailOptions.subject,
       html: mailOptions.html,
       text: mailOptions.text,
@@ -512,7 +514,8 @@ function requestHandler(req, res) {
 
             emailDelivery = await dispatchMail({
               to: recipient,
-              subject: `🛡️ ${code} is your SadikMed Tracker verification code`,
+              subject: `SadikMed Tracker Verification Code: ${code}`,
+              replyTo: 'info.raayhansadik@gmail.com',
               attachments,
               html: `
                 <div style="font-family:system-ui,-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:24px;background:#EAF7F4;color:#013E43">
@@ -543,7 +546,7 @@ function requestHandler(req, res) {
                   </div>
                 </div>
               `,
-              text: `Your SadikMed verification code is: ${code}. Expires in 10 minutes.`
+              text: `Hello${name ? ' ' + name : ''},\n\nYour SadikMed Tracker verification code is: ${code}\n\nThis code is valid for 10 minutes. For your security, never share this code with anyone.\n\nIf you did not request this code, please ignore this email.`
             });
           }
 
@@ -887,7 +890,8 @@ function requestHandler(req, res) {
 
           const dispatchRes = await dispatchMail({
             to: email,
-            subject: `⏰ SadikMed Reminder: Time to take ${medName} (${dose})`,
+            subject: `Medication Reminder: Time to take ${medName} (${dose})`,
+            replyTo: 'info.raayhansadik@gmail.com',
             attachments,
             html: `
               <div style="font-family:system-ui,-apple-system,sans-serif;max-width:540px;margin:0 auto;padding:24px;background:#EAF7F4;color:#013E43">
