@@ -3865,7 +3865,11 @@ resetForm();
     enter(a0);
   } else {
     $("auth").hidden = false;
-    setMode("in");
+    if (window.location.hash === '#signup' || window.location.search.includes('signup')) {
+      setMode("up");
+    } else {
+      setMode("in");
+    }
   }
 }
 </script>
