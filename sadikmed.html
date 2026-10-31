@@ -2120,13 +2120,16 @@ button:disabled, button.a:disabled, button.p:disabled {
       <div class="c" style="max-width:560px">
         <h2>Notifications & Alerts</h2>
         
-        <div style="background:var(--mint);padding:14px;border-radius:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div style="background:var(--mint);padding:14px;border-radius:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
           <div>
             <b>Desktop / Push Notifications</b>
             <div class="sub" id="push-notif-sub">Receive native browser reminders when doses are due</div>
             <div class="sub" id="push-notif-hint" style="color:var(--bad);margin-top:6px;font-weight:600" hidden></div>
           </div>
-          <button class="a s" id="enable-push-btn" style="white-space:nowrap">Enable</button>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button type="button" class="s" id="push-opt-active" style="padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;transition:all 0.2s">Active</button>
+            <button type="button" class="s" id="push-opt-deactive" style="padding:8px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;transition:all 0.2s">Deactive</button>
+          </div>
         </div>
 
         <label>Reminder Channel</label>
@@ -2160,8 +2163,9 @@ button:disabled, button.a:disabled, button.p:disabled {
         </div>
 
         <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="outline s" id="test-push-btn">🔔 Test Push Alert</button>
           <button class="outline s" id="test-email-btn">📧 Send Test Reminder Email</button>
-          <button class="outline s" id="test-sound-btn">🔔 Test Alert Chime</button>
+          <button class="outline s" id="test-sound-btn">🎵 Test Alert Chime</button>
         </div>
         <div class="sub" style="margin-top:8px" id="reminder-email-sub"></div>
 
@@ -3764,49 +3768,93 @@ async function dispatchPushNotification(title, options = {}) {
   return false;
 }
 
+// HELPER: IS PUSH ACTIVE?
+function isPushActive() {
+  if (!("Notification" in window)) return false;
+  if (Notification.permission !== "granted") return false;
+  const saved = localStorage.getItem("sm_push_status");
+  return saved !== "deactive"; // Defaults to active if browser permission is granted
+}
+
 // UPDATE NOTIFICATION UI IN SETTINGS
 function updateNotificationUI() {
-  const btn = $("enable-push-btn");
+  const activeBtn = $("push-opt-active");
+  const deactiveBtn = $("push-opt-deactive");
   const sub = $("push-notif-sub");
   const hint = $("push-notif-hint");
-  if (!btn) return;
+  if (!activeBtn || !deactiveBtn) return;
 
   if (!("Notification" in window)) {
-    btn.textContent = "Not Supported";
-    btn.disabled = true;
-    btn.className = "outline s";
+    activeBtn.disabled = true;
+    deactiveBtn.disabled = true;
+    activeBtn.style.opacity = "0.5";
+    deactiveBtn.style.opacity = "0.5";
     if (sub) sub.textContent = "Notifications are not supported in this browser.";
     return;
   }
 
   const perm = Notification.permission;
-  if (perm === "granted") {
-    btn.textContent = "Active ✓ (Test Alert)";
-    btn.disabled = false;
-    btn.className = "a s";
-    btn.style.background = "var(--teal)";
-    if (sub) sub.textContent = "Notifications are active! Tap to send an instant test alert.";
-    if (hint) { hint.hidden = true; hint.textContent = ""; }
-  } else if (perm === "denied") {
-    btn.textContent = "Blocked ✕";
-    btn.disabled = false;
-    btn.className = "outline s";
-    btn.style.color = "var(--bad)";
-    btn.style.borderColor = "var(--bad)";
-    btn.style.background = "var(--bad-bg)";
+  const active = isPushActive();
+
+  if (perm === "denied") {
+    activeBtn.disabled = false;
+    deactiveBtn.disabled = false;
+    activeBtn.className = "outline s";
+    activeBtn.style.background = "#fff";
+    activeBtn.style.color = "#7a9294";
+    activeBtn.style.borderColor = "var(--bd)";
+    activeBtn.style.boxShadow = "none";
+    activeBtn.textContent = "Active";
+
+    deactiveBtn.className = "a s";
+    deactiveBtn.style.background = "#FEECEB";
+    deactiveBtn.style.color = "#E53935";
+    deactiveBtn.style.borderColor = "#FFCDD2";
+    deactiveBtn.style.boxShadow = "none";
+    deactiveBtn.textContent = "Deactive ✕";
+
     if (sub) sub.textContent = "Notification permission was blocked in this browser.";
     if (hint) {
       hint.hidden = false;
-      hint.textContent = "⚠️ Click the site lock/settings icon in your browser address bar and allow Notifications.";
+      hint.textContent = "⚠️ Click the site lock/settings icon in your browser address bar and set Notifications to 'Allow'.";
     }
+  } else if (active) {
+    activeBtn.disabled = false;
+    deactiveBtn.disabled = false;
+    activeBtn.className = "a s";
+    activeBtn.style.background = "var(--teal)";
+    activeBtn.style.color = "#fff";
+    activeBtn.style.borderColor = "var(--teal)";
+    activeBtn.style.boxShadow = "0 2px 6px rgba(0,168,137,0.3)";
+    activeBtn.textContent = "Active ✓";
+
+    deactiveBtn.className = "outline s";
+    deactiveBtn.style.background = "#fff";
+    deactiveBtn.style.color = "#4d7174";
+    deactiveBtn.style.borderColor = "var(--bd)";
+    deactiveBtn.style.boxShadow = "none";
+    deactiveBtn.textContent = "Deactive";
+
+    if (sub) sub.textContent = "Notifications are active! You will receive alerts when doses are due.";
+    if (hint) { hint.hidden = true; hint.textContent = ""; }
   } else {
-    btn.textContent = "Enable";
-    btn.disabled = false;
-    btn.className = "a s";
-    btn.style.background = "";
-    btn.style.color = "";
-    btn.style.borderColor = "";
-    if (sub) sub.textContent = "Receive native browser reminders when doses are due.";
+    activeBtn.disabled = false;
+    deactiveBtn.disabled = false;
+    activeBtn.className = "outline s";
+    activeBtn.style.background = "#fff";
+    activeBtn.style.color = "#4d7174";
+    activeBtn.style.borderColor = "var(--bd)";
+    activeBtn.style.boxShadow = "none";
+    activeBtn.textContent = "Active";
+
+    deactiveBtn.className = "a s";
+    deactiveBtn.style.background = "#FEECEB";
+    deactiveBtn.style.color = "#E53935";
+    deactiveBtn.style.borderColor = "#FFCDD2";
+    deactiveBtn.style.boxShadow = "0 2px 6px rgba(229,57,53,0.15)";
+    deactiveBtn.textContent = "Deactive ✕";
+
+    if (sub) sub.textContent = "Notifications are deactivated. Dose alerts are paused.";
     if (hint) { hint.hidden = true; hint.textContent = ""; }
   }
 
@@ -3823,50 +3871,80 @@ function updateNotificationUI() {
   }
 }
 
-// ENABLE OR TEST PUSH NOTIFICATIONS
-$("enable-push-btn").onclick = async () => {
-  if (!("Notification" in window)) {
-    alert("Desktop notifications are not supported by your browser.");
-    return;
-  }
+// ACTIVE BUTTON CLICK
+if ($("push-opt-active")) {
+  $("push-opt-active").onclick = async () => {
+    if (!("Notification" in window)) {
+      alert("Desktop notifications are not supported by your browser.");
+      return;
+    }
+    const currentPerm = Notification.permission;
+    if (currentPerm === "denied") {
+      alert("Notifications are currently blocked by your browser settings.\n\nPlease tap the lock or settings icon in your address bar, set Notifications to 'Allow', and refresh the page.");
+      return;
+    }
+    if (currentPerm !== "granted") {
+      try {
+        let perm = null;
+        try {
+          perm = await Notification.requestPermission();
+        } catch (e) {
+          perm = await new Promise(resolve => Notification.requestPermission(resolve));
+        }
+        if (perm !== "granted") {
+          showToast("Notification permission denied", true);
+          localStorage.setItem("sm_push_status", "deactive");
+          updateNotificationUI();
+          return;
+        }
+      } catch (err) {
+        console.error("Error requesting notification permission:", err);
+        return;
+      }
+    }
 
-  const currentPerm = Notification.permission;
-  if (currentPerm === "granted") {
-    // Already granted: trigger an immediate test notification with sound!
+    localStorage.setItem("sm_push_status", "active");
+    if (S && S.set) { S.set.pushStatus = "active"; save(); }
+    updateNotificationUI();
+    playChime('success');
+    showToast("Notifications activated!");
+    await dispatchPushNotification("SadikMed Tracker", {
+      body: "Notifications active! You will be alerted when medication doses are due.",
+      tag: "active-status-alert"
+    });
+  };
+}
+
+// DEACTIVE BUTTON CLICK
+if ($("push-opt-deactive")) {
+  $("push-opt-deactive").onclick = () => {
+    localStorage.setItem("sm_push_status", "deactive");
+    if (S && S.set) { S.set.pushStatus = "deactive"; save(); }
+    updateNotificationUI();
+    playChime('alert');
+    showToast("Notifications deactivated.");
+  };
+}
+
+// TEST PUSH ALERT BUTTON CLICK
+if ($("test-push-btn")) {
+  $("test-push-btn").onclick = async () => {
+    if (!("Notification" in window)) {
+      alert("Desktop notifications are not supported by your browser.");
+      return;
+    }
+    if (Notification.permission !== "granted") {
+      alert("Please tap 'Active' first to allow notifications in your browser.");
+      return;
+    }
     await dispatchPushNotification("⏰ SadikMed Dose Reminder (Test)", {
-      body: "Native notifications are active! You will be alerted when medication doses are due.",
+      body: "Native notifications are working! You will receive alerts when doses are due.",
       tag: "test-dose-alert"
     });
     playChime('alert');
-    showToast("Test notification sent!");
-    updateNotificationUI();
-    return;
-  }
-
-  if (currentPerm === "denied") {
-    alert("Notifications are currently blocked by your browser settings.\n\nPlease tap the lock or settings icon in your address bar, set Notifications to 'Allow', and refresh the page.");
-    updateNotificationUI();
-    return;
-  }
-
-  // Request permission
-  try {
-    const perm = await Notification.requestPermission();
-    updateNotificationUI();
-    if (perm === "granted") {
-      await dispatchPushNotification("SadikMed Tracker", {
-        body: "Notifications enabled! You will be reminded when your doses are due.",
-        tag: "welcome-alert"
-      });
-      playChime('success');
-      showToast("Notifications enabled!");
-    } else if (perm === "denied") {
-      showToast("Notification permission denied");
-    }
-  } catch (err) {
-    console.error("Error requesting notification permission:", err);
-  }
-};
+    showToast("Test push notification sent!");
+  };
+}
 
 $("test-sound-btn").onclick = () => {
   playChime('success');
@@ -3938,7 +4016,7 @@ function markAlertSent(key) {
 }
 
 setInterval(async () => {
-  if (!cur || !("Notification" in window) || Notification.permission !== "granted" || !S || !S.meds) return;
+  if (!cur || !("Notification" in window) || Notification.permission !== "granted" || !S || !S.meds || !isPushActive()) return;
   const currentHM = getNowHM();
   const todayStr = ymd(new Date());
   const remindBeforeMin = parseInt(S.set && S.set.nb ? S.set.nb : 0, 10);
