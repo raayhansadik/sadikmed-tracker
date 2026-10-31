@@ -3601,14 +3601,21 @@ $("lo").onclick = out;
 // DISPATCH OTP CALL
 async function requestOtp(recipient, channel, reason, name) {
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 12000);
     const res = await fetch('/api/sadikmed/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recipient, channel, reason, name })
+      body: JSON.stringify({ recipient, channel, reason, name }),
+      signal: controller.signal
     });
+    clearTimeout(timer);
     const json = await res.json();
     return json;
   } catch (e) {
+    if (e.name === 'AbortError') {
+      return { success: false, error: 'Request timed out. Please tap Send again.' };
+    }
     return { success: false, error: 'Could not connect to verification server. Please check your internet connection.' };
   }
 }
@@ -3616,14 +3623,21 @@ async function requestOtp(recipient, channel, reason, name) {
 // VERIFY OTP CALL
 async function verifyOtp(recipient, code, token) {
   try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
     const res = await fetch('/api/sadikmed/verify-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recipient, code, token })
+      body: JSON.stringify({ recipient, code, token }),
+      signal: controller.signal
     });
+    clearTimeout(timer);
     const json = await res.json();
     return json;
   } catch (e) {
+    if (e.name === 'AbortError') {
+      return { success: false, error: 'Verification timed out. Please try again.' };
+    }
     return { success: false, error: 'Could not connect to verification server. Please try again.' };
   }
 }

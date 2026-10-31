@@ -48,6 +48,28 @@ const otpCleanupTimer = setInterval(() => {
 if (otpCleanupTimer.unref) otpCleanupTimer.unref();
 
 // Helper: Google Gmail SMTP Dispatcher
+let cachedGmailTransporter = null;
+let cachedGmailKey = '';
+
+function getGmailTransporter(user, pass) {
+  const key = `${user}:${pass}`;
+  if (cachedGmailTransporter && cachedGmailKey === key) {
+    return cachedGmailTransporter;
+  }
+  cachedGmailTransporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    pool: true,
+    maxConnections: 3,
+    socketTimeout: 8000,
+    connectionTimeout: 6000,
+    auth: { user, pass }
+  });
+  cachedGmailKey = key;
+  return cachedGmailTransporter;
+}
+
 async function dispatchMail(mailOptions) {
   const configFile = path.join(BASE_DIR, 'data', 'email-config.json');
   let config = { enabled: false };
@@ -70,16 +92,7 @@ async function dispatchMail(mailOptions) {
   // 1. Send via Google Gmail SMTP (smtp.gmail.com:465 SSL)
   if (isRealPass && user) {
     try {
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user,
-          pass
-        }
-      });
-
+      const transporter = getGmailTransporter(user, pass);
       const senderFrom = process.env.MAIL_FROM || config.from || `"SadikMed Tracker" <${user}>`;
       const info = await transporter.sendMail({
         from: senderFrom,
@@ -94,6 +107,7 @@ async function dispatchMail(mailOptions) {
       return { sent: true, realSmtp: true, messageId: info.messageId };
     } catch (smtpErr) {
       console.error(`[GOOGLE GMAIL SMTP ERROR]:`, smtpErr.message);
+      cachedGmailTransporter = null;
     }
   }
 
@@ -503,20 +517,12 @@ function requestHandler(req, res) {
 
           let emailDelivery = null;
           if (channel === 'email' && recipient.includes('@')) {
-            const logoPath = path.join(BASE_DIR, 'assets', 'sadikmed-logo.png');
-            const hasLogo = fs.existsSync(logoPath);
-            const logoSrc = hasLogo ? 'cid:sadikmedlogo' : 'https://sadikmed.vercel.app/assets/sadikmed-logo.png';
-            const attachments = hasLogo ? [{
-              filename: 'sadikmed-logo.png',
-              path: logoPath,
-              cid: 'sadikmedlogo'
-            }] : [];
+            const logoSrc = 'https://sadikmed.vercel.app/assets/sadikmed-logo.png';
 
             emailDelivery = await dispatchMail({
               to: recipient,
               subject: `SadikMed Tracker Verification Code: ${code}`,
               replyTo: 'info.raayhansadik@gmail.com',
-              attachments,
               html: `
                 <div style="font-family:system-ui,-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:24px;background:#EAF7F4;color:#013E43">
                   <div style="background:#013E43;color:#fff;padding:16px 22px;border-radius:14px">
@@ -879,20 +885,12 @@ function requestHandler(req, res) {
             return res.end(JSON.stringify({ success: false, error: 'A valid email address is required.' }));
           }
 
-          const logoPath = path.join(BASE_DIR, 'assets', 'sadikmed-logo.png');
-          const hasLogo = fs.existsSync(logoPath);
-          const logoSrc = hasLogo ? 'cid:sadikmedlogo' : 'https://sadikmed.vercel.app/assets/sadikmed-logo.png';
-          const attachments = hasLogo ? [{
-            filename: 'sadikmed-logo.png',
-            path: logoPath,
-            cid: 'sadikmedlogo'
-          }] : [];
+          const logoSrc = 'https://sadikmed.vercel.app/assets/sadikmed-logo.png';
 
           const dispatchRes = await dispatchMail({
             to: email,
             subject: `Medication Reminder: Time to take ${medName} (${dose})`,
             replyTo: 'info.raayhansadik@gmail.com',
-            attachments,
             html: `
               <div style="font-family:system-ui,-apple-system,sans-serif;max-width:540px;margin:0 auto;padding:24px;background:#EAF7F4;color:#013E43">
                 <div style="background:#013E43;color:#fff;padding:16px 22px;border-radius:14px">
