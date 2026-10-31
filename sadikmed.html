@@ -46,9 +46,9 @@ body::before {
   z-index: 60;
 }
 
-/* Creative Faded Medical Sketches Background - Sparse & Elegant */
-.bg-medical-sketches {
-  position: fixed;
+/* Creative Faded Medical Sketches Background - Login / Auth Page ONLY */
+#auth .bg-medical-sketches {
+  position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -1574,11 +1574,11 @@ button:disabled, button.a:disabled, button.p:disabled {
 </head>
 <body>
 
-<!-- CREATIVE FADED MEDICAL SKETCHES BACKGROUND -->
-<div class="bg-medical-sketches" aria-hidden="true"></div>
-
 <!-- AUTHENTICATION VIEW -->
 <div id="auth" class="au" hidden>
+  <!-- Creative Faded Medical Sketches Background - ONLY on login page -->
+  <div class="bg-medical-sketches" aria-hidden="true"></div>
+
   <!-- Ambient floating medical icons around login card -->
   <div class="auth-bg-decorations" aria-hidden="true">
     <!-- Top-Left Capsule Pill -->
@@ -2159,10 +2159,11 @@ button:disabled, button.a:disabled, button.p:disabled {
           </div>
         </div>
 
-        <div style="margin-top:18px;display:flex;gap:10px">
+        <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
           <button class="outline s" id="test-email-btn">📧 Send Test Reminder Email</button>
           <button class="outline s" id="test-sound-btn">🔔 Test Alert Chime</button>
         </div>
+        <div class="sub" style="margin-top:8px" id="reminder-email-sub"></div>
 
         <div class="note">Preferences are automatically synced with the local backend and browser storage.</div>
       </div>
@@ -3808,6 +3809,18 @@ function updateNotificationUI() {
     if (sub) sub.textContent = "Receive native browser reminders when doses are due.";
     if (hint) { hint.hidden = true; hint.textContent = ""; }
   }
+
+  const emailSub = $("reminder-email-sub");
+  if (emailSub) {
+    const defaultEmail = (cur && cur.email && cur.email.includes("@")) ? cur.email : "";
+    const typedTarget = $("nc") ? $("nc").value.trim() : "";
+    const effectiveEmail = typedTarget.includes("@") ? typedTarget : defaultEmail;
+    if (effectiveEmail) {
+      emailSub.innerHTML = `Email reminders will be sent to: <strong>${esc(effectiveEmail)}</strong>`;
+    } else {
+      emailSub.innerHTML = "";
+    }
+  }
 }
 
 // ENABLE OR TEST PUSH NOTIFICATIONS
@@ -3861,32 +3874,52 @@ $("test-sound-btn").onclick = () => {
 };
 
 $("test-email-btn").onclick = async () => {
-  const target = $("nc").value.trim() || (cur ? cur.email : "");
+  const btn = $("test-email-btn");
+  let target = $("nc") ? $("nc").value.trim() : "";
   if (!target || !target.includes("@")) {
-    alert("Please provide a valid email in the notification target field.");
+    target = (cur && cur.email && cur.email.includes("@")) ? cur.email : "";
+  }
+  if (!target || !target.includes("@")) {
+    target = prompt("Enter an email address to receive your test medication reminder:", (cur && cur.email) ? cur.email : "")?.trim() || "";
+  }
+  if (!target || !target.includes("@")) {
+    showToast("Please provide a valid email address.", true);
     return;
   }
-  showToast("Sending test reminder email...");
+
+  btn.disabled = true;
+  btn.textContent = "⏳ Sending test reminder...";
+  showToast("Sending test reminder to " + target + "...");
+
+  const sampleMed = (S && S.meds && S.meds.length) ? S.meds[0] : null;
+  const medName = sampleMed ? sampleMed.name : "Cutin";
+  const dose = sampleMed ? sampleMed.dose : "2.5";
+  const time = sampleMed ? (getMedTimes(sampleMed)[0] || "09:00") : "09:00";
+
   try {
     const res = await fetch('/api/sadikmed/test-reminder', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: target, medName: "Metformin", dose: "500 mg", time: "08:00" })
+      body: JSON.stringify({ email: target, medName, dose, time })
     });
     const json = await res.json();
     if (json.success) {
-      if (json.delivery && json.delivery.previewUrl) {
-        showToast("Email dispatched! Check preview link in server console.");
-      } else {
-        showToast("Test reminder email sent!");
-      }
+      playChime('success');
+      showToast("Test reminder email sent to " + target + "!");
     } else {
       alert("Error: " + (json.error || "Failed to dispatch email"));
     }
   } catch (e) {
-    alert("Could not reach backend notification service.");
+    alert("Could not reach backend notification service. Please check your connection.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "📧 Send Test Reminder Email";
   }
 };
+
+if ($("nc")) {
+  $("nc").addEventListener("input", updateNotificationUI);
+}
 
 // PUSH REMINDER INTERVAL (RUNS EVERY 20S IN UTC+06:00 WITH SMART OFFSET & DUE ALERTS)
 const sentAlertsKey = "sm_sent_alerts_" + ymd(new Date());
@@ -4160,46 +4193,50 @@ async function submit() {
     const recipient = email;
     $("ab").disabled = true;
     $("ab").textContent = "Sending code to email...";
-    const otpRes = await requestOtp(recipient, channel, 'register', name);
-    $("ab").disabled = false;
-    $("ab").textContent = "Send Verification Code";
+    try {
+      const otpRes = await requestOtp(recipient, channel, 'register', name);
+      if (!otpRes.success) {
+        e.textContent = otpRes.error || "Failed to send verification code to your email. Please try again.";
+        return;
+      }
 
-    if (!otpRes.success) {
-      e.textContent = otpRes.error || "Failed to send verification code to your email. Please try again.";
-      return;
-    }
+      const salt = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, "0")).join("");
+      const hash = await hx(pw, salt);
 
-    const salt = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, "0")).join("");
-    const hash = await hx(pw, salt);
+      pendingAuth = {
+        type: 'register',
+        data: {
+          id: "a" + Date.now(),
+          name,
+          phone,
+          email,
+          login: phone,
+          salt,
+          hash,
+          avatar: null,
+          at: Date.now()
+        },
+        recipient,
+        channel,
+        token: otpRes.otpToken || null
+      };
 
-    pendingAuth = {
-      type: 'register',
-      data: {
-        id: "a" + Date.now(),
-        name,
-        phone,
-        email,
-        login: phone,
-        salt,
-        hash,
-        avatar: null,
-        at: Date.now()
-      },
-      recipient,
-      channel,
-      token: otpRes.otpToken || null
-    };
-
-    $("auth-main-fields").hidden = true;
-    $("auth-otp-step").hidden = false;
-    $("otp-title").textContent = "Verify Your Email";
-    $("otp-subtitle").textContent = `6-digit verification code sent to ${recipient}`;
-    $("otp-code-input").value = "";
-    $("otp-error").textContent = "";
-    if (otpRes.emailDelivery && otpRes.emailDelivery.realSmtp === false && otpRes.emailDelivery.previewUrl) {
-      $("otp-notice").innerHTML = `⚠️ <strong>Note:</strong> Real inbox delivery requires Gmail App Password in Vercel. For now, view your email at: <a href="${otpRes.emailDelivery.previewUrl}" target="_blank" style="color:#00A889;text-decoration:underline;font-weight:600">Open Webmail Inbox</a>`;
-    } else {
-      $("otp-notice").textContent = "A verification code has been sent to your email. Please check your inbox (and spam folder).";
+      $("auth-main-fields").hidden = true;
+      $("auth-otp-step").hidden = false;
+      $("otp-title").textContent = "Verify Your Email";
+      $("otp-subtitle").textContent = `6-digit verification code sent to ${recipient}`;
+      $("otp-code-input").value = "";
+      $("otp-error").textContent = "";
+      if (otpRes.emailDelivery && otpRes.emailDelivery.realSmtp === false && otpRes.emailDelivery.previewUrl) {
+        $("otp-notice").innerHTML = `⚠️ <strong>Note:</strong> Real inbox delivery requires Gmail App Password in Vercel. For now, view your email at: <a href="${otpRes.emailDelivery.previewUrl}" target="_blank" style="color:#00A889;text-decoration:underline;font-weight:600">Open Webmail Inbox</a>`;
+      } else {
+        $("otp-notice").textContent = "A verification code has been sent to your email. Please check your inbox (and spam folder).";
+      }
+    } catch (err) {
+      e.textContent = "Error: " + (err.message || "Failed to proceed with registration.");
+    } finally {
+      $("ab").disabled = false;
+      $("ab").textContent = "Send Verification Code";
     }
   }
 }

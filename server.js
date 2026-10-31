@@ -60,10 +60,9 @@ function getGmailTransporter(user, pass) {
     host: 'smtp.gmail.com',
     port: 465,
     secure: true,
-    pool: true,
-    maxConnections: 3,
-    socketTimeout: 8000,
-    connectionTimeout: 6000,
+    pool: false,
+    socketTimeout: 7000,
+    connectionTimeout: 5000,
     auth: { user, pass }
   });
   cachedGmailKey = key;
@@ -113,11 +112,15 @@ async function dispatchMail(mailOptions) {
 
   // 2. Fallback to Ethereal Webmail Sandbox when Google App Password is not yet set
   try {
-    const testAccount = await nodemailer.createTestAccount();
+    const testAccountPromise = nodemailer.createTestAccount();
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Test mail sandbox timed out')), 4000));
+    const testAccount = await Promise.race([testAccountPromise, timeoutPromise]);
     const testTransporter = nodemailer.createTransport({
       host: testAccount.smtp.host,
       port: testAccount.smtp.port,
       secure: testAccount.smtp.secure,
+      socketTimeout: 5000,
+      connectionTimeout: 4000,
       auth: {
         user: testAccount.user,
         pass: testAccount.pass
