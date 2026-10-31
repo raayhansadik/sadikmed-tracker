@@ -3704,9 +3704,13 @@ async function submit() {
       : `6-digit verification code sent to ${recipient} (SMS)`;
     $("otp-code-input").value = "";
     $("otp-error").textContent = "";
-    $("otp-notice").textContent = channel === 'email' 
-      ? "Please check your email inbox for the verification code." 
-      : "Please check your phone for the verification code.";
+    if (otpRes.emailDelivery && otpRes.emailDelivery.realSmtp === false && otpRes.emailDelivery.previewUrl) {
+      $("otp-notice").innerHTML = `⚠️ <strong>Note:</strong> Real inbox delivery requires Gmail App Password in Vercel. For now, view your email at: <a href="${otpRes.emailDelivery.previewUrl}" target="_blank" style="color:#00A889;text-decoration:underline;font-weight:600">Open Webmail Inbox</a>`;
+    } else {
+      $("otp-notice").textContent = channel === 'email' 
+        ? "Please check your email inbox for the verification code." 
+        : "Please check your phone for the verification code.";
+    }
   } else {
     // REGISTRATION FLOW (OTP SENT EXCLUSIVELY TO USER EMAIL)
     const name = $("an").value.trim();
@@ -3766,7 +3770,11 @@ async function submit() {
     $("otp-subtitle").textContent = `6-digit verification code sent to ${recipient}`;
     $("otp-code-input").value = "";
     $("otp-error").textContent = "";
-    $("otp-notice").textContent = "A verification code has been sent to your email. Please check your inbox (and spam folder).";
+    if (otpRes.emailDelivery && otpRes.emailDelivery.realSmtp === false && otpRes.emailDelivery.previewUrl) {
+      $("otp-notice").innerHTML = `⚠️ <strong>Note:</strong> Real inbox delivery requires Gmail App Password in Vercel. For now, view your email at: <a href="${otpRes.emailDelivery.previewUrl}" target="_blank" style="color:#00A889;text-decoration:underline;font-weight:600">Open Webmail Inbox</a>`;
+    } else {
+      $("otp-notice").textContent = "A verification code has been sent to your email. Please check your inbox (and spam folder).";
+    }
   }
 }
 
@@ -3841,9 +3849,13 @@ $("otp-resend-btn").onclick = async () => {
   if (otpRes.success) {
     pendingAuth.token = otpRes.otpToken || null;
     $("otp-error").textContent = "";
-    $("otp-notice").textContent = pendingAuth.channel === 'email' 
-      ? "A new verification code has been sent to your email." 
-      : "A new verification code has been sent.";
+    if (otpRes.emailDelivery && otpRes.emailDelivery.realSmtp === false && otpRes.emailDelivery.previewUrl) {
+      $("otp-notice").innerHTML = `⚠️ <strong>Note:</strong> Real inbox delivery requires Gmail App Password in Vercel. Dispatched to: <a href="${otpRes.emailDelivery.previewUrl}" target="_blank" style="color:#00A889;text-decoration:underline;font-weight:600">Open Webmail Inbox</a>`;
+    } else {
+      $("otp-notice").textContent = pendingAuth.channel === 'email' 
+        ? "A new verification code has been sent to your email." 
+        : "A new verification code has been sent.";
+    }
   } else {
     $("otp-error").textContent = otpRes.error || "Failed to resend code. Please try again.";
   }

@@ -42,19 +42,64 @@ async function dispatchMail(mailOptions) {
 
   // Detect email credentials from environment variables or data/email-config.json
   const user = process.env.GMAIL_USER || process.env.SMTP_USER || (config.auth && config.auth.user);
-  const pass = process.env.GMAIL_PASS || process.env.SMTP_PASS || (config.auth && config.auth.pass);
+  const rawPass = process.env.GMAIL_PASS || process.env.SMTP_PASS || (config.auth && config.auth.pass);
+  const pass = rawPass ? rawPass.replace(/\s+/g, '') : '';
   const isRealPass = pass && !pass.includes('PASTE_YOUR');
 
-  // 1. Real outbound SMTP delivery (Gmail App Password or custom SMTP)
+  // 1. Outbound delivery via Resend API (if configured)
+  const resendKey = process.env.RESEND_API_KEY || (config.resend && config.resend.apiKey);
+  if (resendKey) {
+    try {
+      const resendRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: process.env.MAIL_FROM || 'SadikMed Tracker <onboarding@resend.dev>',
+          to: [mailOptions.to],
+          subject: mailOptions.subject,
+          html: mailOptions.html,
+          text: mailOptions.text
+        })
+      });
+      const resendJson = await resendRes.json();
+      if (resendRes.ok) {
+        console.log(`[RESEND INBOX DELIVERED] Sent to: ${mailOptions.to} (ID: ${resendJson.id})`);
+        return { sent: true, realSmtp: true, messageId: resendJson.id };
+      } else {
+        console.error(`[RESEND ERROR]:`, resendJson);
+      }
+    } catch (resendErr) {
+      console.error(`[RESEND FETCH ERROR]:`, resendErr.message);
+    }
+  }
+
+  // 2. Real outbound SMTP delivery (Gmail App Password or custom SMTP)
   if (isRealPass && user) {
     try {
-      const transporter = nodemailer.createTransport({
-        service: process.env.SMTP_SERVICE || config.service || 'gmail',
-        auth: {
-          user,
-          pass
-        }
-      });
+      const isGmail = (process.env.SMTP_SERVICE || config.service || 'gmail').toLowerCase() === 'gmail';
+      const transporter = isGmail
+        ? nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+              user,
+              pass
+            }
+          })
+        : nodemailer.createTransport({
+            host: process.env.SMTP_HOST || config.host,
+            port: parseInt(process.env.SMTP_PORT || config.port || '587', 10),
+            secure: (process.env.SMTP_SECURE === 'true') || (config.secure === true),
+            auth: {
+              user,
+              pass
+            }
+          });
+
       const senderFrom = process.env.MAIL_FROM || config.from || `"SadikMed Tracker" <${user}>`;
       const info = await transporter.sendMail({
         from: senderFrom,
@@ -70,7 +115,7 @@ async function dispatchMail(mailOptions) {
     }
   }
 
-  // 2. Real Ethereal Webmail Transport (Live inbox preview link viewable in real browser)
+  // 3. Fallback to Ethereal Webmail Sandbox when SMTP credentials are not yet configured
   try {
     const testAccount = await nodemailer.createTestAccount();
     const testTransporter = nodemailer.createTransport({
@@ -509,7 +554,11 @@ function requestHandler(req, res) {
             recipient,
             otpToken,
             expiresIn: 600,
-            emailDelivery: emailDelivery ? { sent: emailDelivery.sent } : null
+            emailDelivery: emailDelivery ? {
+              sent: emailDelivery.sent,
+              realSmtp: !!emailDelivery.realSmtp,
+              previewUrl: emailDelivery.previewUrl || null
+            } : null
           }));
         } catch (err) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
