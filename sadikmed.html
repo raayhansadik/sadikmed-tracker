@@ -1,0 +1,3836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SadikMed Tracker</title>
+<link rel="icon" type="image/png" href="/assets/sadikmed-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal: #013E43;          /* Primary buttons, Headings, Primary text */
+  --teal-dark: #00282C;
+  --em: #00A889;            /* Active buttons, Success indicators */
+  --em-hover: #008f74;
+  --mint: #EAF7F4;          /* Secondary backgrounds, Completed medication doses */
+  --mint-hover: #D7F0EA;
+  --bd: #DDE5E5;            /* Borders and dividers */
+  --mut: #4D7174;           /* Muted text */
+  --bad: #D64545;           /* Missed indicator */
+  --bad-bg: #FDECEC;
+  --warn: #E68A00;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: #FFFFFF;
+  color: var(--teal);
+  font: 15px/1.5 'Plus Jakarta Sans', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: #FFFFFF;
+  z-index: 60;
+}
+
+/* Creative Faded Medical Sketches Background - Sparse & Elegant */
+.bg-medical-sketches {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url('/assets/medical-sketches-bg.svg');
+  background-repeat: repeat;
+  background-size: 580px 580px;
+  background-position: top center;
+  opacity: 0.12;
+}
+
+#app, #auth {
+  position: relative;
+  z-index: 1;
+}
+
+h1 { font-size: 24px; margin: 0 0 16px; font-weight: 800; color: var(--teal); letter-spacing: -0.02em; }
+h2 { font-size: 18px; margin: 0 0 12px; font-weight: 700; color: var(--teal); letter-spacing: -0.01em; }
+h3 { font-size: 15px; margin: 0 0 8px; font-weight: 700; color: var(--teal); }
+.sub { color: var(--mut); font-size: 13px; font-weight: 500; }
+.note { font-size: 12px; color: var(--mut); margin-top: 8px; line-height: 1.5; }
+
+/* Distinctive Page / View Title Plaque (Clearly differentiated from clickable buttons) */
+.v-title-box, .v > h1 {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F4FAF8 100%);
+  border: 1px solid var(--bd);
+  border-left: 4px solid var(--em);
+  border-radius: 12px;
+  padding: 8px 18px;
+  margin: 0 0 16px 0;
+  width: fit-content;
+  box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(1, 62, 67, 0.05);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--teal);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  cursor: default;
+  user-select: text;
+}
+.v-title-box .v-title-dot, .v > h1 .v-title-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--em);
+  box-shadow: 0 0 6px rgba(0, 168, 137, 0.55);
+  flex-shrink: 0;
+  display: inline-block;
+}
+.v-title-box .t-badge, .v > h1 .t-badge {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  color: var(--teal);
+  font-size: 20px;
+  font-weight: 800;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+/* Sticky Header with Frosted Glass */
+.hd {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--bd);
+  box-shadow: 0 1px 4px rgba(1, 62, 67, 0.03);
+}
+.hi {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.br {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 800;
+  font-size: 23px;
+  color: var(--teal);
+  white-space: nowrap;
+  text-decoration: none;
+  letter-spacing: -0.025em;
+}
+.br img, .brand-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(1, 62, 67, 0.16);
+}
+.ac .br .brand-logo {
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(1, 62, 67, 0.18);
+}
+.br em { font-style: normal; color: var(--em); }
+
+/* Segmented Pill Navigation Bar */
+.nv {
+  display: flex;
+  gap: 4px;
+  margin-left: 10px;
+  background: var(--mint);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--bd);
+}
+.nv button {
+  border: 0;
+  background: none;
+  padding: 9px 18px;
+  border-radius: 10px;
+  color: var(--teal);
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.18s ease;
+}
+.nv button:hover {
+  background: rgba(0, 168, 137, 0.1);
+}
+.nv button.on {
+  background: var(--em);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 168, 137, 0.28);
+}
+
+.rt { margin-left: auto; position: relative; display: flex; align-items: center; gap: 12px; }
+.sync-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 99px;
+  background: var(--mint);
+  color: var(--teal);
+  border: 1px solid var(--bd);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.av {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 0;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1.5px var(--bd);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.av:hover { transform: scale(1.05); }
+.av img { width: 100%; height: 100%; object-fit: cover; }
+.dd {
+  position: absolute;
+  right: 0;
+  top: 50px;
+  background: #FFFFFF;
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  padding: 8px;
+  min-width: 230px;
+  box-shadow: 0 10px 30px rgba(1, 62, 67, 0.12);
+  z-index: 50;
+  animation: fadeIn 0.15s ease;
+}
+.dd .who {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--bd);
+  margin-bottom: 6px;
+}
+.dd button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: none;
+  padding: 10px 12px;
+  border-radius: 9px;
+  color: var(--teal);
+  font-weight: 600;
+  font-size: 13px;
+  transition: background 0.15s ease;
+}
+.dd button:hover { background: var(--mint); }
+.hb {
+  display: none;
+  font-size: 20px;
+  line-height: 1;
+  padding: 8px 11px;
+  background: var(--mint);
+  border: 1.5px solid var(--bd);
+  border-radius: 10px;
+  color: var(--teal);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.hb:hover {
+  background: var(--mint-hover);
+  border-color: var(--em);
+}
+
+@media(max-width: 920px) {
+  .hb { display: inline-flex; align-items: center; justify-content: center; }
+  .nv {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    flex-direction: column;
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--bd);
+    padding: 12px 18px;
+    margin: 0;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 14px 30px rgba(1, 62, 67, 0.12);
+    z-index: 50;
+    gap: 6px;
+  }
+  .nv.open { display: flex; animation: fadeIn 0.18s ease; }
+  .nv button { text-align: left; width: 100%; padding: 12px 14px; font-size: 14px; border-radius: 10px; }
+}
+
+/* Main Layout & Cards */
+.w { max-width: 1060px; margin: 0 auto; padding: 22px 18px 46px; }
+.g { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: stretch; }
+.c {
+  background: #FFFFFF;
+  border: 1px solid var(--bd);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 4px 18px -2px rgba(1, 62, 67, 0.04), 0 2px 6px -1px rgba(1, 62, 67, 0.02);
+  transition: box-shadow 0.2s ease;
+}
+
+/* Dashboard Two-Column Persistent Equal Height & Alignment */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+.calendar-card,
+.day-detail-card {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.calendar-card .cal {
+  width: 100%;
+  box-sizing: border-box;
+}
+.calendar-card .lg {
+  margin-top: auto;
+  padding-top: 12px;
+}
+#dl {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 10px;
+  min-height: 150px;
+  max-height: 320px;
+}
+#dl::-webkit-scrollbar {
+  width: 5px;
+}
+#dl::-webkit-scrollbar-track {
+  background: transparent;
+}
+#dl::-webkit-scrollbar-thumb {
+  background: #DDE5E5;
+  border-radius: 4px;
+}
+#dl::-webkit-scrollbar-thumb:hover {
+  background: #BDD4D4;
+}
+.quick-log-wrap {
+  margin-top: auto;
+  border-top: 1px solid var(--bd);
+  padding-top: 12px;
+}
+
+/* Creative Stat Widgets / KPI Cards */
+.st {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.st-card {
+  background: var(--mint);
+  border: 1px solid var(--bd);
+  border-radius: 15px;
+  padding: 14px 14px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  box-shadow: 0 2px 8px rgba(1, 62, 67, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.st-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(1, 62, 67, 0.07);
+}
+.st-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--bd);
+  background: #FFFFFF;
+  color: var(--teal);
+  transition: all 0.22s ease;
+}
+.st-icon-box.done-all {
+  background: #00A889 !important;
+  color: #FFFFFF !important;
+  border-color: #00A889 !important;
+  box-shadow: 0 4px 14px rgba(0, 168, 137, 0.3) !important;
+}
+.st-icon-box.done-all svg {
+  stroke: #FFFFFF !important;
+}
+.st-icon-box.has-missed {
+  background: var(--bad) !important;
+  color: #FFFFFF !important;
+  border-color: var(--bad) !important;
+  box-shadow: 0 4px 14px rgba(214, 69, 69, 0.3) !important;
+}
+.st-icon-box.has-missed svg {
+  stroke: #FFFFFF !important;
+}
+.st-data b {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--teal);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.st-label {
+  font-size: 12px;
+  color: var(--mut);
+  font-weight: 600;
+  margin-top: 3px;
+  display: block;
+}
+
+/* Total Summary Stat Cards (Underneath Calendar & Day Panel) */
+.total-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 18px;
+}
+.total-stat-card {
+  margin: 0 !important;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px !important;
+  border-radius: 16px !important;
+  border: 1px solid var(--bd) !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(1, 62, 67, 0.04) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.total-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(1, 62, 67, 0.08) !important;
+}
+.total-stat-card .st-data b {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--teal);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.total-stat-card .st-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mut);
+  margin-top: 3px;
+}
+.total-icon-taken {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--bd);
+  background: #FFFFFF;
+  color: var(--teal);
+  transition: all 0.22s ease;
+}
+.total-icon-taken.has-taken {
+  background: var(--em) !important;
+  border-color: var(--em) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(0, 168, 137, 0.3) !important;
+}
+.total-icon-taken.has-taken svg {
+  stroke: #FFFFFF !important;
+}
+.total-icon-missed {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--bd);
+  background: #FFFFFF;
+  color: var(--teal);
+  transition: all 0.22s ease;
+}
+.total-icon-missed.has-missed {
+  background: var(--bad) !important;
+  border-color: var(--bad) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(214, 69, 69, 0.3) !important;
+}
+.total-icon-missed.has-missed svg {
+  stroke: #FFFFFF !important;
+}
+@media (max-width: 600px) {
+  .total-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Streak Badge */
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--mint);
+  color: var(--teal);
+  border: 1.5px solid var(--em);
+  padding: 6px 15px;
+  border-radius: 99px;
+  font-weight: 800;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(0, 168, 137, 0.14);
+  transition: transform 0.2s ease;
+}
+.streak-badge:hover { transform: scale(1.03); }
+.flame-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  animation: pulseFlame 1.8s infinite ease-in-out;
+  filter: drop-shadow(0 2px 5px rgba(255, 106, 0, 0.35));
+}
+@keyframes pulseFlame {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 2px 5px rgba(255, 106, 0, 0.35)); }
+  50% { transform: scale(1.18) rotate(4deg); filter: drop-shadow(0 3px 8px rgba(255, 70, 0, 0.55)); }
+}
+
+/* Forms & Inputs */
+label { display: block; font-size: 12px; color: var(--mut); margin: 12px 0 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+input, select, button, textarea {
+  font: inherit;
+  color: var(--teal);
+  background: #FFFFFF;
+  border: 1.5px solid var(--bd);
+  border-radius: 11px;
+  padding: 9px 13px;
+  width: 100%;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--em);
+  box-shadow: 0 0 0 3px rgba(0, 168, 137, 0.18);
+}
+input:disabled { background: var(--mint); opacity: .75; }
+
+/* Buttons */
+button {
+  cursor: pointer;
+  width: auto;
+  font-weight: 700;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+button.p {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(1, 62, 67, 0.15);
+}
+button.p:hover {
+  background: var(--teal-dark);
+  border-color: var(--teal-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(1, 62, 67, 0.25);
+}
+button.a {
+  background: var(--em);
+  border-color: var(--em);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 168, 137, 0.2);
+}
+button.a:hover {
+  background: var(--em-hover);
+  border-color: var(--em-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 168, 137, 0.3);
+}
+button.s { padding: 5px 12px; font-size: 12px; border-radius: 8px; font-weight: 700; }
+button.outline {
+  background: #FFFFFF;
+  border: 1.5px solid var(--bd);
+  color: var(--teal);
+}
+button.outline:hover {
+  background: var(--mint);
+  border-color: var(--teal);
+}
+button:disabled, button.a:disabled, button.p:disabled {
+  opacity: .55 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  background: #E4ECEC !important;
+  border-color: var(--bd) !important;
+  color: var(--mut) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.r { display: flex; gap: 10px; align-items: end; }
+.r > * { flex: 1; }
+
+/* Calendar */
+.cal {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+.cal .h {
+  font-size: 11px;
+  color: var(--mut);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 0;
+  min-width: 0;
+}
+.d {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px solid var(--bd);
+  padding: 3px 1px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background: #FFFFFF;
+  color: var(--teal);
+  width: 100%;
+  min-width: 0;
+  font-weight: 600;
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+.d:hover {
+  border-color: var(--em);
+  background: var(--mint);
+  transform: translateY(-1px);
+}
+.d.all {
+  background: var(--mint) !important;
+  color: var(--teal) !important;
+  font-weight: 700;
+}
+.d.t {
+  border: 2px solid var(--em);
+  box-shadow: inset 0 0 0 1px var(--em);
+  font-weight: 800;
+}
+.d.sel {
+  border: 2px solid var(--teal) !important;
+  box-shadow: 0 4px 10px rgba(1, 62, 67, 0.18) !important;
+  transform: scale(1.05);
+  z-index: 2;
+}
+.d.has-missed {
+  background: var(--bad-bg) !important;
+  border-color: rgba(214, 69, 69, 0.28);
+  color: var(--teal) !important;
+  font-weight: 700;
+}
+.d.has-missed:hover {
+  background: #FBDDDD !important;
+  border-color: var(--bad);
+  transform: translateY(-1px);
+}
+.d.e { visibility: hidden; }
+.dots { display: flex; gap: 2.5px; flex-wrap: wrap; justify-content: center; }
+.dt { width: 6px; height: 6px; border-radius: 50%; background: var(--bd); display: inline-block; }
+.dt.k { background: var(--em); }
+.dt.m { background: var(--bad); }
+.nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+
+/* Dose Cards & List Items */
+.it {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(1, 62, 67, 0.02);
+}
+.it:hover {
+  border-color: #BDD4D4;
+  box-shadow: 0 4px 12px rgba(1, 62, 67, 0.05);
+}
+/* COMPLETED MEDICATION DOSES: Pale mint #EAF7F4 with teal text #013E43 */
+.it.k {
+  background: var(--mint) !important;
+  color: var(--teal) !important;
+  border: 1px solid var(--em) !important;
+  border-left: 4px solid var(--em) !important;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0, 168, 137, 0.08);
+}
+.it.k b, .it.k .dose-name { color: var(--teal) !important; }
+.it.k .sub, .it.k .dose-sub { color: var(--teal) !important; opacity: 0.85; }
+
+.dose-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--mint);
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border: 1px solid var(--bd);
+  flex-shrink: 0;
+}
+.dose-badge.k {
+  background: var(--em);
+  color: #FFFFFF;
+  border-color: var(--em);
+  font-weight: 800;
+}
+.dose-badge.m {
+  background: var(--bad-bg);
+  color: var(--bad);
+  border-color: #F8B4B4;
+}
+.dose-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(1, 62, 67, 0.06);
+  color: var(--teal);
+}
+.it.k .dose-pill {
+  background: rgba(1, 62, 67, 0.1);
+  color: var(--teal);
+}
+
+.tag {
+  font-size: 11px;
+  border-radius: 99px;
+  padding: 3px 10px;
+  background: var(--bd);
+  color: var(--teal);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.tag.k {
+  background: var(--mint);
+  color: var(--teal);
+  border: 1px solid var(--em);
+}
+.tag.m {
+  background: var(--bad-bg);
+  color: var(--bad);
+  border: 1px solid #F8B4B4;
+}
+.tag.p {
+  background: #F0F4F4;
+  color: var(--mut);
+  border: 1px solid var(--bd);
+}
+
+.lg { display: flex; gap: 13px; font-size: 12px; color: var(--mut); margin-top: 12px; flex-wrap: wrap; font-weight: 600; }
+.lg .dt { margin-right: 4px; }
+.al { border: 1.5px solid var(--bad); margin-bottom: 18px; background: #FFF8F8; border-radius: 14px; }
+
+/* Overlays & Modals */
+.ov {
+  position: fixed;
+  inset: 0;
+  background: rgba(1, 62, 67, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 70;
+  animation: fadeIn 0.2s ease;
+}
+.mb {
+  background: #FFFFFF;
+  border: 1px solid var(--bd);
+  border-radius: 18px;
+  padding: 22px;
+  max-width: 450px;
+  width: 100%;
+  max-height: 85vh;
+  overflow: auto;
+  box-shadow: 0 16px 40px rgba(1, 62, 67, 0.18);
+}
+.mb.al { border-color: var(--bad); }
+
+/* Authentication View */
+.au {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: radial-gradient(circle at top, rgba(234, 247, 244, 0.82) 0%, rgba(255, 255, 255, 0.92) 65%);
+}
+.ac {
+  background: #FFFFFF;
+  border: 1px solid var(--bd);
+  border-radius: 20px;
+  padding: 30px 26px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 14px 40px rgba(1, 62, 67, 0.08), 0 4px 12px rgba(1, 62, 67, 0.03);
+}
+.ac .br { justify-content: center; font-size: 22px; margin-bottom: 6px; }
+.ac .sub { text-align: center; margin-bottom: 16px; font-size: 13px; }
+.tb {
+  display: flex;
+  background: var(--mint);
+  border-radius: 11px;
+  padding: 3px;
+  margin-bottom: 14px;
+  border: 1px solid var(--bd);
+}
+.tb button {
+  flex: 1;
+  border: 0;
+  background: none;
+  padding: 8px;
+  font-weight: 700;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--teal);
+  transition: all 0.18s ease;
+}
+.tb button.on {
+  background: var(--em);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 168, 137, 0.28);
+}
+.er { color: var(--bad); font-size: 12.5px; min-height: 20px; margin-top: 8px; font-weight: 600; }
+.succ { color: var(--em); font-size: 12.5px; min-height: 20px; margin-top: 8px; font-weight: 600; }
+
+/* Profile View Elements */
+.pf { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.av.big {
+  width: 72px;
+  height: 72px;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px var(--bd);
+}
+.av.big img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.avatar-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 13px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  border-radius: 8px;
+  border: 1.5px solid var(--bd);
+  background: #FFFFFF;
+  color: var(--teal);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.avatar-actions button:hover {
+  background: var(--mint);
+  border-color: var(--teal);
+  color: var(--teal);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(1, 62, 67, 0.08);
+}
+.avatar-actions button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.avatar-actions button .btn-icon {
+  font-size: 13px;
+  line-height: 1;
+  display: inline-block;
+}
+
+/* Radio groups */
+.radio-group {
+  display: flex;
+  gap: 12px;
+  background: var(--mint);
+  padding: 10px 14px;
+  border-radius: 11px;
+  border: 1px solid var(--bd);
+  margin-top: 5px;
+}
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--teal);
+  text-transform: none;
+  font-weight: 600;
+}
+.radio-group input[type="radio"] { width: auto; margin: 0; }
+
+/* Multiple Doses Time Pickers & Segmented Grids */
+.multi-times-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* ==========================================================================
+   CREATIVE DOSE TIME PICKERS & SEGMENTED CONTROLS
+   ========================================================================== */
+
+/* Visual Segmented Grids */
+.segmented-grid {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.segmented-freq-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+.segmented-tpd-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+.seg-btn {
+  padding: 9px 7px;
+  border: 1.5px solid var(--bd);
+  background: #FFFFFF;
+  color: var(--teal);
+  border-radius: 11px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-align: center;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  line-height: 1.2;
+}
+.seg-btn:hover {
+  border-color: var(--em);
+  background: var(--mint);
+  transform: translateY(-1px);
+}
+.seg-btn.active {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(1, 62, 67, 0.18);
+}
+.seg-btn.active .seg-sub {
+  color: rgba(255, 255, 255, 0.82);
+}
+.seg-icon {
+  font-size: 15px;
+}
+.seg-title {
+  font-weight: 800;
+}
+.seg-sub {
+  font-size: 10px;
+  color: var(--mut);
+  font-weight: 600;
+}
+
+/* Weekday Pills Grid */
+.weekday-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-top: 6px;
+}
+.weekday-btn {
+  padding: 7px 3px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1.5px solid var(--bd);
+  border-radius: 9px;
+  background: #FFFFFF;
+  color: var(--teal);
+  cursor: pointer;
+  transition: all 0.16s ease;
+  text-align: center;
+}
+.weekday-btn:hover {
+  border-color: var(--em);
+  background: var(--mint);
+}
+.weekday-btn.active {
+  background: var(--em);
+  border-color: var(--em);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 168, 137, 0.25);
+}
+
+/* Creative Dose Card Component */
+.dose-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+.dose-card {
+  background: #FFFFFF;
+  border: 1.5px solid var(--bd);
+  border-radius: 14px;
+  padding: 13px 15px;
+  box-shadow: 0 2px 8px rgba(1, 62, 67, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+.dose-card:hover {
+  border-color: var(--em);
+  box-shadow: 0 6px 18px rgba(0, 168, 137, 0.12);
+}
+.dose-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 7px;
+  border-bottom: 1px dashed var(--bd);
+}
+.dose-badge-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dose-slot-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--mint);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border: 1px solid rgba(0, 168, 137, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 168, 137, 0.08);
+}
+.dose-slot-name {
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--teal);
+}
+.dose-period-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--mint);
+  color: var(--em);
+  border: 1px solid rgba(0, 168, 137, 0.28);
+}
+.dose-time-display {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--teal);
+  background: var(--mint);
+  border: 1.5px solid var(--em);
+  padding: 3px 10px;
+  border-radius: 99px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.dose-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dose-pickers-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.time-spinners-wrap {
+  display: inline-flex;
+  align-items: center;
+  background: #F8FCFC;
+  border: 1.5px solid var(--bd);
+  border-radius: 9px;
+  padding: 2px 5px;
+  gap: 2px;
+  transition: all 0.18s ease;
+}
+.time-spinners-wrap:focus-within {
+  border-color: var(--em);
+  box-shadow: 0 0 0 3px rgba(0, 168, 137, 0.18);
+  background: #FFFFFF;
+}
+.custom-time-sel {
+  width: auto;
+  border: none;
+  background: transparent;
+  padding: 5px 3px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--teal);
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+}
+.time-sep-colon {
+  font-weight: 900;
+  color: var(--teal);
+  font-size: 14px;
+  user-select: none;
+  padding: 0 1px;
+}
+.ampm-switch-pill {
+  display: inline-flex;
+  background: #EDF3F3;
+  border: 1.5px solid var(--bd);
+  border-radius: 9px;
+  padding: 2px;
+  gap: 2px;
+}
+.ampm-btn-pill {
+  border: none;
+  background: transparent;
+  padding: 5px 10px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--mut);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  line-height: 1.2;
+}
+.ampm-btn-pill.active {
+  background: var(--em);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 168, 137, 0.3);
+}
+.dose-presets-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.preset-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--mut);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-right: 2px;
+}
+.preset-time-chip {
+  width: auto;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 7px;
+  background: #FFFFFF;
+  border: 1px solid var(--bd);
+  color: var(--teal);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.preset-time-chip:hover {
+  background: var(--mint);
+  border-color: var(--em);
+  color: var(--em);
+  transform: translateY(-1px);
+}
+.preset-time-chip.active {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(1, 62, 67, 0.2);
+}
+
+/* Medications List Elevation */
+.med-card-item {
+  border: 1.5px solid var(--bd);
+  border-radius: 13px;
+  padding: 11px 13px;
+  margin-bottom: 8px;
+  background: #FFFFFF;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 11px;
+}
+.med-card-item:hover {
+  border-color: var(--em);
+  box-shadow: 0 4px 14px rgba(0, 168, 137, 0.1);
+  transform: translateY(-1px);
+}
+.med-avatar-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--mint);
+  border: 1.5px solid rgba(0, 168, 137, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 17px;
+  box-shadow: 0 2px 6px rgba(0, 168, 137, 0.08);
+}
+.med-item-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--teal);
+}
+.med-dose-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal);
+  background: #EEF5F5;
+  border: 1px solid var(--bd);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+.med-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.med-freq-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal);
+  background: var(--mint);
+  border: 1px solid rgba(0, 168, 137, 0.3);
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+.med-time-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--em);
+  background: #FFFFFF;
+  border: 1px solid var(--bd);
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+.med-actions-wrap {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.med-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 9px;
+  border-radius: 7px;
+}
+.med-action-btn.del-btn {
+  color: var(--bad);
+  border-color: rgba(214, 69, 69, 0.3);
+}
+.med-action-btn.del-btn:hover {
+  background: var(--bad-bg);
+  border-color: var(--bad);
+}
+
+/* Toast */
+.toast-box {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--teal);
+  color: #FFFFFF;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(1, 62, 67, 0.22);
+  z-index: 100;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN SYSTEM (Desktop, Tablet, Mobile)
+   ========================================================================== */
+
+/* TABLET BREAKPOINT (max-width: 880px) */
+@media (max-width: 880px) {
+  .w { padding: 20px 16px 40px; }
+  .g { grid-template-columns: 1fr; gap: 18px; }
+  .dashboard-grid { grid-template-columns: 1fr; gap: 18px; }
+  .c { padding: 20px 18px; border-radius: 16px; }
+  .calendar-card, .day-detail-card { min-height: auto !important; height: auto !important; }
+  #dl { min-height: auto; max-height: none; overflow-y: visible; }
+  .st { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px; }
+}
+
+/* MOBILE PHONES & PORTRAIT (max-width: 640px) */
+@media (max-width: 640px) {
+  .w { padding: 14px 12px 36px; }
+  .g { gap: 14px; }
+  .c { padding: 16px 14px; border-radius: 14px; }
+  .hi { padding: 8px 12px; gap: 10px; }
+  .br { gap: 10px; font-size: 19px; }
+  .br img, .brand-logo { width: 40px; height: 40px; border-radius: 10px; }
+  .sync-badge { font-size: 10px; padding: 3px 8px; }
+  .av { width: 36px; height: 36px; }
+
+  /* KPI Stat Widgets */
+  .st { gap: 10px; margin-bottom: 14px; }
+  .st-card { padding: 12px 10px; gap: 10px; border-radius: 12px; }
+  .st-icon-box { width: 38px; height: 38px; border-radius: 10px; }
+  .st-icon-box svg { width: 19px; height: 19px; }
+  .st-data b { font-size: 21px; }
+  .st-label { font-size: 11px; }
+
+  /* Calendar */
+  .cal { gap: 4px; }
+  .cal .h { font-size: 10px; padding: 4px 0; }
+  .d { border-radius: 8px; min-height: 38px; padding: 2px 1px; font-size: 11px; }
+  .dots { gap: 2px; }
+  .dt { width: 5px; height: 5px; }
+  .lg { gap: 10px; font-size: 11px; margin-top: 10px; }
+
+  /* Quick Log Dose */
+  .r { flex-direction: column; align-items: stretch; gap: 8px; }
+  .r > * { width: 100%; flex: none; }
+
+  /* Dose Items (Card layout on mobile) */
+  .it {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+  }
+  .it > div:first-child {
+    width: 100%;
+  }
+  .it > div:last-child {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-top: 8px;
+    border-top: 1px dashed var(--bd);
+  }
+  .it.k > div:last-child {
+    border-top: 1px dashed rgba(0, 168, 137, 0.35);
+  }
+  .dose-badge {
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
+  }
+
+  /* Modals */
+  .ov { padding: 12px; }
+  .mb { padding: 20px 16px; border-radius: 16px; width: 100%; max-height: 90vh; }
+
+  /* Multi-times and Segmented Grids */
+  .multi-times-grid { grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 8px; }
+  .segmented-freq-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .segmented-tpd-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .seg-btn { padding: 8px 4px; font-size: 11px; }
+  .weekday-grid { gap: 4px; }
+  .weekday-btn { padding: 6px 2px; font-size: 11px; }
+  .dose-card { padding: 12px; }
+  .dose-pickers-row { gap: 8px; }
+
+  /* Authentication */
+  .au { padding: 16px 12px; align-items: flex-start; }
+  .ac { padding: 24px 18px; border-radius: 20px; margin: 12px 0; }
+  .ac .br .brand-logo { width: 56px; height: 56px; }
+  .radio-group { flex-direction: column; gap: 8px; }
+  .toast-box { left: 12px; right: 12px; bottom: 16px; justify-content: center; text-align: center; }
+
+  /* Meds View Search */
+  #v-meds .c > div:first-child {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 8px;
+  }
+  #med-search {
+    width: 100% !important;
+  }
+
+  /* Profile View */
+  .pf {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+  .avatar-actions {
+    justify-content: center;
+  }
+
+  /* Reports View Buttons */
+  #v-reports button, #v-reports label {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* EXTRA SMALL MOBILES (max-width: 380px) */
+@media (max-width: 380px) {
+  .br span em { display: none; }
+  .streak-badge { font-size: 11px; padding: 4px 10px; }
+  .v-title-box, .v-title-box .t-badge { font-size: 16px; }
+  .v-title-box { padding: 6px 12px; }
+  h1 { font-size: 20px; }
+  h2 { font-size: 15px; }
+  .st { grid-template-columns: 1fr; }
+}
+
+/* Print Styles for Clinical Report */
+@media print {
+  body::before, .hd, .tb, button, .radio-group, #auth, .nv, .toast-box, .av, .bg-medical-sketches { display: none !important; }
+  body { background: #fff; color: #000; font-size: 12pt; }
+  .w { max-width: 100%; padding: 0; margin: 0; }
+  .c { border: none; box-shadow: none; padding: 0; }
+  .printable-report { display: block !important; }
+  .no-print { display: none !important; }
+  .v-title-box { background: none !important; border: none !important; padding: 0 !important; box-shadow: none !important; }
+  .v-title-box .t-badge { background: none !important; color: #000 !important; padding: 0 !important; box-shadow: none !important; font-size: 18pt !important; }
+  .v-title-dot { display: none !important; }
+}
+.printable-report { display: none; }
+</style>
+</head>
+<body>
+
+<!-- CREATIVE FADED MEDICAL SKETCHES BACKGROUND -->
+<div class="bg-medical-sketches" aria-hidden="true"></div>
+
+<!-- AUTHENTICATION VIEW -->
+<div id="auth" class="au" hidden>
+  <div class="ac">
+    <div class="br">
+      <img src="/assets/sadikmed-logo.png" alt="SadikMed Logo" class="brand-logo" width="68" height="68" loading="eager" fetchpriority="high" decoding="async">
+      <span>SadikMed <em>Tracker</em></span>
+    </div>
+    <div class="sub" id="at">Welcome back. Sign in to track your medication.</div>
+    
+    <div class="tb">
+      <button id="t1" type="button" class="on">Sign in</button>
+      <button id="t2" type="button">Create account</button>
+    </div>
+
+    <!-- MAIN FORM FIELDS -->
+    <div id="auth-main-fields">
+      <div id="fn" hidden>
+        <label>Full name *</label>
+        <input id="an" autocomplete="name" placeholder="e.g. Md Rayhan Sadik">
+      </div>
+
+      <!-- MANDATORY PHONE NUMBER -->
+      <div id="phone-field" hidden>
+        <label>Phone number (Mandatory) *</label>
+        <input id="apn" type="tel" autocomplete="tel" placeholder="+8801XXXXXXXXX or 01XXXXXXXXX">
+      </div>
+
+      <div id="email-field" hidden>
+        <label>Email address *</label>
+        <input id="aem" type="email" autocomplete="email" placeholder="you@mail.com">
+      </div>
+
+      <!-- LOGIN IDENTIFIER (Used when signing in) -->
+      <div id="login-id-field">
+        <label>Registered Phone number or Email *</label>
+        <input id="lid" autocomplete="username" placeholder="+8801XXXXXXXXX or you@mail.com">
+      </div>
+
+      <label>Password *</label>
+      <input id="ap" type="password" autocomplete="current-password" placeholder="At least 8 characters">
+
+      <div id="fc" hidden>
+        <label>Confirm password *</label>
+        <input id="ap2" type="password" autocomplete="new-password" placeholder="Re-enter password">
+
+        <label>Send verification code via: *</label>
+        <div class="radio-group">
+          <label><input type="radio" name="otp_channel" value="phone" checked> 📱 SMS to Phone</label>
+          <label><input type="radio" name="otp_channel" value="email"> ✉️ Email</label>
+        </div>
+      </div>
+
+      <div class="er" id="ae"></div>
+      <button class="p" id="ab" style="width:100%;margin-top:10px">Sign in</button>
+    </div>
+
+    <!-- OTP VERIFICATION STEP (FOR LOGIN & REGISTRATION) -->
+    <div id="auth-otp-step" hidden>
+      <div style="background:var(--mint);padding:14px;border-radius:12px;margin:12px 0;text-align:center">
+        <div style="font-size:24px;margin-bottom:4px">🛡️</div>
+        <b id="otp-title" style="font-size:15px">Security Verification</b>
+        <div class="sub" id="otp-subtitle" style="margin-top:4px">Enter the 6-digit verification code sent to your device</div>
+      </div>
+
+      <label>6-Digit Verification Code *</label>
+      <input id="otp-code-input" type="text" maxlength="6" inputmode="numeric" placeholder="123456" style="text-align:center;font-size:22px;letter-spacing:6px;font-weight:700">
+
+      <div class="er" id="otp-error"></div>
+      <div class="succ" id="otp-notice"></div>
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="a" id="otp-verify-btn" style="flex:2">Verify & Continue</button>
+        <button class="outline" id="otp-resend-btn" style="flex:1">Resend</button>
+      </div>
+
+      <div style="text-align:center;margin-top:12px">
+        <button class="outline s" id="otp-back-btn">‹ Back</button>
+      </div>
+    </div>
+
+    <div class="note" style="text-align:center;margin-top:14px">
+      Encrypted client-side with SHA-256 and verified via local/cloud backend.
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP VIEW -->
+<div id="app" hidden>
+  <header class="hd">
+    <div class="hi">
+      <button class="hb" id="hb" aria-label="Menu">☰</button>
+      <div class="br">
+        <img src="/assets/sadikmed-logo.png" alt="SadikMed Logo" class="brand-logo" width="52" height="52" loading="eager" fetchpriority="high" decoding="async">
+        <span>SadikMed <em>Tracker</em></span>
+      </div>
+      <nav class="nv" id="nv">
+        <button data-v="dash" class="on">Dashboard</button>
+        <button data-v="meds">Medications</button>
+        <button data-v="reports">Reports</button>
+        <button data-v="profile">Profile</button>
+        <button data-v="settings">Settings</button>
+      </nav>
+      <div class="rt">
+        <div class="sync-badge" id="sync-indicator">🟢 Synced</div>
+        <button class="av" id="av" aria-label="Account">?</button>
+        <div class="dd" id="dd" hidden>
+          <div class="who">
+            <b id="dn">User</b>
+            <div class="sub" id="dl2">user@mail.com</div>
+          </div>
+          <button data-v="profile">👤 Profile & Password</button>
+          <button data-v="reports">📊 Clinical Reports</button>
+          <button data-v="settings">⚙️ Settings</button>
+          <button id="lo" style="color:var(--bad)">🚪 Log out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="w">
+    <!-- DASHBOARD VIEW -->
+    <section class="v" id="v-dash">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <h1 class="v-title-box" style="margin:0"><span class="v-title-dot"></span><span class="t-badge">Dashboard</span></h1>
+        <div id="streak-pill" class="streak-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" class="flame-icon">
+            <defs>
+              <linearGradient id="flame-grad" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#FF2A00"/>
+                <stop offset="50%" stop-color="#FF7A00"/>
+                <stop offset="100%" stop-color="#FFC800"/>
+              </linearGradient>
+              <linearGradient id="flame-fill" x1="0%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#FF2A00" stop-opacity="0.32"/>
+                <stop offset="50%" stop-color="#FF7A00" stop-opacity="0.48"/>
+                <stop offset="100%" stop-color="#FFC800" stop-opacity="0.65"/>
+              </linearGradient>
+            </defs>
+            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" 
+                  fill="url(#flame-fill)" 
+                  stroke="url(#flame-grad)" 
+                  stroke-width="2.3" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round"/>
+          </svg>
+          <span><span id="streak-count">0</span> -Day Adherence Streak</span>
+        </div>
+      </div>
+
+      <div class="st">
+        <div class="st-card">
+          <div class="st-icon-box" id="st-icon-taken" style="color:var(--teal)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="st-data">
+            <b id="s1">0</b>
+            <span class="st-label">Daily Taken Doses</span>
+          </div>
+        </div>
+        <div class="st-card">
+          <div class="st-icon-box" id="st-icon-missed" style="color:var(--teal)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </div>
+          <div class="st-data">
+            <b id="s2">0</b>
+            <span class="st-label">Daily Missed Doses</span>
+          </div>
+        </div>
+        <div class="st-card">
+          <div class="st-icon-box" style="color:var(--teal)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </div>
+          <div class="st-data">
+            <b id="s3">0%</b>
+            <span class="st-label">Adherence Rate</span>
+          </div>
+        </div>
+        <div class="st-card">
+          <div class="st-icon-box" style="color:var(--teal)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"></path><path d="m8.5 8.5 7 7"></path></svg>
+          </div>
+          <div class="st-data">
+            <b id="s4">0</b>
+            <span class="st-label">Active Meds</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="al"></div>
+
+      <div class="g dashboard-grid">
+        <!-- Calendar Card -->
+        <div class="c calendar-card">
+          <div class="nav">
+            <button class="s" id="pv" aria-label="Previous Month">‹</button>
+            <h2 id="mt" style="margin:0">Month</h2>
+            <button class="s" id="nx" aria-label="Next Month">›</button>
+          </div>
+          <div class="cal" id="cal" role="region" aria-label="Monthly Medication Calendar"></div>
+          <div class="lg">
+            <span><i class="dt k"></i> Taken</span>
+            <span><i class="dt m"></i> Missed</span>
+            <span><i class="dt"></i> Pending</span>
+          </div>
+        </div>
+
+        <!-- Selected Day Details Card -->
+        <div class="c day-detail-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <h2 id="dh" style="margin:0">Selected day</h2>
+            <button class="s outline" id="take-all-btn" style="display:none">Take All Due</button>
+          </div>
+          <div id="dl"></div>
+
+          <div class="quick-log-wrap" id="quick-log-wrap">
+            <label>Quick Log Dose</label>
+            <div class="r">
+              <select id="ms"></select>
+              <button class="a" id="mk">Mark taken</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OVERALL TOTALS: TOTAL TAKEN & TOTAL MISSED DOSES -->
+      <div class="total-stats-grid">
+        <div class="c total-stat-card">
+          <div class="st-icon-box total-icon-taken" id="tot-taken-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="st-data">
+            <b id="tot-taken">0</b>
+            <span class="st-label">Total Taken Doses</span>
+          </div>
+        </div>
+
+        <div class="c total-stat-card">
+          <div class="st-icon-box total-icon-missed" id="tot-missed-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </div>
+          <div class="st-data">
+            <b id="tot-missed">0</b>
+            <span class="st-label">Total Missed Doses</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEDICATIONS VIEW -->
+    <section class="v" id="v-meds" hidden>
+      <h1 class="v-title-box"><span class="v-title-dot"></span><span class="t-badge">Medications</span></h1>
+      <div class="g">
+        <!-- List of Meds -->
+        <div class="c">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <h2 style="margin:0">My medications</h2>
+            <input id="med-search" placeholder="Search..." style="width:140px;padding:4px 8px;font-size:12px">
+          </div>
+          <div id="ml"></div>
+        </div>
+
+        <!-- Add/Edit Medication Form -->
+        <div class="c">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:10px; border-bottom:1.5px solid var(--bd)">
+            <h2 id="med-form-title" style="margin:0; font-size:17px; font-weight:800; color:var(--teal)">Add or edit a medication</h2>
+            <span id="med-form-status-badge" class="dose-period-tag" style="font-size:10px">NEW ENTRY</span>
+          </div>
+
+          <label for="mn">Medicine name *</label>
+          <input id="mn" placeholder="e.g. Metformin">
+
+          <label for="md">Dosage *</label>
+          <input id="md" placeholder="e.g. 500 mg, 1 tablet">
+
+          <!-- FREQUENCY SELECTOR: ONLY Daily, Every Other Day, Weekly -->
+          <label for="mf">Dosing Frequency *</label>
+          <div class="segmented-grid segmented-freq-grid" id="seg-freq">
+            <button type="button" class="seg-btn active" data-val="d">
+              <span class="seg-icon">📅</span>
+              <span class="seg-title">Daily</span>
+              <span class="seg-sub">Every day</span>
+            </button>
+            <button type="button" class="seg-btn" data-val="o">
+              <span class="seg-icon">🔄</span>
+              <span class="seg-title">Every Other Day</span>
+              <span class="seg-sub">Alternate days</span>
+            </button>
+            <button type="button" class="seg-btn" data-val="w">
+              <span class="seg-icon">📆</span>
+              <span class="seg-title">Weekly</span>
+              <span class="seg-sub">Once a week</span>
+            </button>
+          </div>
+          <select id="mf" style="display:none" aria-label="Dosing Frequency">
+            <option value="d">Daily</option>
+            <option value="o">Every Other Day</option>
+            <option value="w">Weekly</option>
+          </select>
+
+          <!-- SEPARATE SECTION BELOW: Times per day -->
+          <div id="tpd-group">
+            <label for="mtpd">Times per day *</label>
+            <div class="segmented-grid segmented-tpd-grid" id="seg-tpd">
+              <button type="button" class="seg-btn active" data-val="1">
+                <span class="seg-title">Once a day</span>
+                <span class="seg-sub">1 dose / day</span>
+              </button>
+              <button type="button" class="seg-btn" data-val="2">
+                <span class="seg-title">Twice a day</span>
+                <span class="seg-sub">2 doses / day</span>
+              </button>
+              <button type="button" class="seg-btn" data-val="3">
+                <span class="seg-title">3 times a day</span>
+                <span class="seg-sub">3 doses / day</span>
+              </button>
+              <button type="button" class="seg-btn" data-val="4">
+                <span class="seg-title">4 times a day</span>
+                <span class="seg-sub">4 doses / day</span>
+              </button>
+            </div>
+            <select id="mtpd" style="display:none" aria-label="Times per day">
+              <option value="1">Once a day</option>
+              <option value="2">Twice a day</option>
+              <option value="3">Three times a day</option>
+              <option value="4">Four times a day</option>
+            </select>
+          </div>
+
+          <!-- DAY OF WEEK SELECTOR (WHEN WEEKLY) -->
+          <div id="dw" style="display:none">
+            <label for="mdw">Day of the week *</label>
+            <div class="weekday-grid" id="seg-dw">
+              <button type="button" class="weekday-btn" data-day="0">Sun</button>
+              <button type="button" class="weekday-btn" data-day="1">Mon</button>
+              <button type="button" class="weekday-btn" data-day="2">Tue</button>
+              <button type="button" class="weekday-btn" data-day="3">Wed</button>
+              <button type="button" class="weekday-btn" data-day="4">Thu</button>
+              <button type="button" class="weekday-btn" data-day="5">Fri</button>
+              <button type="button" class="weekday-btn" data-day="6">Sat</button>
+            </div>
+            <select id="mdw" style="display:none" aria-label="Day of the week">
+              <option value="0">Sunday</option>
+              <option value="1">Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+              <option value="6">Saturday</option>
+            </select>
+          </div>
+
+          <!-- DYNAMIC TIME OF DAY PICKERS (CREATIVE DOSE CARDS) -->
+          <label style="margin-top:14px">Scheduled Dosing Time(s) *</label>
+          <div id="times-container" class="dose-cards-container"></div>
+
+          <div style="margin-top:16px;display:flex;gap:8px">
+            <button class="p" id="ad" style="flex:1; padding:12px 18px; font-size:14px; font-weight:800; border-radius:12px; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span id="ad-btn-text">Add medication</span>
+            </button>
+            <button id="cx" class="outline" style="display:none; padding:12px 16px; font-size:14px; font-weight:700; border-radius:12px;">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTS VIEW -->
+    <section class="v" id="v-reports" hidden>
+      <h1 class="v-title-box"><span class="v-title-dot"></span><span class="t-badge">Adherence Reports & Clinical Summary</span></h1>
+      <div class="g">
+        <div class="c">
+          <h2>Clinical Summary for Physicians</h2>
+          <p class="sub">Generate a standardized medical report of your active medications and 30-day adherence rate for your doctor, pharmacist, or caregiver.</p>
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="p" id="print-report-btn">🖨️ Print / Save PDF Report</button>
+            <button class="a" id="csv-export-btn">📥 Export CSV Data</button>
+          </div>
+        </div>
+
+        <div class="c">
+          <h2>Backup & Data Portability</h2>
+          <p class="sub">Export your entire medication schedule and dosing history as a JSON backup, or restore from a previously exported file.</p>
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="outline" id="json-backup-btn">💾 Download Backup (.json)</button>
+            <label class="outline" style="cursor:pointer;padding:8px 12px;border-radius:9px;border:1px solid var(--bd);margin:0;font-weight:600">
+              📂 Restore Backup
+              <input type="file" id="json-restore-input" accept=".json" style="display:none">
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILE VIEW WITH AVATAR UPLOAD & PASSWORD CHANGE -->
+    <section class="v" id="v-profile" hidden>
+      <h1 class="v-title-box"><span class="v-title-dot"></span><span class="t-badge">Profile & Account Security</span></h1>
+      <div class="g">
+        <!-- Personal Details & Profile Picture -->
+        <div class="c">
+          <h2>Personal Details</h2>
+          <div class="pf">
+            <div class="av big" id="pav" title="Click to change profile picture">
+              ?
+            </div>
+            <div>
+              <b id="pnn">Your account</b>
+              <div class="sub">Manage personal details & photo</div>
+              <div class="avatar-actions">
+                <input type="file" id="pfp-upload" accept="image/*" style="display:none">
+                <button type="button" class="outline s" id="pfp-upload-btn" onclick="$('pfp-upload').click()">
+                  <span class="btn-icon">📷</span>
+                  <span>Upload photo</span>
+                </button>
+                <button type="button" class="outline s" id="pfp-adjust" style="display:none">
+                  <span class="btn-icon">✂️</span>
+                  <span>Adjust photo</span>
+                </button>
+                <button type="button" class="outline s" id="pfp-remove">
+                  <span>Remove</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <label>Full name</label>
+          <input id="pn">
+
+          <label>Mandatory Phone Number</label>
+          <input id="ppn" disabled>
+
+          <label>Email address</label>
+          <input id="pem" disabled>
+
+          <label>Member since</label>
+          <input id="ps" disabled>
+
+          <div style="margin-top:16px">
+            <button class="p" id="psv">Save Profile</button>
+          </div>
+          <div class="succ" id="pm"></div>
+        </div>
+
+        <!-- Password Change Option -->
+        <div class="c">
+          <h2>Change Password</h2>
+          <div class="sub" style="margin-bottom:12px">Update your master password securely.</div>
+
+          <label>Current Password *</label>
+          <input id="cpw" type="password" placeholder="Enter current password">
+
+          <label>New Password (min 8 characters) *</label>
+          <input id="npw" type="password" placeholder="Enter new password">
+
+          <label>Confirm New Password *</label>
+          <input id="npw2" type="password" placeholder="Confirm new password">
+
+          <div class="er" id="pwe"></div>
+          <div class="succ" id="pws"></div>
+
+          <div style="margin-top:16px">
+            <button class="a" id="cpw-btn">Update Password</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS VIEW -->
+    <section class="v" id="v-settings" hidden>
+      <h1 class="v-title-box"><span class="v-title-dot"></span><span class="t-badge">Settings</span></h1>
+      <div class="c" style="max-width:560px">
+        <h2>Notifications & Alerts</h2>
+        
+        <div style="background:var(--mint);padding:14px;border-radius:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <b>Desktop / Push Notifications</b>
+            <div class="sub">Receive native browser reminders when doses are due</div>
+          </div>
+          <button class="a s" id="enable-push-btn">Enable</button>
+        </div>
+
+        <label>Reminder Channel</label>
+        <select id="nm">
+          <option value="both">SMS and Email</option>
+          <option value="sms">SMS Only</option>
+          <option value="email">Email Only</option>
+        </select>
+
+        <label>Notification Target (Phone or Email)</label>
+        <input id="nc" placeholder="+8801XXXXXXXXX or you@mail.com">
+
+        <div class="r">
+          <div>
+            <label>Remind before (min)</label>
+            <select id="nb">
+              <option value="5">5 minutes</option>
+              <option value="10">10 minutes</option>
+              <option value="15" selected>15 minutes</option>
+              <option value="30">30 minutes</option>
+            </select>
+          </div>
+          <div>
+            <label>Missed-dose follow-ups</label>
+            <select id="nf">
+              <option value="1">1 follow-up</option>
+              <option value="2">2 follow-ups</option>
+              <option value="3" selected>3 follow-ups</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;display:flex;gap:10px">
+          <button class="outline s" id="test-email-btn">📧 Send Test Reminder Email</button>
+          <button class="outline s" id="test-sound-btn">🔔 Test Alert Chime</button>
+        </div>
+
+        <div class="note">Preferences are automatically synced with the local backend and browser storage.</div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- PRINTABLE CLINICAL REPORT TEMPLATE (Hidden on screen, shown when printing) -->
+<div id="printable-area" class="printable-report">
+  <div style="padding:24px;max-width:800px;margin:0 auto;font-family:system-ui,-apple-system,sans-serif">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #00A889;padding-bottom:12px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="/assets/sadikmed-logo.png" alt="SadikMed Logo" style="width:52px;height:52px;border-radius:12px;object-fit:cover">
+        <div>
+          <h1 style="margin:0;color:#013E43">SadikMed Tracker</h1>
+          <div style="font-size:14px;color:#4d7174">Patient Medication Adherence & Prescription Log</div>
+        </div>
+      </div>
+      <div style="text-align:right;font-size:12px">
+        <div><strong>Date Generated:</strong> <span id="rpt-date"></span></div>
+        <div><strong>Patient ID:</strong> <span id="rpt-pid"></span></div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <h3 style="margin-bottom:6px">Patient Information</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tr>
+          <td style="padding:4px 0;width:120px"><strong>Patient Name:</strong></td>
+          <td id="rpt-name"></td>
+          <td style="padding:4px 0;width:100px"><strong>Contact:</strong></td>
+          <td id="rpt-contact"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="margin-bottom:20px">
+      <h3 style="margin-bottom:6px">Adherence Performance (Past 60 Days)</h3>
+      <div style="display:flex;gap:20px;background:#EAF7F4;padding:12px;border-radius:8px">
+        <div><strong>Adherence Rate:</strong> <span id="rpt-adh" style="font-weight:bold;color:#00A889">0%</span></div>
+        <div><strong>Total Taken:</strong> <span id="rpt-taken">0</span></div>
+        <div><strong>Total Missed:</strong> <span id="rpt-missed">0</span></div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:24px">
+      <h3 style="margin-bottom:6px">Active Medication Schedule</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:13px" border="1" cellpadding="6">
+        <thead>
+          <tr style="background:#f4f4f4">
+            <th>Medicine Name</th>
+            <th>Dosage</th>
+            <th>Frequency</th>
+            <th>Scheduled Times</th>
+          </tr>
+        </thead>
+        <tbody id="rpt-meds-tbody"></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:50px;display:flex;justify-content:space-between;border-top:1px solid #ccc;padding-top:10px;font-size:12px">
+      <div>Physician / Pharmacist Signature: _______________________</div>
+      <div>Date: _______________</div>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO ADJUST & CROP MODAL -->
+<div id="photo-adjust-modal" class="ov" style="display:none; z-index:9999;">
+  <div class="mb" style="max-width:440px; text-align:center; padding:24px 20px; background:#FFFFFF; border-radius:20px; box-shadow:0 16px 40px rgba(1,62,67,0.2);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h2 style="margin:0; font-size:18px; font-weight:800; color:var(--teal)">Adjust & Crop Photo</h2>
+      <button type="button" id="crop-cancel-x" class="outline" style="border:none; padding:4px 8px; font-size:18px; cursor:pointer; color:var(--mut);">✕</button>
+    </div>
+
+    <!-- Circular Crop Viewport -->
+    <div style="position:relative; width:260px; height:260px; margin:0 auto 14px; overflow:hidden; border-radius:50%; border:3.5px solid var(--em); box-shadow:0 0 0 4px var(--mint), 0 8px 24px rgba(0, 168, 137, 0.2); cursor:grab; touch-action:none; background:#F8FCFB;" id="crop-viewport">
+      <canvas id="crop-canvas" width="260" height="260" style="display:block; width:100%; height:100%;"></canvas>
+    </div>
+    <div class="sub" style="font-size:12px; margin-bottom:14px; color:var(--teal); font-weight:600;">
+      👆 Drag image to center face • Use slider to zoom
+    </div>
+
+    <!-- Controls -->
+    <div style="background:var(--mint); border:1px solid var(--bd); border-radius:14px; padding:12px 16px; margin-bottom:16px;">
+      <!-- Zoom Slider -->
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+        <span style="font-size:14px;">🔍-</span>
+        <input type="range" id="crop-zoom" min="0.5" max="3" step="0.05" value="1" style="flex:1; cursor:pointer; accent-color:var(--em);">
+        <span style="font-size:14px;">🔍+</span>
+        <span id="crop-zoom-label" style="font-size:12px; font-weight:800; color:var(--teal); width:42px;">100%</span>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div style="display:flex; justify-content:center; gap:8px;">
+        <button type="button" id="crop-rotate-btn" class="outline s" style="background:#FFFFFF; color:var(--teal); border:1.5px solid var(--bd); padding:7px 14px; font-size:12px; font-weight:700; border-radius:9px;">
+          🔄 Rotate 90°
+        </button>
+        <button type="button" id="crop-fit-btn" class="outline s" style="background:#FFFFFF; color:var(--teal); border:1.5px solid var(--bd); padding:7px 14px; font-size:12px; font-weight:700; border-radius:9px;">
+          ↺ Fit Center
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div style="display:flex; gap:10px;">
+      <button type="button" id="crop-cancel-btn" class="outline" style="flex:1; padding:11px; font-weight:700; border-radius:11px; color:var(--teal); border:1.5px solid var(--bd); background:#FFFFFF;">Cancel</button>
+      <button type="button" id="crop-save-btn" class="p" style="flex:1; padding:11px; font-weight:800; border-radius:11px; background:var(--teal); color:#FFFFFF; display:inline-flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 3px 10px rgba(1, 62, 67, 0.2);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        Save Photo
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// UTILITY FUNCTIONS & TIMEZONE (UTC+06:00 Asia/Dhaka)
+const $ = id => document.getElementById(id);
+const TZ = 'Asia/Dhaka'; // Strictly UTC+06:00
+
+// Format date as YYYY-MM-DD in UTC+06:00
+function ymd(d = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  }).format(d);
+}
+
+// Get current HH:mm in UTC+06:00
+function getNowHM() {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: TZ,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).formatToParts(new Date());
+  const h = parts.find(p => p.type === 'hour').value;
+  const m = parts.find(p => p.type === 'minute').value;
+  return `${h}:${m}`;
+}
+
+// Format date in UTC+06:00 with options
+function fmtUTC6(d, opts) {
+  return new Intl.DateTimeFormat('en-US', Object.assign({ timeZone: TZ }, opts)).format(d);
+}
+
+const esc = s => String(s || '').replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const DN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const FL = { d: "Daily", o: "Every Other Day", w: "Weekly", "1": "Once a day", "2": "Twice a day", "3": "Three times a day", "4": "Four times a day" };
+
+// AUDIO CHIME SYNTHESIZER (WEB AUDIO API - NO EXTERNAL ASSETS NEEDED)
+function playChime(type = 'success') {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+    if (type === 'success') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.setValueAtTime(880, now + 0.1); // A5
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.setValueAtTime(330, now + 0.15);
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    }
+  } catch (e) {}
+}
+
+// TOAST NOTIFICATIONS
+function showToast(msg) {
+  const existing = document.querySelector('.toast-box');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.className = 'toast-box';
+  t.innerHTML = `<span>🔔</span> <span>${esc(msg)}</span>`;
+  document.body.appendChild(t);
+  setTimeout(() => { t.remove(); }, 3500);
+}
+
+// STATE & STORAGE
+const AK = "sm_accounts", SK = "sm_session";
+let K = "sm_guest", cur = null, mode = "in";
+let S = { meds: [], log: {}, set: { nm: "both", nc: "", nb: "15", nf: "3" }, u: Date.now() };
+
+function getTodayUTC6() {
+  const parts = ymd(new Date()).split('-');
+  return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+}
+let sel = getTodayUTC6(), view = getTodayUTC6(), editId = null;
+
+const accts = () => { try { return JSON.parse(localStorage.getItem(AK) || "[]"); } catch (e) { return []; } };
+
+// HELPER: GET DOSING TIMES ARRAY FOR A MEDICATION
+function getMedTimes(m) {
+  if (Array.isArray(m.times) && m.times.length) return m.times;
+  if (m.time) return [m.time];
+  return ["08:00"];
+}
+
+// 12-HOUR TIME FORMATTER (e.g. "21:00" -> "9:00 PM", "08:00" -> "8:00 AM")
+function fmtTime(t) {
+  if (!t) return "";
+  if (/am|pm/i.test(t)) return t;
+  const parts = String(t).trim().split(":");
+  let h = parseInt(parts[0], 10);
+  const m = parts[1] ? parts[1].padStart(2, "0") : "00";
+  if (isNaN(h)) return t;
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${h}:${m} ${ampm}`;
+}
+
+// FREQUENCY & DOSING TIMES FORMATTER
+const TPD_MAP = {
+  1: "Once a day",
+  2: "Twice a day",
+  3: "Three times a day",
+  4: "Four times a day"
+};
+
+function fl(m) {
+  const times = getMedTimes(m);
+  const count = times.length;
+  const tpdStr = TPD_MAP[count] || (count + " times a day");
+
+  if (m.freq === "w") {
+    const dayStr = m.day != null ? "Every " + DN[m.day] : "Weekly";
+    return count > 1 ? `${dayStr} (${tpdStr})` : dayStr;
+  }
+  if (m.freq === "o") {
+    return count > 1 ? `Every Other Day (${tpdStr})` : "Every Other Day";
+  }
+  // Daily or legacy "1", "2", "3", "4", "d"
+  return count > 1 ? `Daily · ${tpdStr}` : "Daily · Once a day";
+}
+
+// CHECK IF MEDICATION IS DUE ON A GIVEN DATE (Strictly in UTC+06:00)
+function due(m, ds) {
+  let c = m.base ? { freq: m.base.freq, anchor: m.start, day: m.base.day } : { freq: m.freq || "d", anchor: m.start, day: m.day };
+  (m.sch || []).forEach(x => { if (x.from <= ds) c = x; });
+  if (c.freq === "w" && c.day != null) {
+    return new Date(`${ds}T00:00:00+06:00`).getDay() === c.day;
+  }
+  const iv = { "1": 1, "2": 1, "3": 1, "4": 1, d: 1, o: 2, w: 7 }[c.freq] || 1;
+  const diffDays = Math.round((new Date(`${ds}T00:00:00+06:00`) - new Date(`${c.anchor}T00:00:00+06:00`)) / 864e5);
+  return diffDays % iv === 0;
+}
+
+// DOSE STATUS FOR A SPECIFIC TIME SLOT (Strictly in UTC+06:00)
+function status(m, ds, time) {
+  const t = time || getMedTimes(m)[0];
+  const k = ds + "|" + m.id + "|" + t;
+  const legacyK = ds + "|" + m.id;
+  if (m.start && (ds < m.start || !due(m, ds))) return "n";
+  if (S.log[k] || S.log[legacyK]) return "k";
+  const targetTime = new Date(`${ds}T${t}:00+06:00`);
+  return targetTime < new Date() && targetTime.getTime() >= (m.at || 0) ? "m" : "p";
+}
+
+const lbl = { k: "Taken", m: "Missed", p: "Pending", n: "None" };
+
+// MISSED DOSE ALERTS & POPUP (Strictly in UTC+06:00)
+function alerts() {
+  const L = [];
+  const now = new Date();
+  S.meds.forEach(m => {
+    const times = getMedTimes(m);
+    for (let i = 0; i < 14; i++) {
+      const d = new Date(now.getTime() - i * 864e5);
+      const ds = ymd(d);
+      times.forEach(t => {
+        const k = ds + "|" + m.id + "|" + t;
+        if (status(m, ds, t) === "m" && !(S.ack && S.ack[k])) {
+          L.push({ m, ds, time: t, k });
+        }
+      });
+    }
+  });
+  L.sort((a, b) => a.ds < b.ds ? -1 : a.ds > b.ds ? 1 : a.time.localeCompare(b.time));
+  const O = L.map(x => ({
+    name: x.m.name,
+    dose: x.m.dose,
+    when: fmtUTC6(new Date(`${x.ds}T00:00:00+06:00`), { weekday: "short", month: "short", day: "numeric" }),
+    time: x.time,
+    k: x.k
+  }));
+  $("al").innerHTML = O.length ? `
+    <div class="c al">
+      <h2>⚠️ ${O.length} dose${O.length > 1 ? 's' : ''} not marked as taken</h2>
+      <div class="sub">Please update your records:</div>
+      ${O.map(x => `
+        <div class="it">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="dose-badge m">⚠️</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <b>${esc(x.name)}</b>
+                <span class="dose-pill">${esc(x.dose)}</span>
+              </div>
+              <span class="sub">${x.when} · ⏰ ${fmtTime(x.time)}</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="s a" data-t="${x.k}">I took it</button>
+            <button class="s outline" data-a="${x.k}">I missed it</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+}
+
+// SAVE STATE TO LOCAL STORAGE & BACKEND (With Debounced Network Sync)
+let syncTimeout = null;
+async function save() {
+  S.u = Date.now();
+  try { localStorage.setItem(K, JSON.stringify(S)); } catch (e) {}
+  if (cur && cur.id) {
+    $("sync-indicator").textContent = "🟡 Syncing...";
+    if (syncTimeout) clearTimeout(syncTimeout);
+    syncTimeout = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/sadikmed/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: cur.id, data: S })
+        });
+        $("sync-indicator").textContent = res.ok ? "🟢 Synced" : "💾 Local Only";
+      } catch (e) {
+        $("sync-indicator").textContent = "💾 Local (Offline)";
+      }
+    }, 300);
+  }
+}
+
+// LOAD STATE
+async function load() {
+  try {
+    const v = JSON.parse(localStorage.getItem(K) || "null");
+    if (v && v.meds) S = v;
+  } catch (e) {}
+  if (cur && cur.id) {
+    try {
+      const res = await fetch(`/api/sadikmed/data?userId=${encodeURIComponent(cur.id)}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data && json.data.meds) {
+          if (!S.u || (json.data.u && json.data.u > S.u)) {
+            S = json.data;
+          }
+        }
+      }
+    } catch (e) {}
+  }
+  render();
+}
+
+// RENDER ALL VIEWS
+function updateMarkButtonState() {
+  const ds = ymd(sel);
+  const today = ymd(new Date());
+  const fut = ds > today;
+  const k = $("ms").value;
+
+  if (fut) {
+    $("mk").disabled = true;
+    $("mk").textContent = "Opens on this day";
+    return;
+  }
+  if (!k) {
+    $("mk").disabled = true;
+    $("mk").textContent = "No doses due";
+    return;
+  }
+
+  // Check if this specific dose is already taken
+  const isTaken = !!(S.log[k] || S.log[k.split("|").slice(0, 2).join("|")]);
+  if (isTaken) {
+    $("mk").disabled = true;
+    $("mk").textContent = "Already taken ✓";
+  } else {
+    $("mk").disabled = false;
+    $("mk").textContent = "Mark taken";
+  }
+}
+
+// ACTIVE MEDS LIST RENDERER (Fast O(1) Search Execution with Creative Cards)
+function renderMedsList() {
+  const searchTerm = ($("med-search") ? $("med-search").value : "").toLowerCase().trim();
+  const filteredMeds = S.meds.filter(m => !searchTerm || m.name.toLowerCase().includes(searchTerm));
+  $("ml").innerHTML = filteredMeds.length ? filteredMeds.map(m => {
+    const times = getMedTimes(m);
+    return `
+      <div class="med-card-item">
+        <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+          <div class="med-avatar-box">💊</div>
+          <div style="min-width:0;flex:1">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px">
+              <b class="med-item-title">${esc(m.name)}</b>
+              <span class="med-dose-tag">${esc(m.dose)}</span>
+            </div>
+            <div class="med-meta-tags">
+              <span class="med-freq-pill">${esc(fl(m))}</span>
+              ${times.map(t => `<span class="med-time-pill">⏰ ${fmtTime(t)}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="med-actions-wrap">
+          <button class="s outline med-action-btn" data-e="${m.id}" title="Edit medication">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <span>Edit</span>
+          </button>
+          <button class="s outline med-action-btn del-btn" data-x="${m.id}" title="Remove medication">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span>Remove</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("") : '<div class="sub" style="padding:14px 0;text-align:center">No medications found.</div>';
+}
+
+let lastRenderedMonthKey = "";
+function renderCalendar() {
+  const y = view.getFullYear(), mo = view.getMonth();
+  const currentMonthKey = `${y}-${mo}-${S.meds.length}-${Object.keys(S.log).length}-${S.u || 0}`;
+  const today = ymd(new Date());
+
+  $("mt").textContent = fmtUTC6(view, { month: "long", year: "numeric" });
+
+  if (lastRenderedMonthKey !== currentMonthKey) {
+    lastRenderedMonthKey = currentMonthKey;
+    const first = new Date(y, mo, 1).getDay();
+    const n = new Date(y, mo + 1, 0).getDate();
+
+    let h = ["S", "M", "T", "W", "T", "F", "S"].map(x => `<div class="h">${x}</div>`).join("");
+    for (let i = 0; i < first; i++) h += '<div class="d e"></div>';
+
+    for (let d = 1; d <= n; d++) {
+      const ds = `${y}-${String(mo + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const dotsList = [];
+      S.meds.forEach(m => {
+        getMedTimes(m).forEach(t => {
+          const s = status(m, ds, t);
+          if (s !== "n") dotsList.push(s);
+        });
+      });
+      const dots = dotsList.map(s => `<i class="dt ${s}"></i>`).join("");
+      const isAllTaken = dotsList.length && dotsList.every(s => s === "k");
+      const hasMissed = dotsList.includes("m");
+      h += `<button class="d ${isAllTaken ? 'all' : ''} ${hasMissed ? 'has-missed' : ''} ${ds === today ? 't' : ''} ${ds === ymd(sel) ? 'sel' : ''}" data-d="${ds}">
+        ${d}<span class="dots">${dots}</span>
+      </button>`;
+    }
+    $("cal").innerHTML = h;
+  } else {
+    // Fast path: update selected day highlight without full DOM rebuild
+    const selDs = ymd(sel);
+    document.querySelectorAll("#cal .d[data-d]").forEach(btn => {
+      btn.classList.toggle("sel", btn.dataset.d === selDs);
+    });
+  }
+}
+
+function render() {
+  alerts();
+  renderCalendar();
+
+  // Selected Day Details
+  const ds = ymd(sel);
+  const today = ymd(new Date());
+  const fut = ds > today;
+  $("dh").textContent = fmtUTC6(new Date(`${ds}T00:00:00+06:00`), { weekday: "long", month: "short", day: "numeric" });
+
+  const actDoses = [];
+  S.meds.forEach(m => {
+    getMedTimes(m).forEach(t => {
+      const s = status(m, ds, t);
+      if (s !== "n") {
+        actDoses.push({ m, time: t, s, k: ds + "|" + m.id + "|" + t });
+      }
+    });
+  });
+  actDoses.sort((a, b) => a.time.localeCompare(b.time));
+
+  $("take-all-btn").style.display = (actDoses.some(x => x.s === "p" || x.s === "m") && !fut) ? "inline-block" : "none";
+
+  $("dl").innerHTML = actDoses.length ? actDoses.map(item => `
+    <div class="it ${item.s === 'k' ? 'k' : ''}">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="dose-badge ${item.s}">
+          ${item.s === 'k' ? '✓' : (item.s === 'm' ? '✕' : '💊')}
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <b class="dose-name">${esc(item.m.name)}</b>
+            <span class="dose-pill">${esc(item.m.dose)}</span>
+          </div>
+          <span class="sub dose-sub">⏰ ${fmtTime(item.time)} · ${fl(item.m)}</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="tag ${item.s}">${lbl[item.s]}</span>
+        ${item.s === 'k' ? `<button class="s outline" data-u="${item.k}">Undo</button>` : (!fut ? `<button class="s a" data-t="${item.k}">Take</button>` : '')}
+      </div>
+    </div>
+  `).join("") : '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:180px;text-align:center;color:var(--mut);border:1.5px dashed var(--bd);border-radius:14px;padding:20px;background:#FBFDFD"><span style="font-size:26px;margin-bottom:6px">🌿</span><b style="color:var(--teal);font-size:14px">No doses scheduled for this day</b><span style="font-size:12px;margin-top:4px">Relax and stay healthy!</span></div>';
+
+  // Medication selector for quick marking
+  if (actDoses.length) {
+    const firstUntaken = actDoses.find(x => x.s !== "k");
+    const defaultKey = firstUntaken ? firstUntaken.k : actDoses[0].k;
+
+    $("ms").innerHTML = actDoses.map(item => {
+      const isTaken = item.s === "k";
+      const statusSuffix = isTaken ? " — Taken ✓" : (item.s === "m" ? " — Missed" : " — Due");
+      return `<option value="${item.k}" ${item.k === defaultKey ? 'selected' : ''}>
+        ${esc(item.m.name)} - ${fmtTime(item.time)} (${item.m.dose})${statusSuffix}
+      </option>`;
+    }).join("");
+  } else {
+    $("ms").innerHTML = '<option value="">No doses due this day</option>';
+  }
+
+  // Update Mark Taken button state immediately
+  updateMarkButtonState();
+
+  // Active Meds List
+  renderMedsList();
+
+  // Single-Pass Statistics & Streak Calculation
+  let taken = 0, missed = 0, streak = 0, streakActive = true;
+  const todayMs = new Date().getTime();
+  for (let i = 0; i < 60; i++) {
+    const dayStr = ymd(new Date(todayMs - i * 864e5));
+    let dayTotal = 0, dayTaken = 0;
+    S.meds.forEach(m => {
+      getMedTimes(m).forEach(t => {
+        const s = status(m, dayStr, t);
+        if (s === "k") {
+          taken++;
+          dayTotal++;
+          dayTaken++;
+        } else if (s === "m") {
+          missed++;
+          dayTotal++;
+        }
+      });
+    });
+    if (streakActive && dayTotal > 0) {
+      if (dayTaken === dayTotal) streak++;
+      else streakActive = false;
+    }
+  }
+  const total = taken + missed;
+  const rate = total ? Math.round((taken / total) * 100) : 0;
+  // Daily doses for the active/selected day (no cumulative historical total)
+  const dailyTaken = actDoses.filter(x => x.s === "k").length;
+  const dailyMissed = actDoses.filter(x => x.s === "m").length;
+  $("s1").textContent = dailyTaken;
+  $("s2").textContent = dailyMissed;
+  $("s3").textContent = rate + "%";
+  $("s4").textContent = S.meds.length;
+  $("streak-count").textContent = streak;
+
+  // Overall cumulative total doses
+  if ($("tot-taken")) $("tot-taken").textContent = taken;
+  if ($("tot-missed")) $("tot-missed").textContent = missed;
+
+  const totIconTaken = $("tot-taken-icon");
+  if (totIconTaken) {
+    totIconTaken.classList.toggle("has-taken", taken > 0);
+  }
+
+  const totIconMissed = $("tot-missed-icon");
+  if (totIconMissed) {
+    totIconMissed.classList.toggle("has-missed", missed > 0);
+  }
+
+  // Taken doses: when all scheduled doses for this day are marked as taken, color box #00a889
+  const isTakenDoneAll = actDoses.length > 0 && actDoses.every(x => x.s === "k");
+  const iconTaken = $("st-icon-taken");
+  if (iconTaken) {
+    iconTaken.classList.toggle("done-all", isTakenDoneAll);
+  }
+
+  // Missed doses box: in red only when doses for this day are missed, otherwise remain same
+  const hasMissed = dailyMissed > 0;
+  const iconMissed = $("st-icon-missed");
+  if (iconMissed) {
+    iconMissed.classList.toggle("has-missed", hasMissed);
+    if (!hasMissed) {
+      iconMissed.style.color = "var(--teal)";
+    } else {
+      iconMissed.style.removeProperty("color");
+    }
+  }
+
+  // Settings sync
+  $("nm").value = S.set.nm || "both";
+  $("nc").value = S.set.nc || "";
+  $("nb").value = S.set.nb || "15";
+  $("nf").value = S.set.nf || "3";
+}
+
+// HELPER: GET TIME-OF-DAY PERIOD
+function getPeriodInfo(h24) {
+  if (h24 >= 5 && h24 < 12) return { icon: "🌅", name: "Morning" };
+  if (h24 >= 12 && h24 < 17) return { icon: "☀️", name: "Afternoon" };
+  if (h24 >= 17 && h24 < 21) return { icon: "🌇", name: "Evening" };
+  return { icon: "🌙", name: "Bedtime" };
+}
+
+// HELPER: GET SMART PRESETS PER DOSE (8:00 AM, 2:00 PM, 9:00 PM)
+function getDosePresets() {
+  return ["08:00", "14:00", "21:00"];
+}
+
+// CREATIVE DOSE TIME PICKERS GENERATOR (1x, 2x, 3x, 4x daily)
+function renderTimePickers(count, defaultTimes = []) {
+  const container = $("times-container");
+  const existing = defaultTimes.length ? defaultTimes : Array.from(container.querySelectorAll(".time-picker")).map(i => i.value);
+  container.innerHTML = "";
+  const standardPresets = {
+    1: ["08:00"],
+    2: ["08:00", "21:00"],
+    3: ["08:00", "14:00", "21:00"],
+    4: ["08:00", "14:00", "18:00", "21:00"]
+  };
+  const presets = standardPresets[count] || ["08:00"];
+  const quickPresets = getDosePresets();
+
+  for (let i = 0; i < count; i++) {
+    let val = (existing && existing[i]) || presets[i] || "08:00";
+    let parts = val.split(":");
+    let h24 = parseInt(parts[0], 10);
+    if (isNaN(h24)) h24 = 8;
+    let minStr = parts[1] || "00";
+    let ampm = h24 >= 12 ? "PM" : "AM";
+    let h12 = h24 % 12 || 12;
+    let h12Str = String(h12).padStart(2, "0");
+    let period = getPeriodInfo(h24);
+
+    const card = document.createElement("div");
+    card.className = "dose-card";
+    card.innerHTML = `
+      <input type="hidden" class="time-picker" value="${val}">
+      <div class="dose-card-header">
+        <div class="dose-badge-title">
+          <span class="dose-slot-icon">${period.icon}</span>
+          <div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="dose-slot-name">Dose ${i + 1}</span>
+              <span class="dose-period-tag">${period.name}</span>
+            </div>
+          </div>
+        </div>
+        <div class="dose-time-display">
+          <span class="time-clock-icon">⏰</span>
+          <span class="time-text">${fmtTime(val)}</span>
+        </div>
+      </div>
+      <div class="dose-card-body">
+        <div class="dose-pickers-row">
+          <div class="time-spinners-wrap" title="Select hour and minute">
+            <select class="custom-time-sel sel-hour" aria-label="Dose ${i + 1} Hour">
+              ${[1,2,3,4,5,6,7,8,9,10,11,12].map(n => {
+                const s = String(n).padStart(2, "0");
+                return `<option value="${s}" ${s === h12Str ? 'selected' : ''}>${s}</option>`;
+              }).join('')}
+            </select>
+            <span class="time-sep-colon">:</span>
+            <select class="custom-time-sel sel-min" aria-label="Dose ${i + 1} Minute">
+              ${["00","05","10","15","20","25","30","35","40","45","50","55"].map(m => {
+                return `<option value="${m}" ${m === minStr ? 'selected' : ''}>${m}</option>`;
+              }).join('')}
+            </select>
+          </div>
+          <div class="ampm-switch-pill" role="group" aria-label="AM or PM">
+            <button type="button" class="ampm-btn-pill ${ampm === 'AM' ? 'active' : ''}" data-ampm="AM">AM</button>
+            <button type="button" class="ampm-btn-pill ${ampm === 'PM' ? 'active' : ''}" data-ampm="PM">PM</button>
+          </div>
+          <div class="dose-presets-wrap">
+            <span class="preset-label">Quick:</span>
+            ${quickPresets.map(qp => `
+              <button type="button" class="preset-time-chip ${qp === val ? 'active' : ''}" data-time="${qp}">${fmtTime(qp)}</button>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    const timeInput = card.querySelector(".time-picker");
+    const hourSel = card.querySelector(".sel-hour");
+    const minSel = card.querySelector(".sel-min");
+    const ampmBtns = card.querySelectorAll(".ampm-btn-pill");
+    const presetBtns = card.querySelectorAll(".preset-time-chip");
+    const timeText = card.querySelector(".time-text");
+    const slotIcon = card.querySelector(".dose-slot-icon");
+    const periodTag = card.querySelector(".dose-period-tag");
+
+    function syncTime(newVal) {
+      timeInput.value = newVal;
+      let p = newVal.split(":");
+      let curH24 = parseInt(p[0], 10);
+      let curMin = p[1] || "00";
+      let curAmPm = curH24 >= 12 ? "PM" : "AM";
+      let curH12 = curH24 % 12 || 12;
+      let curH12Str = String(curH12).padStart(2, "0");
+
+      hourSel.value = curH12Str;
+      minSel.value = curMin;
+      ampmBtns.forEach(b => b.classList.toggle("active", b.dataset.ampm === curAmPm));
+      presetBtns.forEach(b => b.classList.toggle("active", b.dataset.time === newVal));
+
+      timeText.textContent = fmtTime(newVal);
+      let pInfo = getPeriodInfo(curH24);
+      slotIcon.textContent = pInfo.icon;
+      periodTag.textContent = pInfo.name;
+    }
+
+    function updateFromPickers() {
+      let h = parseInt(hourSel.value, 10);
+      let activeAmPmBtn = card.querySelector(".ampm-btn-pill.active");
+      let activeAmPm = activeAmPmBtn ? activeAmPmBtn.dataset.ampm : "AM";
+      if (activeAmPm === "PM" && h < 12) h += 12;
+      if (activeAmPm === "AM" && h === 12) h = 0;
+      let m = minSel.value;
+      let computed24 = `${String(h).padStart(2, "0")}:${m}`;
+      syncTime(computed24);
+    }
+
+    hourSel.addEventListener("change", (e) => {
+      e.stopPropagation();
+      updateFromPickers();
+    });
+    minSel.addEventListener("change", (e) => {
+      e.stopPropagation();
+      updateFromPickers();
+    });
+
+    ampmBtns.forEach(b => {
+      b.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        ampmBtns.forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        updateFromPickers();
+      });
+    });
+
+    presetBtns.forEach(b => {
+      b.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        syncTime(b.dataset.time);
+      });
+    });
+
+    container.appendChild(card);
+  }
+}
+
+// SYNC FREQUENCY & SEGMENTED BUTTONS
+function setFrequency(val) {
+  $("mf").value = val;
+  const btns = document.querySelectorAll("#seg-freq .seg-btn");
+  btns.forEach(b => b.classList.toggle("active", b.dataset.val === val));
+  $("dw").style.display = val === "w" ? "block" : "none";
+}
+
+// SYNC TIMES PER DAY & SEGMENTED BUTTONS
+function setTimesPerDay(val) {
+  $("mtpd").value = String(val);
+  const btns = document.querySelectorAll("#seg-tpd .seg-btn");
+  btns.forEach(b => b.classList.toggle("active", b.dataset.val === String(val)));
+  renderTimePickers(parseInt(val, 10) || 1);
+}
+
+// SYNC WEEKDAY & SEGMENTED BUTTONS
+function setWeekday(val) {
+  $("mdw").value = String(val);
+  const btns = document.querySelectorAll("#seg-dw .weekday-btn");
+  btns.forEach(b => b.classList.toggle("active", b.dataset.day === String(val)));
+}
+
+function updateFrequencyUI() {
+  const f = $("mf").value || "d";
+  setFrequency(f);
+  const numTimes = parseInt($("mtpd").value, 10) || 1;
+  setTimesPerDay(numTimes);
+  setWeekday($("mdw").value || getTodayUTC6().getDay());
+}
+
+// BIND SEGMENTED BUTTON CLICKS
+document.addEventListener("click", e => {
+  const freqBtn = e.target.closest("#seg-freq .seg-btn");
+  if (freqBtn) {
+    setFrequency(freqBtn.dataset.val);
+    return;
+  }
+  const tpdBtn = e.target.closest("#seg-tpd .seg-btn");
+  if (tpdBtn) {
+    setTimesPerDay(tpdBtn.dataset.val);
+    return;
+  }
+  const dwBtn = e.target.closest("#seg-dw .weekday-btn");
+  if (dwBtn) {
+    setWeekday(dwBtn.dataset.day);
+    return;
+  }
+});
+
+// RESET FORM
+function resetForm() {
+  editId = null;
+  $("mn").value = "";
+  $("md").value = "";
+  $("mf").value = "d";
+  $("mtpd").value = "1";
+  $("mdw").value = getTodayUTC6().getDay();
+  updateFrequencyUI();
+  const btnText = $("ad-btn-text");
+  if (btnText) btnText.textContent = "Add medication";
+  else $("ad").textContent = "Add medication";
+  $("cx").style.display = "none";
+  $("med-form-title").textContent = "Add or edit a medication";
+  const badge = $("med-form-status-badge");
+  if (badge) {
+    badge.textContent = "NEW ENTRY";
+    badge.style.background = "var(--mint)";
+    badge.style.color = "var(--em)";
+  }
+}
+$("cx").onclick = resetForm;
+
+// ADD / EDIT MEDICATION
+$("ad").onclick = () => {
+  const n = $("mn").value.trim();
+  const d = $("md").value.trim();
+  if (!n) { alert("Please enter the medication name"); return; }
+  const timeInputs = document.querySelectorAll(".time-picker");
+  const times = Array.from(timeInputs).map(inp => inp.value || "08:00");
+  const freq = $("mf").value;
+  const day = freq === "w" ? parseInt($("mdw").value, 10) : null;
+
+  if (editId) {
+    const m = S.meds.find(x => x.id === editId);
+    if (m) {
+      const td = ymd(new Date());
+      if (m.freq !== freq || m.day !== day) {
+        if (!m.base) m.base = { freq: m.freq || "d", day: m.day };
+        m.sch = (m.sch || []).filter(x => x.from !== td);
+        m.sch.push({ from: td, freq, anchor: td, day });
+      }
+      m.name = n;
+      m.dose = d;
+      m.freq = freq;
+      m.day = day;
+      m.times = times;
+      m.time = times[0];
+    }
+  } else {
+    S.meds.push({
+      id: "m" + Date.now(),
+      name: n,
+      dose: d,
+      freq: freq,
+      day: day,
+      times: times,
+      time: times[0],
+      start: ymd(new Date()),
+      at: Date.now()
+    });
+  }
+  resetForm();
+  save();
+  render();
+  playChime('success');
+  showToast("Medication saved!");
+};
+
+// MARK DOSE ACTION
+$("mk").onclick = () => {
+  const k = $("ms").value;
+  if (!k) return;
+  const isTaken = !!(S.log[k] || S.log[k.split("|").slice(0, 2).join("|")]);
+  if (isTaken) {
+    showToast("This dose has already been marked as taken!");
+    updateMarkButtonState();
+    return;
+  }
+  S.log[k] = Date.now();
+  save();
+  render();
+  playChime('success');
+  showToast("Dose marked as taken!");
+};
+$("ms").onchange = updateMarkButtonState;
+
+// TAKE ALL DUE ACTION
+$("take-all-btn").onclick = () => {
+  const ds = ymd(sel);
+  let count = 0;
+  S.meds.forEach(m => {
+    getMedTimes(m).forEach(t => {
+      const s = status(m, ds, t);
+      if (s === "p" || s === "m") {
+        S.log[ds + "|" + m.id + "|" + t] = Date.now();
+        count++;
+      }
+    });
+  });
+  if (count > 0) {
+    save();
+    render();
+    playChime('success');
+    showToast(`Logged ${count} doses taken!`);
+  }
+};
+
+// DOCUMENT CLICK DISPATCHER
+document.body.addEventListener("click", e => {
+  const x = e.target.dataset;
+  if (x.t) {
+    S.log[x.t] = Date.now();
+    save();
+    render();
+    playChime('success');
+    showToast("Dose logged!");
+  }
+  if (x.u) {
+    delete S.log[x.u];
+    save();
+    render();
+    showToast("Dose unmarked.");
+  }
+  if (x.a) {
+    S.ack = S.ack || {};
+    S.ack[x.a] = 1;
+    save();
+    render();
+  }
+  if (x.x) {
+    if (confirm("Remove this medication?")) {
+      S.meds = S.meds.filter(m => m.id !== x.x);
+      if (editId === x.x) resetForm();
+      save();
+      render();
+      showToast("Medication removed.");
+    }
+  }
+  if (x.e) {
+    const m = S.meds.find(q => q.id === x.e);
+    if (m) {
+      editId = m.id;
+      $("mn").value = m.name;
+      $("md").value = m.dose;
+      const f = (m.freq === "o" || m.freq === "w") ? m.freq : "d";
+      setFrequency(f);
+      const day = m.day != null ? m.day : getTodayUTC6().getDay();
+      setWeekday(day);
+      const times = getMedTimes(m);
+      const count = Math.min(4, Math.max(1, times.length || (["1", "2", "3", "4"].includes(m.freq) ? parseInt(m.freq, 10) : 1)));
+      setTimesPerDay(count);
+      renderTimePickers(count, times);
+      const btnText = $("ad-btn-text");
+      if (btnText) btnText.textContent = "Save changes";
+      else $("ad").textContent = "Save changes";
+      $("cx").style.display = "inline-flex";
+      $("med-form-title").textContent = "Edit Medication";
+      const badge = $("med-form-status-badge");
+      if (badge) {
+        badge.textContent = "EDITING";
+        badge.style.background = "#FFF4E5";
+        badge.style.color = "var(--warn)";
+      }
+      show("meds");
+      $("mn").focus();
+    }
+  }
+});
+
+// CALENDAR NAVIGATION
+$("cal").onclick = e => {
+  const b = e.target.closest("[data-d]");
+  if (b) {
+    const parts = b.dataset.d.split('-');
+    sel = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    render();
+  }
+};
+$("pv").onclick = () => { view = new Date(view.getFullYear(), view.getMonth() - 1, 1); render(); };
+$("nx").onclick = () => { view = new Date(view.getFullYear(), view.getMonth() + 1, 1); render(); };
+if ($("med-search")) $("med-search").oninput = renderMedsList;
+
+// ESCAPE KEY & KEYBOARD ACCESSIBILITY
+window.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    $("nv").classList.remove("open");
+    $("hb").textContent = "☰";
+    $("dd").hidden = true;
+    if ($("auth-otp-step") && !$("auth-otp-step").hidden) {
+      $("auth-otp-step").hidden = true;
+      $("auth-main-fields").hidden = false;
+      pendingAuth = null;
+    }
+  }
+});
+
+// VIEW SWITCHER
+function show(v) {
+  document.querySelectorAll(".v").forEach(e => e.hidden = e.id !== "v-" + v);
+  document.querySelectorAll(".nv [data-v]").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  $("nv").classList.remove("open");
+  $("hb").textContent = "☰";
+  $("dd").hidden = true;
+  window.scrollTo(0, 0);
+  if (v === "reports") prepareClinicalReport();
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest(".nv [data-v], #dd [data-v]");
+  if (b) show(b.dataset.v);
+  if (!e.target.closest("#dd") && !e.target.closest("#av")) $("dd").hidden = true;
+  if (!e.target.closest("#nv") && !e.target.closest("#hb")) {
+    $("nv").classList.remove("open");
+    $("hb").textContent = "☰";
+  }
+});
+$("hb").onclick = e => {
+  e.stopPropagation();
+  const isOpen = $("nv").classList.toggle("open");
+  $("hb").textContent = isOpen ? "✕" : "☰";
+};
+$("av").onclick = e => { e.stopPropagation(); $("dd").hidden = !$("dd").hidden; };
+
+// CLINICAL REPORT GENERATION
+function prepareClinicalReport() {
+  $("rpt-date").textContent = new Date().toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric" });
+  $("rpt-pid").textContent = cur ? cur.id : "GUEST";
+  $("rpt-name").textContent = cur ? cur.name : "Guest User";
+  $("rpt-contact").textContent = cur ? (cur.phone || cur.login) : "N/A";
+  $("rpt-adh").textContent = $("s3").textContent;
+  $("rpt-taken").textContent = $("s1").textContent;
+  $("rpt-missed").textContent = $("s2").textContent;
+
+  $("rpt-meds-tbody").innerHTML = S.meds.map(m => `
+    <tr>
+      <td><strong>${esc(m.name)}</strong></td>
+      <td>${esc(m.dose)}</td>
+      <td>${fl(m)}</td>
+      <td>${getMedTimes(m).map(fmtTime).join(", ")}</td>
+    </tr>
+  `).join("") || '<tr><td colspan="4" style="text-align:center">No active medications</td></tr>';
+}
+$("print-report-btn").onclick = () => {
+  prepareClinicalReport();
+  window.print();
+};
+
+// CSV EXPORT
+$("csv-export-btn").onclick = () => {
+  let rows = [["Date", "Medication", "Dosage", "Time", "Status"]];
+  for (let i = 0; i < 60; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dayStr = ymd(d);
+    S.meds.forEach(m => {
+      getMedTimes(m).forEach(t => {
+        const s = status(m, dayStr, t);
+        if (s !== "n") {
+          rows.push([dayStr, `"${m.name}"`, `"${m.dose}"`, fmtTime(t), lbl[s]]);
+        }
+      });
+    });
+  }
+  const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `sadikmed-report-${ymd(new Date())}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+};
+
+// BACKUP & RESTORE
+$("json-backup-btn").onclick = () => {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(S, null, 2));
+  const a = document.createElement("a");
+  a.setAttribute("href", dataStr);
+  a.setAttribute("download", `sadikmed-backup-${ymd(new Date())}.json`);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+};
+$("json-restore-input").onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data && data.meds) {
+        S = data;
+        save();
+        render();
+        showToast("Backup restored successfully!");
+      }
+    } catch (err) { alert("Invalid backup file."); }
+  };
+  reader.readAsText(file);
+};
+
+// PROFILE PICTURE (AVATAR) UPLOAD, ADJUST & REMOVE
+function updateAvatarDisplay(avatarUrl, name) {
+  const initial = (name || "?").trim()[0].toUpperCase();
+  const els = [ $("av"), $("pav") ];
+  els.forEach(el => {
+    if (!el) return;
+    if (avatarUrl) {
+      el.innerHTML = `<img src="${avatarUrl}" alt="Avatar">`;
+    } else {
+      el.textContent = initial;
+    }
+  });
+  const adjustBtn = $("pfp-adjust");
+  if (adjustBtn) {
+    adjustBtn.style.display = avatarUrl ? "inline-flex" : "none";
+  }
+}
+
+// PHOTO ADJUST & CROP CONTROLLER
+let cropImg = null;
+let cropScale = 1;
+let cropBaseScale = 1;
+let cropOffsetX = 0;
+let cropOffsetY = 0;
+let cropRotation = 0;
+let cropIsDragging = false;
+let cropStartX = 0;
+let cropStartY = 0;
+let cropInitOffsetX = 0;
+let cropInitOffsetY = 0;
+
+function openCropModal(img) {
+  cropImg = img;
+  cropRotation = 0;
+  cropScale = 1;
+  cropOffsetX = 0;
+  cropOffsetY = 0;
+  $("crop-zoom").value = "1";
+  $("crop-zoom-label").textContent = "100%";
+
+  const size = 260;
+  cropBaseScale = Math.max(size / img.width, size / img.height);
+  drawCropCanvas();
+
+  $("photo-adjust-modal").style.display = "flex";
+}
+
+function closeCropModal() {
+  $("photo-adjust-modal").style.display = "none";
+  cropImg = null;
+  $("pfp-upload").value = "";
+}
+
+function drawCropCanvas() {
+  if (!cropImg) return;
+  const canvas = $("crop-canvas");
+  const ctx = canvas.getContext("2d");
+  const size = 260;
+  ctx.clearRect(0, 0, size, size);
+
+  ctx.save();
+  ctx.translate(size / 2 + cropOffsetX, size / 2 + cropOffsetY);
+  ctx.rotate((cropRotation * Math.PI) / 180);
+  const s = cropBaseScale * cropScale;
+  ctx.scale(s, s);
+  ctx.drawImage(cropImg, -cropImg.width / 2, -cropImg.height / 2);
+  ctx.restore();
+}
+
+// Mouse dragging on crop viewport
+const cropViewport = $("crop-viewport");
+cropViewport.addEventListener("mousedown", e => {
+  e.preventDefault();
+  cropIsDragging = true;
+  cropStartX = e.clientX;
+  cropStartY = e.clientY;
+  cropInitOffsetX = cropOffsetX;
+  cropInitOffsetY = cropOffsetY;
+  cropViewport.style.cursor = "grabbing";
+});
+
+window.addEventListener("mousemove", e => {
+  if (!cropIsDragging) return;
+  cropOffsetX = cropInitOffsetX + (e.clientX - cropStartX);
+  cropOffsetY = cropInitOffsetY + (e.clientY - cropStartY);
+  drawCropCanvas();
+});
+
+window.addEventListener("mouseup", () => {
+  if (cropIsDragging) {
+    cropIsDragging = false;
+    cropViewport.style.cursor = "grab";
+  }
+});
+
+// Touch dragging for mobile & tablet
+cropViewport.addEventListener("touchstart", e => {
+  if (!e.touches.length) return;
+  cropIsDragging = true;
+  cropStartX = e.touches[0].clientX;
+  cropStartY = e.touches[0].clientY;
+  cropInitOffsetX = cropOffsetX;
+  cropInitOffsetY = cropOffsetY;
+}, { passive: false });
+
+cropViewport.addEventListener("touchmove", e => {
+  if (!cropIsDragging || !e.touches.length) return;
+  e.preventDefault();
+  cropOffsetX = cropInitOffsetX + (e.touches[0].clientX - cropStartX);
+  cropOffsetY = cropInitOffsetY + (e.touches[0].clientY - cropStartY);
+  drawCropCanvas();
+}, { passive: false });
+
+cropViewport.addEventListener("touchend", () => {
+  cropIsDragging = false;
+});
+
+// Zoom slider
+$("crop-zoom").addEventListener("input", e => {
+  cropScale = parseFloat(e.target.value);
+  $("crop-zoom-label").textContent = Math.round(cropScale * 100) + "%";
+  drawCropCanvas();
+});
+
+// Rotate button
+$("crop-rotate-btn").addEventListener("click", () => {
+  cropRotation = (cropRotation + 90) % 360;
+  drawCropCanvas();
+});
+
+// Fit center / reset
+$("crop-fit-btn").addEventListener("click", () => {
+  cropOffsetX = 0;
+  cropOffsetY = 0;
+  cropScale = 1;
+  cropRotation = 0;
+  $("crop-zoom").value = "1";
+  $("crop-zoom-label").textContent = "100%";
+  drawCropCanvas();
+});
+
+// Cancel buttons
+$("crop-cancel-btn").addEventListener("click", closeCropModal);
+$("crop-cancel-x").addEventListener("click", closeCropModal);
+
+// Save photo button
+$("crop-save-btn").addEventListener("click", () => {
+  if (!cropImg || !cur) return;
+  const outCanvas = document.createElement("canvas");
+  const outSize = 320;
+  outCanvas.width = outSize;
+  outCanvas.height = outSize;
+  const outCtx = outCanvas.getContext("2d");
+
+  const ratio = outSize / 260;
+  outCtx.save();
+  outCtx.translate(outSize / 2 + cropOffsetX * ratio, outSize / 2 + cropOffsetY * ratio);
+  outCtx.rotate((cropRotation * Math.PI) / 180);
+  const s = cropBaseScale * cropScale * ratio;
+  outCtx.scale(s, s);
+  outCtx.drawImage(cropImg, -cropImg.width / 2, -cropImg.height / 2);
+  outCtx.restore();
+
+  const dataUrl = outCanvas.toDataURL("image/jpeg", 0.88);
+  cur.avatar = dataUrl;
+  const list = accts();
+  const a = list.find(x => x.id === cur.id);
+  if (a) a.avatar = dataUrl;
+  localStorage.setItem(AK, JSON.stringify(list));
+  updateAvatarDisplay(dataUrl, cur.name);
+
+  fetch('/api/sadikmed/update-profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: cur.id, avatar: dataUrl })
+  }).catch(() => {});
+
+  closeCropModal();
+  showToast("Profile picture adjusted & saved!");
+});
+
+// File upload listener -> opens Photo Adjust modal
+$("pfp-upload").onchange = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      openCropModal(img);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+// File upload button click trigger
+const pfpUploadBtn = $("pfp-upload-btn");
+if (pfpUploadBtn) {
+  pfpUploadBtn.onclick = () => $("pfp-upload").click();
+}
+
+// Adjust photo button click
+$("pfp-adjust").onclick = () => {
+  if (cur && cur.avatar) {
+    const img = new Image();
+    img.onload = () => {
+      openCropModal(img);
+    };
+    img.src = cur.avatar;
+  }
+};
+
+// Click profile avatar to adjust or upload
+$("pav").onclick = () => {
+  if (cur && cur.avatar) {
+    const img = new Image();
+    img.onload = () => {
+      openCropModal(img);
+    };
+    img.src = cur.avatar;
+  } else {
+    $("pfp-upload").click();
+  }
+};
+
+$("pfp-remove").onclick = () => {
+  if (cur) {
+    cur.avatar = null;
+    const list = accts();
+    const a = list.find(x => x.id === cur.id);
+    if (a) a.avatar = null;
+    localStorage.setItem(AK, JSON.stringify(list));
+    updateAvatarDisplay(null, cur.name);
+    fetch('/api/sadikmed/update-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: cur.id, avatar: null })
+    }).catch(() => {});
+    showToast("Profile picture removed.");
+  }
+};
+
+// PROFILE SAVE
+$("psv").onclick = () => {
+  const n = $("pn").value.trim();
+  if (!n) return;
+  if (cur) {
+    cur.name = n;
+    const list = accts();
+    const a = list.find(x => x.id === cur.id);
+    if (a) a.name = n;
+    localStorage.setItem(AK, JSON.stringify(list));
+    $("dn").textContent = n;
+    $("pnn").textContent = n;
+    updateAvatarDisplay(cur.avatar, n);
+    $("pm").textContent = "Profile saved.";
+    setTimeout(() => { $("pm").textContent = ""; }, 3000);
+    fetch('/api/sadikmed/update-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: cur.id, name: n })
+    }).catch(() => {});
+    showToast("Profile updated!");
+  }
+};
+
+// PASSWORD CHANGE FEATURE
+const hx = async (p, t) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t + p)))].map(b => b.toString(16).padStart(2, "0")).join("");
+
+$("cpw-btn").onclick = async () => {
+  $("pwe").textContent = "";
+  $("pws").textContent = "";
+  const oldPw = $("cpw").value;
+  const newPw = $("npw").value;
+  const newPw2 = $("npw2").value;
+
+  if (!oldPw || !newPw || !newPw2) {
+    $("pwe").textContent = "All password fields are required.";
+    return;
+  }
+  if (newPw.length < 8) {
+    $("pwe").textContent = "New password must be at least 8 characters.";
+    return;
+  }
+  if (newPw !== newPw2) {
+    $("pwe").textContent = "New passwords do not match.";
+    return;
+  }
+
+  const list = accts();
+  const a = list.find(x => x.id === cur.id);
+  if (!a) return;
+
+  const currentHash = await hx(oldPw, a.salt);
+  if (currentHash !== a.hash) {
+    $("pwe").textContent = "Current password is incorrect.";
+    return;
+  }
+
+  const newSalt = [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, "0")).join("");
+  const newHash = await hx(newPw, newSalt);
+
+  a.salt = newSalt;
+  a.hash = newHash;
+  cur.salt = newSalt;
+  cur.hash = newHash;
+  localStorage.setItem(AK, JSON.stringify(list));
+
+  // Sync password change to server
+  try {
+    await fetch('/api/sadikmed/update-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: cur.id, oldHash: currentHash, newSalt, newHash })
+    });
+  } catch (e) {}
+
+  $("cpw").value = "";
+  $("npw").value = "";
+  $("npw2").value = "";
+  $("pws").textContent = "Password updated successfully!";
+  showToast("Password updated!");
+};
+
+// TEST NOTIFICATIONS
+$("enable-push-btn").onclick = async () => {
+  if (!("Notification" in window)) {
+    alert("Desktop notifications are not supported by your browser.");
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm === "granted") {
+    new Notification("SadikMed Tracker", { body: "Notifications enabled! You will be reminded when doses are due." });
+    showToast("Notifications enabled!");
+  } else {
+    alert("Notification permission was denied.");
+  }
+};
+
+$("test-sound-btn").onclick = () => {
+  playChime('success');
+  showToast("Chime played successfully!");
+};
+
+$("test-email-btn").onclick = async () => {
+  const target = $("nc").value.trim() || (cur ? cur.email : "");
+  if (!target || !target.includes("@")) {
+    alert("Please provide a valid email in the notification target field.");
+    return;
+  }
+  showToast("Sending test reminder email...");
+  try {
+    const res = await fetch('/api/sadikmed/test-reminder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: target, medName: "Metformin", dose: "500 mg", time: "08:00" })
+    });
+    const json = await res.json();
+    if (json.success) {
+      if (json.delivery && json.delivery.previewUrl) {
+        showToast("Email dispatched! Check preview link in server console.");
+      } else {
+        showToast("Test reminder email sent!");
+      }
+    } else {
+      alert("Error: " + (json.error || "Failed to dispatch email"));
+    }
+  } catch (e) {
+    alert("Could not reach backend notification service.");
+  }
+};
+
+// PUSH REMINDER INTERVAL (RUNS EVERY 30S IN UTC+06:00 WITH DUPLICATE GUARD)
+let lastNotifiedMinute = "";
+setInterval(() => {
+  if (!cur || !("Notification" in window) || Notification.permission !== "granted") return;
+  const currentHM = getNowHM();
+  const todayStr = ymd(new Date());
+  const checkKey = `${todayStr}-${currentHM}`;
+  if (lastNotifiedMinute === checkKey) return;
+  lastNotifiedMinute = checkKey;
+
+  S.meds.forEach(m => {
+    getMedTimes(m).forEach(t => {
+      if (t === currentHM && status(m, todayStr, t) === "p") {
+        new Notification("⏰ Dose Due: " + m.name, {
+          body: `It's time for your ${m.name} (${m.dose}). Click to log your dose.`,
+          requireInteraction: true
+        });
+        playChime('alert');
+      }
+    });
+  });
+}, 30000);
+
+// AUTHENTICATION & OTP FLOW
+let pendingAuth = null;
+
+function setMode(m) {
+  mode = m;
+  $("t1").classList.toggle("on", m === "in");
+  $("t2").classList.toggle("on", m === "up");
+  $("fn").hidden = m === "in";
+  $("phone-field").hidden = m === "in";
+  $("email-field").hidden = m === "in";
+  $("login-id-field").hidden = m === "up";
+  $("fc").hidden = m === "in";
+  $("auth-main-fields").hidden = false;
+  $("auth-otp-step").hidden = true;
+  $("ab").textContent = m === "in" ? "Continue to Verification" : "Send Verification Code";
+  $("at").textContent = m === "in" ? "Welcome back. Sign in to track your medication." : "Create an account with mandatory phone verification.";
+  $("ae").textContent = "";
+}
+
+$("t1").onclick = () => setMode("in");
+$("t2").onclick = () => setMode("up");
+
+// ENTER APPLICATION WITH ACTIVE USER
+async function enter(a) {
+  cur = a;
+  localStorage.setItem(SK, a.id);
+  K = "sm_" + a.id;
+  S = { meds: [], log: {}, set: { nm: "both", nc: a.phone || a.email || "", nb: "15", nf: "3" }, u: Date.now() };
+  editId = null;
+  sel = getTodayUTC6();
+  view = getTodayUTC6();
+
+  $("dn").textContent = a.name;
+  $("dl2").textContent = a.phone || a.login;
+  $("pnn").textContent = a.name;
+  $("pn").value = a.name;
+  $("ppn").value = a.phone || "N/A";
+  $("pem").value = a.email || "N/A";
+  $("ps").value = new Date(a.at || Date.now()).toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric" });
+  updateAvatarDisplay(a.avatar, a.name);
+
+  $("auth").hidden = true;
+  $("app").hidden = false;
+  show("dash");
+  await load();
+}
+
+function out() {
+  localStorage.removeItem(SK);
+  cur = null;
+  $("app").hidden = true;
+  $("auth").hidden = false;
+  $("ap").value = "";
+  $("ap2").value = "";
+  setMode("in");
+}
+$("lo").onclick = out;
+
+// DISPATCH OTP CALL
+async function requestOtp(recipient, channel, reason, name) {
+  try {
+    const res = await fetch('/api/sadikmed/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipient, channel, reason, name })
+    });
+    const json = await res.json();
+    return json;
+  } catch (e) {
+    // Local fallback if offline
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    return { success: true, demoCode: code };
+  }
+}
+
+// VERIFY OTP CALL
+async function verifyOtp(recipient, code) {
+  try {
+    const res = await fetch('/api/sadikmed/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipient, code })
+    });
+    const json = await res.json();
+    return json;
+  } catch (e) {
+    if (pendingAuth && pendingAuth.code === code) return { success: true };
+    return { success: false, error: 'Verification failed' };
+  }
+}
+
+// SUBMIT AUTH FORM (SIGN IN OR SIGN UP TRIGGER)
+async function submit() {
+  const e = $("ae");
+  e.textContent = "";
+  const pw = $("ap").value;
+
+  if (mode === "in") {
+    // LOGIN FLOW
+    const login = $("lid").value.trim().toLowerCase();
+    if (!login) { e.textContent = "Please enter your registered phone number or email."; return; }
+    if (!pw) { e.textContent = "Please enter your password."; return; }
+
+    const L = accts();
+    let a = L.find(x => (x.login && x.login.toLowerCase() === login) || (x.phone && x.phone === login) || (x.email && x.email.toLowerCase() === login));
+    let serverData = null;
+
+    if (a) {
+      // User found in this browser's localStorage
+      if (await hx(pw, a.salt) !== a.hash) {
+        e.textContent = "Incorrect phone/email or password.";
+        return;
+      }
+    } else {
+      // User not found in this browser's localStorage (e.g. new browser, incognito, or different device)
+      // Check directly with the backend server database
+      try {
+        const loginRes = await fetch('/api/sadikmed/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login, password: pw })
+        });
+        const json = await loginRes.json();
+        if (!json.success || !json.user) {
+          e.textContent = json.error || "Incorrect phone/email or password.";
+          return;
+        }
+        a = json.user;
+        serverData = json.data;
+      } catch (err) {
+        e.textContent = "Could not connect to authentication server. Please check your connection.";
+        return;
+      }
+    }
+
+    // Two-factor security verification for login
+    const recipient = a.phone || a.email || a.login;
+    const channel = recipient.includes('@') ? 'email' : 'phone';
+    const otpRes = await requestOtp(recipient, channel, 'login', a.name);
+
+    pendingAuth = {
+      type: 'login',
+      account: a,
+      userData: serverData,
+      recipient,
+      channel,
+      code: otpRes.demoCode
+    };
+
+    $("auth-main-fields").hidden = true;
+    $("auth-otp-step").hidden = false;
+    $("otp-title").textContent = "Security Login Verification";
+    $("otp-subtitle").textContent = `Code sent to ${recipient} (${channel === 'email' ? 'Email' : 'SMS'})`;
+    $("otp-code-input").value = "";
+    $("otp-error").textContent = "";
+    if (otpRes.demoCode) {
+      $("otp-notice").textContent = `Demo code: ${otpRes.demoCode}`;
+    }
+  } else {
+    // REGISTRATION FLOW WITH MANDATORY PHONE
+    const name = $("an").value.trim();
+    const phone = $("apn").value.trim();
+    const email = $("aem").value.trim().toLowerCase();
+    const pw2 = $("ap2").value;
+    const channel = document.querySelector('input[name="otp_channel"]:checked').value;
+
+    if (!name) { e.textContent = "Please enter your full name."; return; }
+    if (!phone || phone.length < 8) { e.textContent = "A valid phone number is mandatory."; return; }
+    if (!email || !email.includes('@')) { e.textContent = "A valid email address is required."; return; }
+    if (pw.length < 8) { e.textContent = "Password must be at least 8 characters."; return; }
+    if (pw !== pw2) { e.textContent = "Passwords do not match."; return; }
+
+    const L = accts();
+    if (L.some(x => (x.phone && x.phone === phone) || (x.login && x.login.toLowerCase() === phone) || (x.email && x.email.toLowerCase() === email))) {
+      e.textContent = "An account with this phone number or email already exists.";
+      return;
+    }
+
+    const recipient = channel === 'email' ? email : phone;
+    const otpRes = await requestOtp(recipient, channel, 'register', name);
+
+    const salt = [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, "0")).join("");
+    const hash = await hx(pw, salt);
+
+    pendingAuth = {
+      type: 'register',
+      data: {
+        id: "a" + Date.now(),
+        name,
+        phone,
+        email,
+        login: phone,
+        salt,
+        hash,
+        avatar: null,
+        at: Date.now()
+      },
+      recipient,
+      channel,
+      code: otpRes.demoCode
+    };
+
+    $("auth-main-fields").hidden = true;
+    $("auth-otp-step").hidden = false;
+    $("otp-title").textContent = "Verify Your Account";
+    $("otp-subtitle").textContent = `6-digit code sent to ${recipient} (${channel === 'email' ? 'Email' : 'SMS'})`;
+    $("otp-code-input").value = "";
+    $("otp-error").textContent = "";
+    if (otpRes.demoCode) {
+      $("otp-notice").textContent = `Demo verification code: ${otpRes.demoCode}`;
+    }
+  }
+}
+
+$("ab").onclick = submit;
+$("auth").addEventListener("keydown", e => { if (e.key === "Enter" && !$("auth-otp-step").hidden) verifyOtpStep(); });
+
+// VERIFY OTP STEP ACTION
+async function verifyOtpStep() {
+  const code = $("otp-code-input").value.trim();
+  const errEl = $("otp-error");
+  errEl.textContent = "";
+
+  if (!code || code.length < 6) {
+    errEl.textContent = "Please enter the full 6-digit code.";
+    return;
+  }
+
+  if (!pendingAuth) return;
+
+  const res = await verifyOtp(pendingAuth.recipient, code);
+  if (!res.success && (!pendingAuth.code || pendingAuth.code !== code)) {
+    errEl.textContent = res.error || "Incorrect or expired verification code.";
+    return;
+  }
+
+  // Successfully verified!
+  if (pendingAuth.type === 'login') {
+    const L = accts();
+    const idx = L.findIndex(x => x.id === pendingAuth.account.id);
+    if (idx >= 0) L[idx] = pendingAuth.account;
+    else L.push(pendingAuth.account);
+    localStorage.setItem(AK, JSON.stringify(L));
+
+    // If server provided existing tracker data, sync into this browser's localStorage
+    if (pendingAuth.userData) {
+      localStorage.setItem("sm_" + pendingAuth.account.id, JSON.stringify(pendingAuth.userData));
+    }
+
+    enter(pendingAuth.account);
+  } else if (pendingAuth.type === 'register') {
+    const L = accts();
+    L.push(pendingAuth.data);
+    localStorage.setItem(AK, JSON.stringify(L));
+    // Register with backend
+    fetch('/api/sadikmed/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(pendingAuth.data)
+    }).catch(() => {});
+    enter(pendingAuth.data);
+  }
+  pendingAuth = null;
+}
+$("otp-verify-btn").onclick = verifyOtpStep;
+
+$("otp-resend-btn").onclick = async () => {
+  if (!pendingAuth) return;
+  const targetName = pendingAuth.account ? pendingAuth.account.name : (pendingAuth.data ? pendingAuth.data.name : "");
+  const otpRes = await requestOtp(pendingAuth.recipient, pendingAuth.channel, pendingAuth.type, targetName);
+  pendingAuth.code = otpRes.demoCode;
+  $("otp-notice").textContent = otpRes.demoCode ? `Resent code: ${otpRes.demoCode}` : "Verification code resent!";
+};
+
+$("otp-back-btn").onclick = () => {
+  pendingAuth = null;
+  $("auth-otp-step").hidden = true;
+  $("auth-main-fields").hidden = false;
+};
+
+// INITIALIZATION
+setMode("in");
+resetForm();
+{
+  const savedId = localStorage.getItem(SK);
+  const a0 = accts().find(x => x.id === savedId);
+  if (a0) {
+    enter(a0);
+  } else {
+    $("auth").hidden = false;
+    setMode("in");
+  }
+}
+</script>
+</body>
+</html>

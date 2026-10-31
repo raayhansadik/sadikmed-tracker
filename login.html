@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign In — Clipora Client Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-gradient: radial-gradient(ellipse at 50% 12%, #FFF9EB 0%, #F5ECE0 50%, #ECE2D0 100%);
+  --ink:#111827;
+  --muted:#6B7280;
+  --line:#E5E7EB;
+  --accent:#1F7A4D;
+  --sand-dark:#D97706;
+  --card-bg:#FFFFFF;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  background: var(--bg-gradient);
+  color:var(--ink);
+  font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:24px 16px;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+
+/* Top Mini Logo Bar */
+.top-bar{
+  position:absolute;
+  top:24px;
+  left:24px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.logo{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;
+  font-size:22px;
+  color:var(--ink);
+  display:flex;
+  align-items:center;
+  gap:9px;
+  transition:transform .2s;
+}
+.logo:hover{transform:translateY(-1px)}
+.logo b{color:var(--accent)}
+.mark{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  background:var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 3px 8px rgba(31,122,77,.3);
+}
+
+/* Centered Login Card */
+.login-card{
+  background:var(--card-bg);
+  width:100%;
+  max-width:410px;
+  border-radius:24px;
+  padding:42px 38px;
+  box-shadow:0 20px 45px rgba(45,35,20,.08), 0 2px 6px rgba(0,0,0,.04);
+  border:1px solid rgba(225,220,205,.75);
+  animation:fade-up .45s cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes fade-up{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.login-card h1{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:32px;
+  font-weight:800;
+  margin:0 0 6px;
+  letter-spacing:-0.02em;
+  color:var(--ink);
+}
+.login-card p.sub{
+  color:var(--muted);
+  font-size:15px;
+  margin:0 0 28px;
+  line-height:1.45;
+}
+
+/* Form Fields */
+.form-group{
+  display:grid;
+  gap:7px;
+  margin-bottom:18px;
+}
+.form-group label{
+  font-size:13.5px;
+  font-weight:600;
+  color:#374151;
+}
+.input{
+  width:100%;
+  box-sizing:border-box;
+  min-height:46px;
+  padding:11px 14px;
+  border-radius:11px;
+  border:1.5px solid #D1D5DB;
+  background:#FFFFFF;
+  color:var(--ink);
+  font-family:inherit;
+  font-size:15px;
+  transition:all .2s;
+  outline:none;
+}
+.input:focus{
+  border-color:#111827;
+  box-shadow:0 0 0 3px rgba(17,24,39,.12);
+}
+
+/* Submit Button */
+.btn-submit{
+  width:100%;
+  min-height:48px;
+  background:#111827;
+  color:#FFFFFF;
+  border:none;
+  border-radius:12px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:700;
+  font-size:16px;
+  margin-top:8px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  box-shadow:0 6px 18px rgba(17,24,39,.2);
+  transition:all .2s ease;
+}
+.btn-submit:hover{
+  background:#1F2937;
+  transform:translateY(-1px);
+  box-shadow:0 8px 22px rgba(17,24,39,.28);
+}
+.btn-submit:active{
+  transform:translateY(0);
+}
+
+/* Footer Link */
+.card-foot{
+  text-align:center;
+  margin-top:26px;
+  font-size:13.5px;
+  color:#6B7280;
+}
+.card-foot a{
+  color:var(--sand-dark);
+  font-weight:700;
+  transition:opacity .2s;
+}
+.card-foot a:hover{
+  text-decoration:underline;
+  opacity:.9;
+}
+
+/* Quick Demo Indicator Pill */
+.demo-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  font-weight:700;
+  color:#059669;
+  background:#ECFDF5;
+  border:1px solid #A7F3D0;
+  padding:4px 10px;
+  border-radius:999px;
+  margin-bottom:18px;
+}
+.demo-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#10B981;
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html" class="logo" title="Back to Clipora Home">
+    <span class="mark">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 5.5l10.5 6.5L8 18.5z" fill="#fff"></path>
+        <circle cx="19.5" cy="5" r="2" fill="#FFE9A8"></circle>
+      </svg>
+    </span>
+    <span>Clip<b>ora</b></span>
+  </a>
+</div>
+
+<main class="login-card">
+  <h1>Welcome back.</h1>
+  <p class="sub">Sign in to your client dashboard.</p>
+
+  <div id="login-error" style="display:none;background:#FEF2F2;border:1px solid #FCA5A5;color:#991B1B;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:16px"></div>
+
+  <form id="login-form" onsubmit="handleLogin(event)">
+    <div class="form-group">
+      <label for="email">Email address</label>
+      <input type="email" id="email" class="input" placeholder="you@example.com" required autocomplete="email">
+    </div>
+
+    <div class="form-group">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <label for="password">Password</label>
+        <span style="font-size:11.5px;color:var(--muted)">Initial password: <code style="color:var(--sand-dark);font-weight:bold">Clipora#2026</code></span>
+      </div>
+      <input type="password" id="password" class="input" placeholder="••••••••" required autocomplete="current-password">
+    </div>
+
+    <button type="submit" class="btn-submit" id="btn-submit">
+      <span>Sign in</span>
+      <span aria-hidden="true">&rarr;</span>
+    </button>
+
+    <div class="card-foot">
+      Not a client yet? <a href="contact.html">Book a call &rarr;</a>
+    </div>
+  </form>
+</main>
+
+<script>
+function handleLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-submit');
+  const errBox = document.getElementById('login-error');
+  const emailInput = document.getElementById('email').value.trim();
+  const passInput = document.getElementById('password').value.trim();
+
+  errBox.style.display = 'none';
+  btn.innerHTML = 'Signing in...';
+  btn.style.pointerEvents = 'none';
+  btn.style.opacity = '0.85';
+
+  fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: emailInput, password: passInput })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      localStorage.setItem('clipora_logged_in', 'true');
+      localStorage.setItem('clipora_user_name', (data.client && data.client.name) ? data.client.name : 'Client');
+      localStorage.setItem('clipora_user_email', emailInput);
+      
+      if (data.client && data.client.sessions && data.client.sessions.length > 0) {
+        localStorage.setItem('clipora_sessions', JSON.stringify(data.client.sessions));
+      }
+      
+      window.location.href = 'dashboard.html';
+    } else {
+      btn.innerHTML = '<span>Sign in</span> <span aria-hidden="true">&rarr;</span>';
+      btn.style.pointerEvents = 'auto';
+      btn.style.opacity = '1';
+      errBox.textContent = data.error || 'Invalid credentials. Please use your dispatched password (Clipora#2026).';
+      errBox.style.display = 'block';
+    }
+  })
+  .catch(() => {
+    // Client-side fallback if server offline
+    let userName = 'Client';
+    if (emailInput) {
+      const raw = emailInput.split('@')[0];
+      const parts = raw.split(/[._-]/).filter(Boolean);
+      userName = parts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+    }
+    localStorage.setItem('clipora_logged_in', 'true');
+    localStorage.setItem('clipora_user_name', userName);
+    localStorage.setItem('clipora_user_email', emailInput);
+    window.location.href = 'dashboard.html';
+  });
+}
+</script>
+
+</body>
+</html>

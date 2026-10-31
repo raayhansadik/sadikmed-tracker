@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Environment and logs
+.env
+*.log
+npm-debug.log*
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+.vercel
+.env*

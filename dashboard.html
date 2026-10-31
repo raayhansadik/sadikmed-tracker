@@ -1,0 +1,1175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Portal — Clipora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+// Authentication Gate: only accessible when logged in
+if (localStorage.getItem('clipora_logged_in') !== 'true') {
+  window.location.replace('login.html');
+}
+</script>
+<style>
+:root{
+  --dark-bg:#080D1A;
+  --dark-card:#0F172A;
+  --dark-card2:#141E33;
+  --dark-border:#1E293B;
+  --dark-border-light:#2D3B4F;
+  --dark-text:#F8FAFC;
+  --dark-muted:#94A3B8;
+  --dark-sub:#64748B;
+  --accent:#10B981;
+  --accent-glow:rgba(16,185,129,0.25);
+  --amber:#F59E0B;
+  --amber-bg:rgba(245,158,11,0.08);
+  --amber-border:rgba(245,158,11,0.6);
+  --danger-bg:#2D151B;
+  --danger-border:#5C1D24;
+  --danger-text:#F87171;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--dark-bg);
+  color:var(--dark-text);
+  font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+  line-height:1.5;
+  font-size:15px;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{
+  font-family:'Bricolage Grotesque',sans-serif;
+  line-height:1.2;
+  margin:0;
+}
+.w{max-width:1180px;margin:0 auto;padding:0 24px}
+
+/* Top Subtle Navigation */
+.portal-nav{
+  padding:18px 0;
+  border-bottom:1px solid rgba(30,41,59,0.6);
+  margin-bottom:28px;
+}
+.portal-nav-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.portal-logo{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;
+  font-size:20px;
+  color:#FFFFFF;
+}
+.portal-logo b{color:#10B981}
+.portal-mark{
+  width:32px;
+  height:32px;
+  border-radius:9px;
+  background:#1F7A4D;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.view-site-link{
+  font-size:13px;
+  font-weight:600;
+  color:var(--dark-muted);
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 12px;
+  border-radius:8px;
+  border:1px solid var(--dark-border);
+  transition:all .2s;
+}
+.view-site-link:hover{
+  background:var(--dark-card2);
+  color:#fff;
+  border-color:var(--dark-border-light);
+}
+
+/* User Header Banner Card */
+.profile-banner{
+  background:var(--dark-card);
+  border:1px solid var(--dark-border);
+  border-radius:20px;
+  padding:24px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+  margin-bottom:24px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.3);
+}
+.profile-left{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+.profile-avatar{
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  border:2.5px solid var(--amber);
+  overflow:hidden;
+  flex-shrink:0;
+  box-shadow:0 0 16px rgba(245,158,11,0.25);
+  position:relative;
+  background:linear-gradient(135deg, #1E293B, #0F172A);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.avatar-initials{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:22px;
+  font-weight:800;
+  color:#FDE68A;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+  user-select:none;
+}
+.profile-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  position:absolute;
+  inset:0;
+}
+.portal-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:4px;
+}
+.portal-badge-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 8px var(--accent-glow);
+}
+.profile-info h1{
+  font-size:26px;
+  font-weight:800;
+  color:#FFFFFF;
+  letter-spacing:-0.02em;
+}
+.profile-email{
+  font-size:14px;
+  color:var(--dark-muted);
+  margin-top:2px;
+}
+.profile-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.btn-refresh{
+  background:transparent;
+  border:1px solid #334155;
+  color:#E2E8F0;
+  padding:9px 18px;
+  border-radius:10px;
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:600;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  transition:all .2s;
+}
+.btn-refresh:hover{
+  background:#1E293B;
+  border-color:#475569;
+}
+.btn-refresh.spinning svg{
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-logout{
+  background:var(--danger-bg);
+  border:1px solid var(--danger-border);
+  color:var(--danger-text);
+  padding:9px 20px;
+  border-radius:10px;
+  font-family:inherit;
+  font-size:13.5px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s;
+}
+.btn-logout:hover{
+  background:#3E181D;
+  border-color:#7F1D1D;
+  color:#FCA5A5;
+}
+
+/* Horizontal Tabs Bar */
+.tabs-bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  overflow-x:auto;
+  padding-bottom:12px;
+  margin-bottom:20px;
+  scrollbar-width:none;
+}
+.tabs-bar::-webkit-scrollbar{display:none}
+.tab-btn{
+  background:var(--dark-card);
+  border:1.5px solid var(--dark-border);
+  color:var(--dark-muted);
+  padding:11px 20px;
+  border-radius:12px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:700;
+  font-size:14.5px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+  transition:all .2s ease;
+}
+.tab-btn:hover{
+  border-color:var(--dark-border-light);
+  color:#FFFFFF;
+}
+.tab-btn.active{
+  background:var(--amber-bg);
+  border-color:var(--amber);
+  color:#FDE68A;
+  box-shadow:0 0 16px rgba(245,158,11,0.15);
+}
+
+/* Tab Panels */
+.tab-panel{
+  display:none;
+  animation:fade-in .25s ease;
+}
+.tab-panel.active{
+  display:block;
+}
+@keyframes fade-in{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* Content Card */
+.content-card{
+  background:var(--dark-card);
+  border:1px solid var(--dark-border);
+  border-radius:20px;
+  padding:32px;
+  box-shadow:0 12px 30px rgba(0,0,0,0.25);
+  margin-bottom:48px;
+}
+.content-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:24px;
+}
+.content-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:20px;
+  font-weight:800;
+  color:var(--amber);
+}
+
+/* Tables */
+.sessions-table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+}
+.sessions-table th{
+  text-align:left;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--dark-sub);
+  padding:12px 16px;
+  border-bottom:1px solid var(--dark-border);
+}
+.sessions-table td{
+  padding:20px 16px;
+  font-size:14.5px;
+  color:#E2E8F0;
+  border-bottom:1px solid rgba(30,41,59,0.5);
+  vertical-align:middle;
+}
+.status-pill{
+  display:inline-block;
+  font-size:11.5px;
+  font-weight:800;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  padding:4px 10px;
+  border-radius:999px;
+  background:#1E293B;
+  color:#94A3B8;
+  border:1px solid #334155;
+}
+.status-pill.confirmed{
+  background:rgba(16,185,129,0.12);
+  color:#10B981;
+  border-color:rgba(16,185,129,0.3);
+}
+
+/* Prep & Action Cards */
+.prep-card{
+  margin-top:28px;
+  background:var(--dark-card2);
+  border:1px solid var(--dark-border-light);
+  border-radius:14px;
+  padding:20px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.prep-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.prep-icon{
+  width:42px;
+  height:42px;
+  border-radius:10px;
+  background:rgba(245,158,11,0.15);
+  color:var(--amber);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.prep-title{
+  font-weight:700;
+  font-size:15px;
+  color:#FFFFFF;
+}
+.prep-sub{
+  font-size:13px;
+  color:var(--dark-muted);
+}
+.btn-gold{
+  background:var(--amber);
+  color:#0F172A;
+  border:none;
+  padding:10px 20px;
+  border-radius:10px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;
+  font-size:14px;
+  cursor:pointer;
+  transition:all .2s;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.btn-gold:hover{
+  filter:brightness(1.1);
+  transform:translateY(-1px);
+}
+
+/* Subscriptions Tab */
+.sub-grid{
+  display:grid;
+  grid-template-columns:1.2fr 1fr;
+  gap:24px;
+  margin-bottom:28px;
+}
+@media(max-width:800px){
+  .sub-grid{grid-template-columns:1fr}
+}
+.plan-detail-card{
+  background:var(--dark-card2);
+  border:1px solid var(--dark-border-light);
+  border-radius:16px;
+  padding:24px;
+}
+.plan-tag-live{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  font-weight:700;
+  color:#10B981;
+  background:rgba(16,185,129,0.15);
+  padding:3px 10px;
+  border-radius:999px;
+  margin-bottom:12px;
+}
+.plan-price-lg{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:32px;
+  font-weight:800;
+  color:#fff;
+}
+.plan-price-lg small{
+  font-size:15px;
+  color:var(--dark-muted);
+  font-family:'DM Sans',sans-serif;
+  font-weight:500;
+}
+
+/* Deliverables Grid */
+.deliverables-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+  gap:16px;
+  margin-top:20px;
+}
+.deliv-card{
+  background:var(--dark-card2);
+  border:1px solid var(--dark-border);
+  border-radius:14px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  transition:all .2s;
+}
+.deliv-thumb{
+  aspect-ratio:16/9;
+  background:#090E17;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.deliv-thumb img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.deliv-play{
+  position:absolute;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:rgba(230,33,23,0.9);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.deliv-title{
+  font-weight:700;
+  font-size:14px;
+  color:#fff;
+  line-height:1.3;
+}
+.deliv-meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:12px;
+  color:var(--dark-muted);
+}
+.btn-download{
+  background:transparent;
+  border:1px solid var(--dark-border-light);
+  color:#E2E8F0;
+  padding:6px 12px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s;
+  text-align:center;
+}
+.btn-download:hover{
+  background:var(--dark-border);
+  color:#fff;
+}
+
+/* Settings Form */
+.settings-grid{
+  display:grid;
+  gap:18px;
+  max-width:580px;
+}
+.field-dark label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  color:var(--dark-muted);
+  margin-bottom:6px;
+}
+.field-dark input{
+  width:100%;
+  min-height:46px;
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid var(--dark-border);
+  background:var(--dark-card2);
+  color:#FFFFFF;
+  font-family:inherit;
+  font-size:14.5px;
+  outline:none;
+  transition:all .2s;
+  box-sizing:border-box;
+}
+.field-dark input:focus{
+  border-color:var(--amber);
+  box-shadow:0 0 0 3px rgba(245,158,11,0.15);
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:24px;
+  right:24px;
+  background:#1E293B;
+  border:1px solid #334155;
+  color:#FFFFFF;
+  padding:12px 20px;
+  border-radius:12px;
+  font-size:13.5px;
+  font-weight:600;
+  box-shadow:0 12px 30px rgba(0,0,0,0.5);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  z-index:99;
+  opacity:0;
+  transform:translateY(30px);
+  transition:all .25s ease;
+  pointer-events:none;
+}
+.toast.show{
+  opacity:1;
+  transform:translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<nav class="portal-nav">
+  <div class="w portal-nav-wrap">
+    <a href="index.html" class="portal-logo">
+      <span class="portal-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 5.5l10.5 6.5L8 18.5z" fill="#fff"></path>
+          <circle cx="19.5" cy="5" r="2" fill="#FFE9A8"></circle>
+        </svg>
+      </span>
+      <span>Clip<b>ora</b> <span style="font-size:13px;font-weight:600;color:var(--dark-muted);margin-left:4px">Portal</span></span>
+    </a>
+    <a href="index.html" class="view-site-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>Back to Website</span>
+    </a>
+  </div>
+</nav>
+
+<main class="w">
+
+  <!-- Profile Banner -->
+  <section class="profile-banner">
+    <div class="profile-left">
+      <!-- Dynamic Avatar: Shows initials or custom uploaded photo (NO hardcoded founder picture) -->
+      <div class="profile-avatar" id="avatar-container">
+        <span class="avatar-initials" id="avatar-initials">U</span>
+        <img id="avatar-img" src="" alt="Avatar" style="display:none">
+      </div>
+      <div class="profile-info">
+        <div class="portal-badge">
+          <span class="portal-badge-dot"></span>
+          <span>Client Portal</span>
+        </div>
+        <h1 id="user-display-name">Welcome back!</h1>
+        <div class="profile-email" id="user-display-email">—</div>
+      </div>
+    </div>
+
+    <div class="profile-actions">
+      <button type="button" class="btn-refresh" id="btn-refresh" onclick="refreshData()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <span>Refresh Data</span>
+      </button>
+      <button type="button" class="btn-logout" onclick="logout()">
+        <span>Log out</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Horizontal Tabs Bar -->
+  <div class="tabs-bar" role="tablist">
+    <button type="button" class="tab-btn active" id="tab-btn-sessions" onclick="switchPortalTab('sessions')">
+      <span>🎙️ Recording Sessions</span>
+    </button>
+    <button type="button" class="tab-btn" id="tab-btn-subs" onclick="switchPortalTab('subs')">
+      <span>💳 Subscriptions & Invoices</span>
+    </button>
+    <button type="button" class="tab-btn" id="tab-btn-deliverables" onclick="switchPortalTab('deliverables')">
+      <span>🎬 Deliverables & Feedback</span>
+    </button>
+    <button type="button" class="tab-btn" id="tab-btn-support" onclick="switchPortalTab('support')">
+      <span>💬 Support Tickets</span>
+    </button>
+    <button type="button" class="tab-btn" id="tab-btn-settings" onclick="switchPortalTab('settings')">
+      <span>⚙️ Profile Settings</span>
+    </button>
+  </div>
+
+  <!-- Tab 1: Podcast Recording Sessions -->
+  <section class="tab-panel active" id="panel-sessions">
+    <div class="content-card">
+      <div class="content-header">
+        <div class="content-title">
+          <span>🎙️</span>
+          <span>Your Podcast Recording Sessions</span>
+        </div>
+        <a href="contact.html" class="btn-gold" style="text-decoration:none">+ Schedule New Session</a>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="sessions-table">
+          <thead>
+            <tr>
+              <th>SCHEDULED DATE</th>
+              <th>PLAN / PACKAGE</th>
+              <th>STATUS</th>
+              <th>SESSION LINK</th>
+            </tr>
+          </thead>
+          <tbody id="sessions-tbody">
+            <!-- Dynamically populated from actual user data -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Prep Card -->
+      <div class="prep-card">
+        <div class="prep-left">
+          <div class="prep-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1v11M19 10a7 7 0 0 1-14 0M12 18v5M8 23h8"/></svg>
+          </div>
+          <div>
+            <div class="prep-title">Interview Recording Checklist</div>
+            <div class="prep-sub">No scripts needed. Plug in standard earbuds or an external mic, ensure quiet lighting, and talk naturally on camera.</div>
+          </div>
+        </div>
+        <button type="button" class="btn-refresh" onclick="showToast('Camera and microphone test passed!')">Test Camera & Audio</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tab 2: Subscriptions & Invoices -->
+  <section class="tab-panel" id="panel-subs">
+    <div class="content-card">
+      <div class="content-header">
+        <div class="content-title">
+          <span>💳</span>
+          <span>Active Subscription & Billing History</span>
+        </div>
+      </div>
+
+      <div class="sub-grid" id="sub-info-wrap">
+        <!-- Dynamically rendered based on whether the user has a subscription -->
+      </div>
+
+      <h4 style="font-size:16px;color:#fff;margin-bottom:12px">Invoice History</h4>
+      <div style="overflow-x:auto">
+        <table class="sessions-table">
+          <thead>
+            <tr>
+              <th>INVOICE #</th>
+              <th>DATE</th>
+              <th>AMOUNT</th>
+              <th>STATUS</th>
+              <th>RECEIPT</th>
+            </tr>
+          </thead>
+          <tbody id="invoices-tbody">
+            <!-- Dynamically rendered -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tab 3: Deliverables & Feedback -->
+  <section class="tab-panel" id="panel-deliverables">
+    <div class="content-card" id="deliverables-content">
+      <!-- Dynamically rendered: clean empty state if no recording has completed yet -->
+    </div>
+  </section>
+
+  <!-- Tab 4: Support Tickets -->
+  <section class="tab-panel" id="panel-support">
+    <div class="content-card">
+      <div class="content-header">
+        <div class="content-title">
+          <span>💬</span>
+          <span>Support & Producer Contact</span>
+        </div>
+        <button type="button" class="btn-gold" onclick="openTicketModal()">+ Open New Ticket</button>
+      </div>
+
+      <div class="prep-card" style="margin-top:0;margin-bottom:24px">
+        <div class="prep-left">
+          <div class="prep-icon" style="background:rgba(16,185,129,0.15);color:var(--accent)">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="prep-title">Dedicated Producer: Sarah Jenkins</div>
+            <div class="prep-sub">🟢 Online · Available for content & scheduling inquiries</div>
+          </div>
+        </div>
+        <a href="https://wa.me/?text=Hi%20Sarah,%20I%20have%20a%20question%20about%20my%20Clipora%20account" target="_blank" class="btn-refresh" style="text-decoration:none">
+          <span>Chat on WhatsApp</span>
+        </a>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="sessions-table">
+          <thead>
+            <tr>
+              <th>TICKET ID</th>
+              <th>SUBJECT</th>
+              <th>STATUS</th>
+              <th>DATE</th>
+            </tr>
+          </thead>
+          <tbody id="tickets-tbody">
+            <!-- Dynamically rendered from user tickets -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tab 5: Profile Settings -->
+  <section class="tab-panel" id="panel-settings">
+    <div class="content-card">
+      <div class="content-header">
+        <div class="content-title">
+          <span>⚙️</span>
+          <span>Account & Profile Settings</span>
+        </div>
+      </div>
+
+      <form class="settings-grid" onsubmit="saveSettings(event)">
+        <div class="field-dark">
+          <label>Profile Avatar</label>
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+            <button type="button" class="btn-refresh" onclick="document.getElementById('avatar-input').click()">Upload Your Photo</button>
+            <button type="button" class="btn-download" onclick="removeAvatar()">Remove Photo (Use Initials)</button>
+          </div>
+          <small style="color:var(--dark-muted);display:block;margin-top:6px;font-size:12px">Upload your own avatar photo, or leave it blank to automatically use your initials.</small>
+        </div>
+
+        <div class="field-dark">
+          <label>Full Name</label>
+          <input type="text" id="settings-name" placeholder="Enter your full name" required>
+        </div>
+        <div class="field-dark">
+          <label>Account Email</label>
+          <input type="email" id="settings-email" placeholder="you@example.com" required>
+        </div>
+        <div class="field-dark">
+          <label>Brand / Company</label>
+          <input type="text" id="settings-brand" placeholder="e.g. Acme Studio">
+        </div>
+        <div class="field-dark">
+          <label>Target Audience / Niche</label>
+          <input type="text" id="settings-niche" placeholder="e.g. Real Estate, SaaS, Health">
+        </div>
+        <button type="submit" class="btn-gold" style="width:fit-content;margin-top:10px">Save Settings</button>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toast-text">Data refreshed successfully!</span>
+</div>
+
+<script>
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function switchPortalTab(tabKey) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById('tab-btn-' + tabKey);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+  const activePanel = document.getElementById('panel-' + tabKey);
+  if (activePanel) activePanel.classList.add('active');
+}
+
+function refreshData() {
+  const btn = document.getElementById('btn-refresh');
+  btn.classList.add('spinning');
+  showToast('Refreshing your account records...');
+
+  setTimeout(() => {
+    btn.classList.remove('spinning');
+    renderAll();
+    showToast('Dashboard is up to date.');
+  }, 600);
+}
+
+function logout() {
+  showToast('Signing out...');
+  localStorage.removeItem('clipora_logged_in');
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 400);
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  const toastText = document.getElementById('toast-text');
+  toastText.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3200);
+}
+
+// 1. Render Profile and Avatar
+function renderProfile() {
+  const email = localStorage.getItem('clipora_user_email') || '';
+  let name = localStorage.getItem('clipora_user_name') || '';
+
+  if (!name && email) {
+    const raw = email.split('@')[0];
+    name = raw.split(/[._-]/).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+  }
+  if (!name) name = 'Client';
+
+  document.getElementById('user-display-name').textContent = `Welcome back, ${name}!`;
+  document.getElementById('user-display-email').textContent = email || 'No email on record';
+  
+  const nameInput = document.getElementById('settings-name');
+  const emailInput = document.getElementById('settings-email');
+  if (nameInput) nameInput.value = name;
+  if (emailInput) emailInput.value = email;
+
+  const brand = localStorage.getItem('clipora_user_brand') || '';
+  const niche = localStorage.getItem('clipora_user_niche') || '';
+  if (document.getElementById('settings-brand')) document.getElementById('settings-brand').value = brand;
+  if (document.getElementById('settings-niche')) document.getElementById('settings-niche').value = niche;
+
+  // Dynamic Avatar Initials
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'U';
+  document.getElementById('avatar-initials').textContent = initials;
+
+  // Dynamic Custom Avatar Check
+  const customAvatar = localStorage.getItem('clipora_user_avatar');
+  const imgEl = document.getElementById('avatar-img');
+  const initialsEl = document.getElementById('avatar-initials');
+
+  if (customAvatar) {
+    imgEl.src = customAvatar;
+    imgEl.style.display = 'block';
+    initialsEl.style.display = 'none';
+  } else {
+    imgEl.style.display = 'none';
+    initialsEl.style.display = 'block';
+  }
+}
+
+// 2. Render Recording Sessions
+function renderSessions() {
+  const tbody = document.getElementById('sessions-tbody');
+  const stored = localStorage.getItem('clipora_sessions');
+  const sessions = stored ? JSON.parse(stored) : [];
+
+  if (!sessions || sessions.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center;padding:52px 16px;color:var(--dark-muted)">
+          <div style="font-size:32px;margin-bottom:12px">🎙️</div>
+          <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:6px">No Recording Sessions Scheduled</div>
+          <div style="font-size:13.5px;max-width:440px;margin:0 auto 22px;color:var(--dark-muted);line-height:1.5">You have not scheduled any interview recording sessions yet. Pick a time to begin your next content batch.</div>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <a href="contact.html" class="btn-gold" style="text-decoration:none">+ Schedule Free 15-Min Intro Call</a>
+            <a href="checkout.html?plan=monthly" class="btn-refresh" style="text-decoration:none">Start Clipora ($499/mo)</a>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = sessions.map(s => `
+    <tr>
+      <td style="font-weight:700">${escapeHtml(s.date)}</td>
+      <td style="font-weight:600">${escapeHtml(s.plan)}</td>
+      <td><span class="status-pill ${s.status === 'COMPLETED' ? 'confirmed' : ''}">${escapeHtml(s.status)}</span></td>
+      <td>${s.link && s.link !== '—' ? `<a href="https://${s.link.replace(/^https?:\/\//, '')}" target="_blank" style="color:var(--accent);font-weight:600;text-decoration:underline">${escapeHtml(s.link)}</a>` : '<span style="color:var(--dark-muted)">—</span>'}</td>
+    </tr>
+  `).join('');
+}
+
+// 3. Render Subscriptions & Invoices
+function renderSubscriptions() {
+  const subWrap = document.getElementById('sub-info-wrap');
+  const invTbody = document.getElementById('invoices-tbody');
+  const subData = localStorage.getItem('clipora_subscription');
+  const invData = localStorage.getItem('clipora_invoices');
+
+  const sub = subData ? JSON.parse(subData) : null;
+  const invoices = invData ? JSON.parse(invData) : [];
+
+  if (!sub) {
+    subWrap.innerHTML = `
+      <div class="plan-detail-card" style="grid-column:1/-1;text-align:center;padding:42px 20px">
+        <div style="font-size:28px;margin-bottom:10px">💳</div>
+        <h3 style="font-size:18px;font-weight:800;color:#fff;margin-bottom:6px">No Active Subscription</h3>
+        <p style="color:var(--dark-muted);max-width:440px;margin:0 auto 20px;font-size:14px">You are not currently enrolled in a monthly Clipora subscription plan.</p>
+        <a href="checkout.html?plan=monthly" class="btn-gold" style="display:inline-block;text-decoration:none">View Plans &amp; Subscribe ($499/mo)</a>
+      </div>
+    `;
+  } else {
+    subWrap.innerHTML = `
+      <div class="plan-detail-card">
+        <div class="plan-tag-live">● Active Subscription</div>
+        <h3 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">${escapeHtml(sub.plan)}</h3>
+        <div class="plan-price-lg">${escapeHtml(sub.price)} <small>/ month</small></div>
+        <p style="color:var(--dark-muted);font-size:13.5px;margin:12px 0 16px">36 deliverables per month: 8 vertical videos, 8 articles, 20 branded quote cards, and social calendar.</p>
+        <div style="font-size:13px;color:#A7F3D0">Status: <strong>${escapeHtml(sub.status || 'Active')}</strong> · Auto-renews monthly</div>
+      </div>
+      <div class="plan-detail-card" style="display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <h4 style="font-size:16px;color:#fff;margin-bottom:8px">Billing Details</h4>
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--dark-muted)">
+            <span style="background:#1E293B;padding:4px 8px;border-radius:6px;font-weight:800;color:#fff">CARD</span>
+            <span>Card on file</span>
+          </div>
+        </div>
+        <button type="button" class="btn-refresh" style="margin-top:16px;align-self:flex-start" onclick="showToast('Billing link sent to email')">Manage Payment Method</button>
+      </div>
+    `;
+  }
+
+  if (!invoices || invoices.length === 0) {
+    invTbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center;padding:32px;color:var(--dark-muted)">
+          No billing invoices found on this account.
+        </td>
+      </tr>
+    `;
+  } else {
+    invTbody.innerHTML = invoices.map(inv => `
+      <tr>
+        <td style="font-weight:700">${escapeHtml(inv.id)}</td>
+        <td>${escapeHtml(inv.date)}</td>
+        <td>${escapeHtml(inv.amount)}</td>
+        <td><span class="status-pill confirmed">${escapeHtml(inv.status)}</span></td>
+        <td><button type="button" class="btn-download" onclick="showToast('Downloading invoice ${escapeHtml(inv.id)}...')">Download PDF</button></td>
+      </tr>
+    `).join('');
+  }
+}
+
+// 4. Render Deliverables
+function renderDeliverables() {
+  const container = document.getElementById('deliverables-content');
+  const storedSessions = localStorage.getItem('clipora_sessions');
+  const sessions = storedSessions ? JSON.parse(storedSessions) : [];
+  const completed = sessions.filter(s => s.status === 'COMPLETED');
+
+  if (completed.length === 0) {
+    const hasPending = sessions.length > 0;
+    container.innerHTML = `
+      <div class="content-header">
+        <div class="content-title">
+          <span>🎬</span>
+          <span>Deliverables &amp; Feedback</span>
+        </div>
+      </div>
+
+      <div style="background:var(--dark-card2);border:1px solid var(--dark-border-light);border-radius:16px;padding:48px 24px;text-align:center">
+        <div style="width:58px;height:58px;border-radius:50%;background:rgba(245,158,11,0.15);color:var(--amber);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:26px">
+          ${hasPending ? '⏳' : '🎬'}
+        </div>
+        <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:8px">
+          ${hasPending ? 'No Deliverables Ready Yet' : 'No Content Produced Yet'}
+        </h3>
+        <p style="color:var(--dark-muted);max-width:540px;margin:0 auto 24px;font-size:14.5px;line-height:1.55">
+          ${hasPending 
+            ? 'Your scheduled recording session is in the queue. Once you hold your interview on camera, your 8 vertical clips, 8 articles, and 20 quote cards will be uploaded here within 5 business days.' 
+            : 'Deliverables will appear here once you record your first 60-minute interview. Schedule a session or choose a plan to get started.'}
+        </p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <a href="${hasPending ? '#panel-sessions' : 'contact.html'}" onclick="${hasPending ? "switchPortalTab('sessions')" : ""}" class="btn-gold" style="text-decoration:none">
+            ${hasPending ? 'View Session Details' : '+ Schedule Session'}
+          </a>
+          <button type="button" class="btn-refresh" id="toggle-samples-btn" onclick="toggleSamples()">Toggle Sample Deliverables</button>
+        </div>
+      </div>
+
+      <div id="sample-deliverables-wrap" style="display:none;margin-top:32px">
+        <h4 style="font-size:16px;color:var(--amber);margin-bottom:14px">Sample Preview (What your deliverables will look like):</h4>
+        <div class="deliverables-grid">
+          <div class="deliv-card">
+            <div class="deliv-thumb">
+              <img src="assets/clip1.jpg" alt="Clip 1">
+              <div class="deliv-play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+            </div>
+            <div class="deliv-title">Sample: Core Industry Insight</div>
+            <div class="deliv-meta"><span>9:16 Vertical Video</span><span class="status-pill" style="font-size:10px">SAMPLE</span></div>
+          </div>
+          <div class="deliv-card">
+            <div class="deliv-thumb">
+              <img src="assets/clip2.jpg" alt="Clip 2">
+              <div class="deliv-play"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+            </div>
+            <div class="deliv-title">Sample: The Advice People Get Wrong</div>
+            <div class="deliv-meta"><span>9:16 Vertical Video</span><span class="status-pill" style="font-size:10px">SAMPLE</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// 5. Render Support Tickets
+function renderTickets() {
+  const tbody = document.getElementById('tickets-tbody');
+  const stored = localStorage.getItem('clipora_tickets');
+  const tickets = stored ? JSON.parse(stored) : [];
+
+  if (!tickets || tickets.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="text-align:center;padding:36px 16px;color:var(--dark-muted)">
+          <div style="font-weight:700;color:#fff;margin-bottom:4px">No support tickets submitted</div>
+          <div style="font-size:13px">Need help with your upcoming session or account? Click "+ Open New Ticket" above.</div>
+        </td>
+      </tr>
+    `;
+  } else {
+    tbody.innerHTML = tickets.map(t => `
+      <tr>
+        <td style="font-weight:700">${escapeHtml(t.id)}</td>
+        <td>${escapeHtml(t.subject)}</td>
+        <td><span class="status-pill confirmed">${escapeHtml(t.status)}</span></td>
+        <td>${escapeHtml(t.date)}</td>
+      </tr>
+    `).join('');
+  }
+}
+
+function openTicketModal() {
+  const subject = prompt('What is your support inquiry regarding?');
+  if (subject && subject.trim()) {
+    const stored = localStorage.getItem('clipora_tickets');
+    const tickets = stored ? JSON.parse(stored) : [];
+    const newTicket = {
+      id: '#TK-' + Math.floor(1000 + Math.random() * 9000),
+      subject: subject.trim(),
+      status: 'OPEN',
+      date: 'Just now'
+    };
+    tickets.unshift(newTicket);
+    localStorage.setItem('clipora_tickets', JSON.stringify(tickets));
+    renderTickets();
+    showToast(`Ticket ${newTicket.id} opened. Producer notified!`);
+  }
+}
+
+function handleAvatarUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const dataUrl = evt.target.result;
+    localStorage.setItem('clipora_user_avatar', dataUrl);
+    renderProfile();
+    showToast('Profile photo updated!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeAvatar() {
+  localStorage.removeItem('clipora_user_avatar');
+  renderProfile();
+  showToast('Custom photo removed. Now using initials.');
+}
+
+function toggleSamples() {
+  const wrap = document.getElementById('sample-deliverables-wrap');
+  const btn = document.getElementById('toggle-samples-btn');
+  if (!wrap || !btn) return;
+  if (wrap.style.display === 'none') {
+    wrap.style.display = 'block';
+    btn.innerHTML = '<span>Hide Sample Deliverables</span>';
+  } else {
+    wrap.style.display = 'none';
+    btn.innerHTML = '<span>Show Sample Deliverables</span>';
+  }
+}
+
+function saveSettings(e) {
+  e.preventDefault();
+  const name = document.getElementById('settings-name').value.trim();
+  const email = document.getElementById('settings-email').value.trim();
+  const brand = document.getElementById('settings-brand').value.trim();
+  const niche = document.getElementById('settings-niche').value.trim();
+
+  if (name) localStorage.setItem('clipora_user_name', name);
+  if (email) localStorage.setItem('clipora_user_email', email);
+  if (brand) localStorage.setItem('clipora_user_brand', brand);
+  if (niche) localStorage.setItem('clipora_user_niche', niche);
+
+  renderProfile();
+  showToast('Settings saved successfully!');
+}
+
+function renderAll() {
+  renderProfile();
+  renderSessions();
+  renderSubscriptions();
+  renderDeliverables();
+  renderTickets();
+}
+
+document.addEventListener('DOMContentLoaded', renderAll);
+</script>
+
+</body>
+</html>

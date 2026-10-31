@@ -1,0 +1,1742 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book a Call — Clipora: Talk for an hour. Show up for a month.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F7F2;
+  --surf:#E6EDE0;
+  --surf2:#D5E0CC;
+  --ink:#14301F;
+  --muted:#4A6354;
+  --line:#C3D2BB;
+  --accent:#1F7A4D;
+  --accent-light:#E8F5ED;
+  --sand:#FFE9A8;
+  --sand-card:#FFF5D9;
+  --card-bg:#FFFFFF;
+  --danger:#D93829;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+  line-height:1.5;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,h4{
+  font-family:'Bricolage Grotesque',sans-serif;
+  line-height:1.15;
+  letter-spacing:-0.02em;
+  margin:0;
+}
+.w{max-width:1160px;margin:0 auto;padding:0 24px}
+
+/* Buttons */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  padding:0 24px;
+  border-radius:999px;
+  background:var(--accent);
+  color:#fff;
+  border:1px solid transparent;
+  font-family:'Bricolage Grotesque',sans-serif;
+  min-height:48px;
+  cursor:pointer;
+  transition:transform .25s ease,filter .25s ease;
+  text-decoration:none;
+}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.btn.dk{background:var(--ink);border-color:var(--ink);color:#fff;min-height:44px;padding:0 22px;border-radius:16px}
+.btn.o{background:transparent;color:var(--ink);border-color:var(--ink)}
+.btn.o:hover{background:var(--ink);color:#fff}
+
+/* Navigation Header */
+.hd{
+  position:sticky;
+  top:12px;
+  z-index:40;
+  padding:0 16px;
+  animation:hdin .7s .1s cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes hdin{from{opacity:0;translate:0 -24px}to{opacity:1;translate:0 0}}
+.hd .nav{
+  background:color-mix(in srgb,#fff 58%,transparent);
+  -webkit-backdrop-filter:blur(18px) saturate(170%);
+  backdrop-filter:blur(18px) saturate(170%);
+  border:1px solid rgba(255,255,255,.75);
+  border-radius:26px;
+  padding:9px 10px 9px 12px;
+  box-shadow:0 10px 34px rgba(20,48,31,.13),inset 0 1px 0 rgba(255,255,255,.85);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:nowrap;
+}
+.hd .logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;
+  font-size:23px;
+}
+.hd .logo b{color:var(--accent)}
+.hd .mark{
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  background:var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 10px rgba(31,122,77,.35);
+  transition:rotate .4s ease;
+}
+.hd .mid{display:flex;gap:6px;align-items:center}
+.hd .mid a{padding:8px 16px;border-radius:999px;color:var(--muted);font-weight:500;transition:background .2s,color .2s}
+.hd .mid a:hover{background:rgba(31,122,77,.1);color:var(--ink)}
+.hd .rt{display:flex;align-items:center;gap:10px}
+.hd .rt .lg{padding:8px 14px;font-weight:700;color:var(--muted);transition:color .2s}
+.hd .rt .lg:hover{color:var(--ink)}
+@media(max-width:820px){.hd .mid{display:none}}
+@media(max-width:480px){.hd .rt .lg{display:none}.hd .logo{font-size:20px}}
+
+/* Hero Section */
+.hero{
+  padding:48px 0 32px;
+  text-align:center;
+}
+.top-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:12.5px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  background:var(--accent-light);
+  color:var(--accent);
+  border:1px solid rgba(31,122,77,.2);
+  padding:6px 14px;
+  border-radius:999px;
+  margin-bottom:16px;
+}
+.pulse-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 0 0 rgba(31,122,77,.5);
+  animation:pulse-green 2s infinite;
+}
+@keyframes pulse-green{
+  0%{box-shadow:0 0 0 0 rgba(31,122,77,.6)}
+  70%{box-shadow:0 0 0 10px rgba(31,122,77,0)}
+  100%{box-shadow:0 0 0 0 rgba(31,122,77,0)}
+}
+.hero h1{
+  font-size:clamp(36px,5.2vw,58px);
+  font-weight:800;
+  max-width:780px;
+  margin:0 auto 16px;
+}
+.hero h1 span{color:var(--accent)}
+.hero p{
+  font-size:18px;
+  color:var(--muted);
+  max-width:620px;
+  margin:0 auto 28px;
+  line-height:1.55;
+}
+
+/* Mode Switcher Tabs */
+.tab-switch{
+  display:inline-flex;
+  background:var(--surf);
+  border:1px solid var(--line);
+  padding:5px;
+  border-radius:999px;
+  gap:4px;
+  margin-bottom:32px;
+}
+.tab-btn{
+  border:none;
+  background:transparent;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:15px;
+  font-weight:700;
+  color:var(--muted);
+  padding:10px 22px;
+  border-radius:999px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  transition:all .2s ease;
+}
+.tab-btn.active{
+  background:#fff;
+  color:var(--ink);
+  box-shadow:0 3px 12px rgba(20,48,31,.08);
+}
+.tab-btn svg{width:16px;height:16px}
+
+/* Main Grid Layout */
+.contact-layout{
+  display:grid;
+  grid-template-columns:1fr 1.28fr;
+  gap:36px;
+  align-items:start;
+  margin-bottom:72px;
+}
+@media(max-width:960px){
+  .contact-layout{grid-template-columns:1fr;gap:28px}
+}
+
+/* Left Column: Context Card */
+.host-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:32px;
+  box-shadow:0 10px 30px rgba(20,48,31,.05);
+}
+.host-top{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-bottom:20px;
+}
+.host-av{
+  position:relative;
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  overflow:hidden;
+  border:2.5px solid var(--accent);
+  box-shadow:0 4px 14px rgba(31,122,77,.2);
+  flex-shrink:0;
+}
+.host-av img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 18%;
+  transform:scale(1.32);
+  transform-origin:center 24%;
+}
+.host-info h3{
+  font-size:20px;
+  font-weight:800;
+  color:var(--ink);
+}
+.host-info p{
+  margin:2px 0 0;
+  font-size:13.5px;
+  color:var(--muted);
+  font-weight:500;
+}
+.avail-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:11.5px;
+  font-weight:700;
+  color:var(--accent);
+  background:var(--accent-light);
+  padding:3px 9px;
+  border-radius:999px;
+  margin-top:6px;
+}
+.avail-chip span{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--accent);
+}
+.host-bio{
+  font-size:15px;
+  color:var(--ink);
+  line-height:1.55;
+  margin-bottom:24px;
+  background:var(--bg);
+  padding:16px 18px;
+  border-radius:16px;
+  border:1px solid var(--line);
+}
+.call-meta{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:24px;
+}
+.meta-item{
+  background:var(--surf);
+  padding:12px 14px;
+  border-radius:14px;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:600;
+}
+.meta-item svg{color:var(--accent);flex-shrink:0}
+
+.points-list{
+  list-style:none;
+  padding:0;
+  margin:0 0 24px;
+  display:grid;
+  gap:12px;
+}
+.points-list li{
+  position:relative;
+  padding-left:26px;
+  font-size:14px;
+  color:var(--ink);
+}
+.points-list li::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:6px;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:var(--accent-light);
+  border:2px solid var(--accent);
+}
+
+.mini-quote{
+  background:var(--sand-card);
+  border:1px solid #E8D595;
+  border-radius:16px;
+  padding:18px;
+  font-size:13.5px;
+  color:#42361E;
+  line-height:1.45;
+  font-style:italic;
+  position:relative;
+}
+.mini-quote strong{
+  display:block;
+  font-style:normal;
+  font-size:12px;
+  font-weight:700;
+  color:#6B5A33;
+  margin-top:8px;
+}
+
+/* Quick Channels Bar */
+.direct-channels{
+  margin-top:20px;
+  padding-top:20px;
+  border-top:1px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.direct-link{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 14px;
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:12px;
+  font-size:13.5px;
+  font-weight:600;
+  transition:all .2s;
+  cursor:pointer;
+}
+.direct-link:hover{
+  background:var(--accent-light);
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.copy-pill{
+  font-size:11px;
+  font-weight:700;
+  background:var(--line);
+  padding:3px 8px;
+  border-radius:999px;
+  color:var(--ink);
+}
+
+/* Right Column: Interactive Booking Widget */
+.booking-widget{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:34px;
+  box-shadow:0 12px 34px rgba(20,48,31,.08);
+  position:relative;
+}
+.widget-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:20px;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--line);
+}
+.widget-title h2{
+  font-size:22px;
+  font-weight:800;
+}
+.step-indicator{
+  font-size:12px;
+  font-weight:700;
+  color:var(--accent);
+  background:var(--accent-light);
+  padding:4px 12px;
+  border-radius:999px;
+}
+
+/* Topic / Interest Chips */
+.section-label{
+  font-size:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:var(--muted);
+  margin-bottom:10px;
+  display:block;
+}
+.interest-chips{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:24px;
+}
+@media(max-width:540px){
+  .interest-chips{grid-template-columns:1fr}
+}
+.chip-btn{
+  border:1.5px solid var(--line);
+  background:var(--bg);
+  border-radius:12px;
+  padding:10px 14px;
+  text-align:left;
+  cursor:pointer;
+  transition:all .2s ease;
+  font-family:inherit;
+}
+.chip-btn:hover{
+  border-color:var(--accent);
+  background:#fff;
+}
+.chip-btn.active{
+  border-color:var(--accent);
+  background:var(--accent-light);
+  color:var(--ink);
+  box-shadow:0 0 0 2px rgba(31,122,77,.2);
+}
+.chip-title{
+  display:block;
+  font-size:14px;
+  font-weight:700;
+  color:var(--ink);
+}
+.chip-sub{
+  display:block;
+  font-size:11.5px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+/* Calendar Month Nav */
+.cal-container{
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:24px;
+}
+.cal-nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+}
+.cal-month{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:17px;
+  font-weight:800;
+  color:var(--ink);
+}
+.cal-arrow{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:all .2s;
+}
+.cal-arrow:hover{
+  background:var(--accent);
+  color:#fff;
+  border-color:var(--accent);
+}
+
+/* Calendar Table Grid */
+.cal-weekdays{
+  display:grid;
+  grid-template-columns:repeat(7, 1fr);
+  text-align:center;
+  font-size:11.5px;
+  font-weight:700;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.cal-days{
+  display:grid;
+  grid-template-columns:repeat(7, 1fr);
+  gap:6px;
+}
+.cal-day{
+  aspect-ratio:1;
+  border-radius:10px;
+  border:1px solid transparent;
+  background:transparent;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:600;
+  color:var(--ink);
+  cursor:pointer;
+  transition:all .2s ease;
+  position:relative;
+}
+.cal-day:hover:not(.disabled){
+  background:var(--accent-light);
+  border-color:var(--accent);
+}
+.cal-day.active{
+  background:var(--accent) !important;
+  color:#fff !important;
+  font-weight:800;
+  box-shadow:0 4px 12px rgba(31,122,77,.35);
+}
+.cal-day.disabled{
+  opacity:0.3;
+  cursor:not-allowed;
+  text-decoration:none;
+}
+.cal-day.has-slots::after{
+  content:"";
+  position:absolute;
+  bottom:4px;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--accent);
+}
+.cal-day.active.has-slots::after{
+  background:#fff;
+}
+
+/* Timezone & Time Slots */
+.time-section{
+  margin-bottom:24px;
+}
+.tz-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.tz-select{
+  font-family:inherit;
+  font-size:12.5px;
+  font-weight:600;
+  padding:5px 10px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  outline:none;
+}
+.slots-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(105px, 1fr));
+  gap:8px;
+}
+.slot-btn{
+  border:1.5px solid var(--line);
+  background:var(--bg);
+  border-radius:10px;
+  padding:9px 6px;
+  font-size:13.5px;
+  font-weight:700;
+  color:var(--ink);
+  text-align:center;
+  cursor:pointer;
+  transition:all .2s;
+  font-family:inherit;
+}
+.slot-btn:hover{
+  border-color:var(--accent);
+  background:#fff;
+}
+.slot-btn.active{
+  background:var(--accent);
+  color:#fff;
+  border-color:var(--accent);
+  box-shadow:0 3px 10px rgba(31,122,77,.3);
+}
+
+/* Contact Inputs */
+.form-grid{
+  display:grid;
+  gap:14px;
+  margin-bottom:24px;
+}
+.form-grid-2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+@media(max-width:540px){
+  .form-grid-2{grid-template-columns:1fr}
+}
+.field label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:6px;
+}
+.field label .req{color:var(--danger)}
+.input{
+  width:100%;
+  min-height:46px;
+  padding:10px 14px;
+  border-radius:12px;
+  border:1.5px solid var(--line);
+  background:var(--bg);
+  color:var(--ink);
+  font-family:inherit;
+  font-size:14.5px;
+  outline:none;
+  transition:all .2s;
+  box-sizing:border-box;
+}
+.input:focus{
+  border-color:var(--accent);
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(31,122,77,.12);
+}
+
+/* Submit Area */
+.submit-btn{
+  width:100%;
+  min-height:52px;
+  border-radius:14px;
+  border:none;
+  background:var(--accent);
+  color:#fff;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;
+  font-size:17px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  cursor:pointer;
+  box-shadow:0 8px 24px rgba(31,122,77,.28);
+  transition:all .25s ease;
+}
+.submit-btn:hover{
+  filter:brightness(1.08);
+  transform:translateY(-2px);
+  box-shadow:0 12px 28px rgba(31,122,77,.35);
+}
+.submit-btn:active{transform:translateY(0)}
+.privacy-note{
+  text-align:center;
+  margin-top:12px;
+  font-size:12px;
+  color:var(--muted);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+
+/* Confirmation Success State */
+.confirmed-panel{
+  display:none;
+  text-align:center;
+  padding:30px 16px;
+  animation:fade-up .4s ease;
+}
+@keyframes fade-up{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.confirmed-badge{
+  width:68px;
+  height:68px;
+  border-radius:50%;
+  background:var(--accent-light);
+  color:var(--accent);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 18px;
+  box-shadow:0 6px 20px rgba(31,122,77,.2);
+}
+.confirmed-panel h3{
+  font-size:26px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+.confirmed-panel p{
+  color:var(--muted);
+  font-size:15px;
+  max-width:440px;
+  margin:0 auto 24px;
+}
+.invite-card{
+  background:var(--bg);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  text-align:left;
+  max-width:460px;
+  margin:0 auto 24px;
+}
+.invite-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+  font-size:14px;
+  color:var(--ink);
+}
+.invite-row:last-child{margin-bottom:0}
+.invite-row svg{color:var(--accent);flex-shrink:0}
+.cal-actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-bottom:24px;
+}
+.cal-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  border-radius:12px;
+  font-size:13.5px;
+  font-weight:700;
+  background:#fff;
+  border:1.5px solid var(--line);
+  color:var(--ink);
+  cursor:pointer;
+  transition:all .2s;
+}
+.cal-btn:hover{
+  border-color:var(--accent);
+  background:var(--accent-light);
+  color:var(--accent);
+}
+
+/* Tab 2: Message Form Panel */
+#message-panel{
+  display:none;
+}
+
+/* FAQ Accordion Section */
+.faq-sec{
+  margin:80px auto;
+  max-width:820px;
+}
+.faq-header{
+  text-align:center;
+  margin-bottom:36px;
+}
+.faq-header h2{
+  font-size:32px;
+  font-weight:800;
+}
+.faq-header p{
+  color:var(--muted);
+  margin-top:8px;
+  font-size:16px;
+}
+.faq-item{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  margin-bottom:12px;
+  overflow:hidden;
+  transition:border-color .2s;
+}
+.faq-item:hover{
+  border-color:var(--accent);
+}
+.faq-summary{
+  padding:20px 24px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  user-select:none;
+}
+.faq-summary::after{
+  content:"+";
+  color:var(--accent);
+  font-size:24px;
+  line-height:1;
+  font-weight:800;
+  transition:transform .2s;
+}
+.faq-item[open] .faq-summary::after{
+  content:"−";
+}
+.faq-content{
+  padding:0 24px 22px;
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.6;
+}
+
+/* Bottom CTA Banner */
+.bottom-banner{
+  background:var(--ink);
+  color:#fff;
+  border-radius:28px;
+  padding:48px 40px;
+  text-align:center;
+  margin-bottom:64px;
+  position:relative;
+  overflow:hidden;
+}
+.bottom-banner h2{
+  font-size:clamp(28px,4vw,40px);
+  margin-bottom:12px;
+}
+.bottom-banner p{
+  color:#B6C8BC;
+  font-size:17px;
+  max-width:540px;
+  margin:0 auto 28px;
+}
+.banner-btns{
+  display:flex;
+  gap:14px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+/* Footer */
+footer{
+  border-top:1px solid var(--line);
+  padding:40px 0;
+  color:var(--muted);
+  font-size:14px;
+}
+.foot-wrap{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.foot-logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;
+  font-size:20px;
+  color:var(--ink);
+}
+.foot-links{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
+.foot-links a:hover{color:var(--accent)}
+
+/* Notification Toast */
+.toast{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--ink);
+  color:#fff;
+  padding:12px 24px;
+  border-radius:999px;
+  font-size:13.5px;
+  font-weight:700;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  z-index:99;
+  opacity:0;
+  transition:all .3s cubic-bezier(.2,.8,.2,1);
+  pointer-events:none;
+}
+.toast.show{
+  transform:translateX(-50%) translateY(0);
+  opacity:1;
+}
+</style>
+</head>
+<body>
+
+<!-- Header Navigation -->
+<header class="hd">
+  <div class="w nav">
+    <a href="index.html#page-top" class="logo">
+      <span class="mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 5.5l10.5 6.5L8 18.5z" fill="#fff"></path>
+          <circle cx="19.5" cy="5" r="2" fill="#FFE9A8"></circle>
+        </svg>
+      </span>
+      <span>Clip<b>ora</b></span>
+    </a>
+    <nav class="mid">
+      <a href="index.html#work">The work</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#pricing">Pricing</a>
+    </nav>
+    <div class="rt">
+      <a href="login.html" class="lg">Login</a>
+      <a href="checkout.html?plan=monthly" class="btn dk">Start Clipora</a>
+    </div>
+  </div>
+</header>
+
+<main class="w">
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="top-pill">
+      <span class="pulse-dot"></span>
+      <span>15-Minute Strategy Session · Free & No Pressure</span>
+    </div>
+    <h1>Let's talk about what <span>you know.</span></h1>
+    <p>Show up consistently for a month without writing scripts, framing cameras, or cutting clips. Pick a time with our team to see if Clipora fits your personal brand.</p>
+
+    <!-- Switcher: Calendar Call vs Quick Message -->
+    <div class="tab-switch" role="tablist">
+      <button type="button" class="tab-btn active" id="tab-call" onclick="switchTab('call')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        <span>Schedule a 15-Min Call</span>
+      </button>
+      <button type="button" class="tab-btn" id="tab-msg" onclick="switchTab('msg')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span>Send Quick Message</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Interactive Content Layout -->
+  <div class="contact-layout">
+    
+    <!-- Left Column: Host Preview & Value Proposition -->
+    <div class="host-card">
+      <div class="host-top">
+        <div class="host-av">
+          <img src="assets/rayhan-sadik.jpg" alt="Md Rayhan Sadik">
+        </div>
+        <div class="host-info">
+          <h3>Md Rayhan Sadik</h3>
+          <p>Founder &amp; CEO</p>
+          <div class="avail-chip">
+            <span></span>
+            Available for calls this week
+          </div>
+        </div>
+      </div>
+
+      <div class="host-bio">
+        "On our 15-minute call, there's no scripted sales pitch. We'll simply map out 3 strong video angles from your expertise, walkthrough the zero-prep interview format, and see if we're a mutual match."
+      </div>
+
+      <div class="call-meta">
+        <div class="meta-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>15 Minutes</span>
+        </div>
+        <div class="meta-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l5 5-5 5v-4H4v-2h11v-4z"></path><rect x="2" y="3" width="20" height="18" rx="2" ry="2"></rect></svg>
+          <span>Google Meet / Zoom</span>
+        </div>
+      </div>
+
+      <label class="section-label">What we'll uncover together:</label>
+      <ul class="points-list">
+        <li><b>Your Core Perspectives:</b> Identify what you know and see differently that your industry needs to hear.</li>
+        <li><b>3 High-Impact Video Angles:</b> Instant hooks and topics we can cut from a single 60-minute interview.</li>
+        <li><b>The Turnkey Workflow:</b> How you talk for one hour and receive 36 ready-to-post assets every month.</li>
+        <li><b>Transparent Answers:</b> Pricing, timelines, revisions, and distribution advice with zero pressure.</li>
+      </ul>
+
+      <div class="mini-quote">
+        "I was nervous about sounding scripted. The intro call put all my worries to rest. We recorded two days later, and my LinkedIn views jumped 4x in 30 days."
+        <strong>— Stephen Ross, Investor & Founder</strong>
+      </div>
+
+      <!-- Quick Contact Alternative -->
+      <div class="direct-channels">
+        <div class="direct-link" onclick="copyEmail('hello@clipora.com')">
+          <span style="display:flex;align-items:center;gap:8px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <span>hello@clipora.com</span>
+          </span>
+          <span class="copy-pill" id="copy-badge">Click to copy</span>
+        </div>
+
+        <a class="direct-link" href="https://wa.me/?text=Hi%20Clipora%20team,%20I'd%20like%20to%20learn%20more%20about%20booking%20a%20content%20session" target="_blank" rel="noopener">
+          <span style="display:flex;align-items:center;gap:8px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+            <span>Message on WhatsApp</span>
+          </span>
+          <span class="copy-pill">Fast Reply</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Right Column: Interactive Booking Widget -->
+    <div class="booking-widget">
+      
+      <!-- Panel 1: Calendar Call Scheduler -->
+      <div id="calendar-panel">
+        <div class="widget-title">
+          <h2>Select Date & Time</h2>
+          <span class="step-indicator" id="step-tag">Step 1 of 3</span>
+        </div>
+
+        <!-- 1. Interest Option -->
+        <label class="section-label">1. What plan are you considering?</label>
+        <div class="interest-chips" role="radiogroup">
+          <button type="button" class="chip-btn active" onclick="selectInterest(this, 'monthly')">
+            <span class="chip-title">Clipora Monthly</span>
+            <span class="chip-sub">36 pieces / mo · $499</span>
+          </button>
+          <button type="button" class="chip-btn" onclick="selectInterest(this, 'once')">
+            <span class="chip-title">Try It Once</span>
+            <span class="chip-sub">Single trial batch · $599</span>
+          </button>
+          <button type="button" class="chip-btn" onclick="selectInterest(this, 'team')">
+            <span class="chip-title">Team / Founders</span>
+            <span class="chip-sub">Multi-speaker packages</span>
+          </button>
+          <button type="button" class="chip-btn" onclick="selectInterest(this, 'explore')">
+            <span class="chip-title">Just Exploring</span>
+            <span class="chip-sub">Curious about the format</span>
+          </button>
+        </div>
+
+        <!-- 2. Interactive Calendar -->
+        <label class="section-label">2. Pick a date that works for you:</label>
+        <div class="cal-container">
+          <div class="cal-nav">
+            <button type="button" class="cal-arrow" onclick="changeMonth(-1)" aria-label="Previous month">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <span class="cal-month" id="cal-month-display">October 2026</span>
+            <button type="button" class="cal-arrow" onclick="changeMonth(1)" aria-label="Next month">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+          <div class="cal-weekdays">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+          </div>
+          <div class="cal-days" id="cal-days-grid">
+            <!-- Dynamically populated by JS -->
+          </div>
+        </div>
+
+        <!-- 3. Time Slots & Timezone -->
+        <div class="time-section">
+          <div class="tz-row">
+            <label class="section-label" style="margin-bottom:0">3. Select available slot:</label>
+            <select class="tz-select" id="tz-select" onchange="updateSlots()">
+              <option value="EST">Eastern Time (US & Canada) · EDT</option>
+              <option value="CST">Central Time (US & Canada) · CDT</option>
+              <option value="PST">Pacific Time (US & Canada) · PDT</option>
+              <option value="GMT">Greenwich Mean Time · London</option>
+              <option value="CET">Central European Time · Berlin</option>
+              <option value="SGT">Singapore Time · SGT</option>
+            </select>
+          </div>
+          <div class="slots-grid" id="slots-container">
+            <!-- Dynamically populated by JS -->
+          </div>
+        </div>
+
+        <!-- 4. User Information -->
+        <label class="section-label">4. Your Information:</label>
+        <form id="booking-form" onsubmit="handleBookingSubmit(event)">
+          <div class="form-grid">
+            <div class="form-grid-2">
+              <div class="field">
+                <label>Your Name <span class="req">*</span></label>
+                <input type="text" class="input" id="book-name" placeholder="Debbi DiMaggio" required>
+              </div>
+              <div class="field">
+                <label>Email Address <span class="req">*</span></label>
+                <input type="email" class="input" id="book-email" placeholder="debbi@example.com" required>
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="field">
+                <label>LinkedIn or Website <span style="font-weight:400;color:var(--muted)">(Optional)</span></label>
+                <input type="url" class="input" id="book-link" placeholder="https://linkedin.com/in/username">
+              </div>
+              <div class="field">
+                <label>Your Industry / Topic</label>
+                <input type="text" class="input" id="book-topic" placeholder="e.g. Real Estate, Tech Founder, Health">
+              </div>
+            </div>
+            <div class="field">
+              <label>Anything specific you'd like to ask? <span style="font-weight:400;color:var(--muted)">(Optional)</span></label>
+              <textarea class="input" id="book-notes" rows="2" style="min-height:72px;resize:vertical" placeholder="Tell us what you're working on or want to accomplish..."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span id="submit-text">Confirm 15-Minute Strategy Call</span>
+          </button>
+
+          <div class="privacy-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>No credit card required · Free 15-minute consultation</span>
+          </div>
+        </form>
+      </div>
+
+      <!-- Panel 2: Quick Message Form -->
+      <div id="message-panel">
+        <div class="widget-title">
+          <h2>Send Us a Message</h2>
+          <span class="step-indicator">Direct Form</span>
+        </div>
+        <p style="color:var(--muted);font-size:15px;margin-top:0;margin-bottom:24px">Have a question about our turnaround times, volume pricing, or recording process? Drop us a note below and our team will get back to you within 3 hours.</p>
+
+        <form id="quick-msg-form" onsubmit="handleMsgSubmit(event)">
+          <div class="form-grid">
+            <div class="form-grid-2">
+              <div class="field">
+                <label>Your Name <span class="req">*</span></label>
+                <input type="text" class="input" id="msg-name" placeholder="Nicolas Verhoeven" required>
+              </div>
+              <div class="field">
+                <label>Email Address <span class="req">*</span></label>
+                <input type="email" class="input" id="msg-email" placeholder="nicolas@example.com" required>
+              </div>
+            </div>
+            <div class="field">
+              <label>Subject or Topic</label>
+              <select class="input" id="msg-subject">
+                <option value="workflow">How does the 60-minute interview work?</option>
+                <option value="pricing">Pricing & Custom Packages inquiry</option>
+                <option value="timeline">Turnaround times & deliverables</option>
+                <option value="other">General Question / Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Your Message <span class="req">*</span></label>
+              <textarea class="input" id="msg-body" rows="4" style="min-height:110px;resize:vertical" placeholder="Describe your current content setup or what you'd like to ask..." required></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" style="background:var(--ink)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <span>Send Direct Message</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Confirmed Success State -->
+      <div class="confirmed-panel" id="confirmed-panel">
+        <div class="confirmed-badge">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <h3>You're All Set!</h3>
+        <p style="margin-bottom:18px">Your 15-minute Strategy Call has been booked. <strong>Two separate emails</strong> have been dispatched to <strong id="sent-email-target" style="color:var(--ink)">your email</strong>.</p>
+
+        <!-- Call Details Card -->
+        <div class="invite-card">
+          <div class="invite-row">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span><strong id="confirmed-date">Thursday, October 29, 2026</strong> at <strong id="confirmed-time">01:30 PM EDT</strong></span>
+          </div>
+          <div class="invite-row">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l5 5-5 5v-4H4v-2h11v-4z"></path><rect x="2" y="3" width="20" height="18" rx="2" ry="2"></rect></svg>
+            <span>Google Meet: <strong style="color:var(--accent)">meet.google.com/clip-ora-call</strong></span>
+          </div>
+          <div class="invite-row">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Host: <strong>Md Rayhan Sadik (Founder &amp; CEO)</strong></span>
+          </div>
+        </div>
+
+        <!-- Dynamic Delivery Status Banner -->
+        <div id="delivery-status-banner" style="max-width:480px;margin:0 auto"></div>
+
+        <!-- 2nd Email: Dispatched Client Portal Credentials Card -->
+        <div style="background:#FFFFFF;border:2px solid var(--accent);border-radius:18px;padding:22px 24px;margin:20px auto 24px;text-align:left;max-width:480px;box-shadow:0 8px 24px rgba(31,122,77,0.12)">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div style="width:38px;height:38px;border-radius:10px;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">
+              🔐
+            </div>
+            <div>
+              <h4 style="font-size:16.5px;font-weight:800;color:var(--ink);margin:0">Client Portal Account Provisioned</h4>
+              <span style="font-size:12px;color:var(--accent);font-weight:700">Email #2 dispatched with login credentials</span>
+            </div>
+          </div>
+          
+          <p style="font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.45">
+            You can sign in to your dashboard to view your call details, prepare your topics, or upload your profile photo:
+          </p>
+
+          <div style="background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:grid;gap:8px;font-size:13.5px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="color:var(--muted);font-weight:600">Username / Email:</span>
+              <strong id="display-cred-user" style="color:var(--ink);font-family:monospace;font-size:13.5px"></strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="color:var(--muted);font-weight:600">Initial Password:</span>
+              <div style="display:flex;align-items:center;gap:8px">
+                <code id="display-cred-pass" style="background:#fff;border:1px solid var(--line);padding:2px 8px;border-radius:6px;font-weight:800;color:var(--accent);font-size:13px">Clipora#2026</code>
+                <button type="button" class="copy-pill" style="cursor:pointer" onclick="copyPassword('Clipora#2026')">Copy</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <a href="dashboard.html" class="btn" style="flex:1;min-height:42px;font-size:14px;text-align:center">
+              <span>Go to Client Dashboard &rarr;</span>
+            </a>
+            <button type="button" class="cal-btn" onclick="toggleEmailPreview()" style="font-size:12.5px;padding:8px 12px">
+              <span>Preview 2 Sent Emails ✉️</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Email Previews Simulator -->
+        <div id="email-previews-container" style="display:none;max-width:480px;margin:0 auto 24px;text-align:left;animation:fade-up .3s ease">
+          <!-- Email 1 Preview Card -->
+          <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:12px;box-shadow:0 4px 16px rgba(20,48,31,.06)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-bottom:1px solid var(--line);padding-bottom:6px">
+              <span style="font-size:11.5px;font-weight:800;color:var(--accent);letter-spacing:.06em;text-transform:uppercase">Email 1 of 2: Call Confirmation</span>
+              <span style="font-size:11px;color:var(--muted)">Dispatched to inbox</span>
+            </div>
+            <div style="font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:6px" id="email1-subject-preview">Confirmed: 15-Minute Strategy Call with Md Rayhan Sadik</div>
+            <div style="font-size:12.5px;color:var(--muted);line-height:1.5" id="email1-body-preview">
+              Hi there, your 15-minute Strategy Call is confirmed with <strong>Md Rayhan Sadik (Founder &amp; CEO)</strong>. Meeting link: <strong>meet.google.com/clip-ora-call</strong>. No scripts or slides required.
+            </div>
+          </div>
+
+          <!-- Email 2 Preview Card -->
+          <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 4px 16px rgba(20,48,31,.06)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;border-bottom:1px solid var(--line);padding-bottom:6px">
+              <span style="font-size:11.5px;font-weight:800;color:var(--amber);letter-spacing:.06em;text-transform:uppercase">Email 2 of 2: Portal Credentials</span>
+              <span style="font-size:11px;color:var(--muted)">Dispatched to inbox</span>
+            </div>
+            <div style="font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:6px">Your Clipora Client Portal Login Credentials</div>
+            <div style="font-size:12.5px;color:var(--muted);line-height:1.5" id="email2-body-preview">
+              Hi there, your dedicated Client Portal dashboard has been provisioned. Log in at <strong>http://localhost:3000/login</strong> with your email and temporary password: <code style="font-weight:bold;color:var(--accent)">Clipora#2026</code>.
+            </div>
+          </div>
+        </div>
+
+        <div class="cal-actions">
+          <button type="button" class="cal-btn" onclick="addToGoogleCal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <span>Add to Google Calendar</span>
+          </button>
+          <button type="button" class="cal-btn" onclick="downloadIcs()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <span>Download .ICS (Outlook/Apple)</span>
+          </button>
+        </div>
+
+        <div style="background:var(--accent-light);border:1px solid rgba(31,122,77,.2);border-radius:14px;padding:16px;margin-top:20px">
+          <p style="margin:0;font-size:14px;color:var(--ink)">
+            ⚡ <strong>Ready to start sooner?</strong> You don't have to wait for the call. You can reserve your spot directly:
+          </p>
+          <a href="checkout.html?plan=monthly" class="btn" style="margin-top:12px;font-size:14.5px;min-height:42px">Start Clipora for $499/mo</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Frequently Asked Questions -->
+  <section class="faq-sec">
+    <div class="faq-header">
+      <h2>Frequently Asked Questions</h2>
+      <p>Everything you need to know about booking an introductory session with Clipora.</p>
+    </div>
+
+    <details class="faq-item" open>
+      <summary class="faq-summary">Do I need to prepare a script or outline before the call?</summary>
+      <div class="faq-content">
+        Not at all. You don't need any slides, written scripts, or elaborate notes. Just show up as you are. We'll ask you a few natural questions about what you do, what problems you solve for your clients, and what you see differently from others in your industry.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-summary">Is this call a high-pressure sales pitch?</summary>
+      <div class="faq-content">
+        Zero pressure. We use this 15-minute call to evaluate whether our interview-led content model is genuinely a good fit for your business and goals. If it's not a match, we'll tell you honestly and point you toward alternatives.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-summary">What equipment do I need for the actual recording session?</summary>
+      <div class="faq-content">
+        You don't need a professional TV studio. A modern laptop webcam (or smartphone) and a quiet room with decent lighting and standard earbuds/AirPods are all it takes. Our video post-production team handles high-definition grading, dynamic framing, background sound enhancement, and custom graphics.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-summary">Can I jump straight to recording if I'm already ready?</summary>
+      <div class="faq-content">
+        Yes! If you already know you want to start, you can skip the intro call and sign up directly on our <a href="checkout.html?plan=monthly" style="color:var(--accent);font-weight:700;text-decoration:underline">checkout page</a>. Once you submit, you'll receive our private booking calendar to schedule your full 60-minute interview recording immediately.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary class="faq-summary">What if I need to reschedule or cancel my call?</summary>
+      <div class="faq-content">
+        Every calendar confirmation email includes a direct 1-click reschedule link. You can change your date or time anytime up to 1 hour before the scheduled session at no cost.
+      </div>
+    </details>
+  </section>
+
+  <!-- Bottom CTA Banner -->
+  <section class="bottom-banner">
+    <h2>You already have something worth saying.</h2>
+    <p>Give us one conversation. We'll turn it into a full month of original, authority-building content across your channels.</p>
+    <div class="banner-btns">
+      <a href="checkout.html?plan=monthly" class="btn" style="background:#fff;color:var(--ink)">Start for $499/month</a>
+      <a href="checkout.html?plan=once" class="btn o" style="border-color:rgba(255,255,255,.5);color:#fff">Try it once for $599</a>
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer>
+  <div class="w foot-wrap">
+    <a href="index.html#page-top" class="foot-logo">
+      <span class="mark" style="width:34px;height:34px;border-radius:10px">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 5.5l10.5 6.5L8 18.5z" fill="#fff"></path>
+          <circle cx="19.5" cy="5" r="2" fill="#FFE9A8"></circle>
+        </svg>
+      </span>
+      <span>Clip<b>ora</b></span>
+    </a>
+    <div class="foot-links">
+      <a href="index.html#work">The work</a>
+      <a href="index.html#how">How it works</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="contact.html" style="font-weight:700;color:var(--accent)">Book a call</a>
+      <a href="checkout.html?plan=monthly">Checkout</a>
+    </div>
+    <span>© 2026 Clipora. All rights reserved.</span>
+  </div>
+</footer>
+
+<!-- Toast Feedback -->
+<div class="toast" id="toast">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  <span id="toast-text">Email copied to clipboard!</span>
+</div>
+
+<script>
+// State Management
+let currentYear = 2026;
+let currentMonth = 9; // October (0-indexed: 9 = Oct, 10 = Nov)
+let selectedDate = new Date(2026, 9, 29); // Default Thursday Oct 29, 2026
+let selectedTime = "01:30 PM";
+let selectedInterestPlan = "monthly";
+
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const TIME_SLOTS_BY_TZ = {
+  EST: ["09:30 AM", "11:00 AM", "01:30 PM", "03:00 PM", "04:30 PM", "06:00 PM"],
+  CST: ["08:30 AM", "10:00 AM", "12:30 PM", "02:00 PM", "03:30 PM", "05:00 PM"],
+  PST: ["06:30 AM", "08:00 AM", "10:30 AM", "12:00 PM", "01:30 PM", "03:00 PM"],
+  GMT: ["02:30 PM", "04:00 PM", "06:30 PM", "08:00 PM", "09:30 PM"],
+  CET: ["03:30 PM", "05:00 PM", "07:30 PM", "09:00 PM", "10:30 PM"],
+  SGT: ["09:30 PM", "11:00 PM", "12:30 AM", "02:00 AM"]
+};
+
+function renderCalendar() {
+  const display = document.getElementById('cal-month-display');
+  const grid = document.getElementById('cal-days-grid');
+  display.textContent = `${MONTH_NAMES[currentMonth]} ${currentYear}`;
+  grid.innerHTML = '';
+
+  const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+  // Adjust Monday-first (0 = Sunday in JS, so convert to Mon=0...Sun=6)
+  const offset = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+  // Empty leading days
+  for (let i = 0; i < offset; i++) {
+    const emptyCell = document.createElement('div');
+    emptyCell.className = 'cal-day disabled';
+    grid.appendChild(emptyCell);
+  }
+
+  // Days of month
+  for (let day = 1; day <= daysInMonth; day++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'cal-day';
+    btn.textContent = day;
+
+    const cellDate = new Date(currentYear, currentMonth, day);
+    const dayOfWeek = cellDate.getDay(); // 0 = Sun, 6 = Sat
+
+    // Disable weekends for professional calendar
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      btn.classList.add('disabled');
+      btn.title = 'Weekend - unavailable';
+    } else {
+      btn.classList.add('has-slots');
+      // If matches currently selected date
+      if (selectedDate && 
+          selectedDate.getFullYear() === currentYear &&
+          selectedDate.getMonth() === currentMonth &&
+          selectedDate.getDate() === day) {
+        btn.classList.add('active');
+      }
+
+      btn.onclick = () => {
+        selectedDate = new Date(currentYear, currentMonth, day);
+        renderCalendar();
+        updateDateDisplay();
+      };
+    }
+
+    grid.appendChild(btn);
+  }
+}
+
+function changeMonth(delta) {
+  currentMonth += delta;
+  if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  } else if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  }
+  renderCalendar();
+}
+
+function updateSlots() {
+  const tz = document.getElementById('tz-select').value;
+  const container = document.getElementById('slots-container');
+  container.innerHTML = '';
+
+  const slots = TIME_SLOTS_BY_TZ[tz] || TIME_SLOTS_BY_TZ.EST;
+  if (!slots.includes(selectedTime)) {
+    selectedTime = slots[0];
+  }
+
+  slots.forEach(time => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `slot-btn ${time === selectedTime ? 'active' : ''}`;
+    btn.textContent = time;
+    btn.onclick = () => {
+      document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedTime = time;
+      updateDateDisplay();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function updateDateDisplay() {
+  const submitText = document.getElementById('submit-text');
+  if (!selectedDate) return;
+  const options = { weekday: 'short', month: 'short', day: 'numeric' };
+  const dateStr = selectedDate.toLocaleDateString('en-US', options);
+  submitText.textContent = `Book Call: ${dateStr} at ${selectedTime}`;
+}
+
+function selectInterest(el, plan) {
+  document.querySelectorAll('.chip-btn').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  selectedInterestPlan = plan;
+}
+
+function switchTab(mode) {
+  const tabCall = document.getElementById('tab-call');
+  const tabMsg = document.getElementById('tab-msg');
+  const calPanel = document.getElementById('calendar-panel');
+  const msgPanel = document.getElementById('message-panel');
+  const confPanel = document.getElementById('confirmed-panel');
+
+  confPanel.style.display = 'none';
+
+  if (mode === 'call') {
+    tabCall.classList.add('active');
+    tabMsg.classList.remove('active');
+    calPanel.style.display = 'block';
+    msgPanel.style.display = 'none';
+  } else {
+    tabMsg.classList.add('active');
+    tabCall.classList.remove('active');
+    calPanel.style.display = 'none';
+    msgPanel.style.display = 'block';
+  }
+}
+
+function handleBookingSubmit(e) {
+  e.preventDefault();
+  const name = document.getElementById('book-name').value.trim();
+  const email = document.getElementById('book-email').value.trim();
+
+  if (!name || !email) return;
+
+  const tz = document.getElementById('tz-select').value;
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = selectedDate.toLocaleDateString('en-US', options);
+  const topicVal = document.getElementById('book-topic') ? document.getElementById('book-topic').value.trim() : '';
+  const notesVal = document.getElementById('book-notes') ? document.getElementById('book-notes').value.trim() : '';
+
+  // Dynamic user session persistence
+  localStorage.setItem('clipora_logged_in', 'true');
+  localStorage.setItem('clipora_user_name', name);
+  localStorage.setItem('clipora_user_email', email);
+
+  const existingSessions = JSON.parse(localStorage.getItem('clipora_sessions') || '[]');
+  existingSessions.unshift({
+    date: `${formattedDate}, ${selectedTime} (${tz})`,
+    plan: '15-Min Strategy Session',
+    status: 'CONFIRMED',
+    link: 'meet.google.com/clip-ora-call'
+  });
+  localStorage.setItem('clipora_sessions', JSON.stringify(existingSessions));
+
+  document.getElementById('confirmed-date').textContent = formattedDate;
+  document.getElementById('confirmed-time').textContent = `${selectedTime} (${tz})`;
+  document.getElementById('sent-email-target').textContent = email;
+  document.getElementById('display-cred-user').textContent = email;
+  document.getElementById('display-cred-pass').textContent = 'Clipora#2026';
+
+  // Call server API to log & dispatch the 2 emails
+  fetch('/api/book-call', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: name,
+      email: email,
+      date: formattedDate,
+      time: selectedTime,
+      timezone: tz,
+      topic: topicVal,
+      notes: notesVal
+    })
+  }).then(res => res.json()).then(data => {
+    console.log('[BOOKING SUCCESS]', data);
+    if (data.emails && data.emails.length >= 2) {
+      document.getElementById('email1-subject-preview').textContent = data.emails[0].subject;
+      document.getElementById('email1-body-preview').innerHTML = `
+        Hi <strong>${name}</strong>, your 15-minute Strategy Call is confirmed with <strong>Md Rayhan Sadik (Founder &amp; CEO)</strong> on <strong>${formattedDate} at ${selectedTime} (${tz})</strong>.<br>
+        Meeting Link: <strong style="color:var(--accent)">meet.google.com/clip-ora-call</strong>.<br>
+        Topic: ${topicVal || 'Content Strategy & Video Production'}. No slides or preparation required.
+      `;
+      document.getElementById('email2-body-preview').innerHTML = `
+        Hi <strong>${name}</strong>, your Client Portal account has been created.<br>
+        Login URL: <a href="http://localhost:3000/login" target="_blank" style="color:var(--accent);font-weight:bold">http://localhost:3000/login</a><br>
+        Username: <strong>${email}</strong><br>
+        Temporary Password: <code style="background:#fff;border:1px solid var(--line);padding:2px 6px;border-radius:4px;font-weight:bold;color:var(--accent)">Clipora#2026</code>
+      `;
+    }
+
+    // Dynamic delivery status banner (Gmail vs Test Webmail)
+    const deliveryBanner = document.getElementById('delivery-status-banner');
+    if (deliveryBanner && data.delivery) {
+      const e1 = data.delivery.email1;
+      const e2 = data.delivery.email2;
+      if (e1 && e1.realSmtp) {
+        deliveryBanner.innerHTML = `
+          <div style="background:#ECFDF5;border:1.5px solid #10B981;border-radius:12px;padding:12px 16px;margin:16px 0;text-align:left;font-size:13px;color:#065F46;display:flex;align-items:center;gap:10px">
+            <span style="font-size:18px">📬</span>
+            <div><strong>Direct Gmail Delivery Active!</strong> Both messages have been dispatched across the internet to <strong>${email}</strong>.</div>
+          </div>
+        `;
+      } else if (e1 && e1.previewUrl) {
+        deliveryBanner.innerHTML = `
+          <div style="background:#FFFBEB;border:1.5px solid #F59E0B;border-radius:12px;padding:14px 16px;margin:16px 0;text-align:left;font-size:13px;color:#92400E">
+            <div style="display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:6px">
+              <span style="font-size:16px">✉️</span> Test Webmail Dispatch Active (Local Dev Mode)
+            </div>
+            <p style="margin:0 0 10px;line-height:1.45;color:#78350F">
+              Since local servers require an authenticated SMTP relay to reach real Gmail inboxes, we generated live webmail links so you can inspect both rendered emails right now in your browser:
+            </p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <a href="${e1.previewUrl}" target="_blank" class="copy-pill" style="background:#1F7A4D;color:#fff;text-decoration:none;padding:6px 12px;border-radius:8px;font-weight:700">Open Email 1 (Call Confirmation) &rarr;</a>
+              ${e2 && e2.previewUrl ? `<a href="${e2.previewUrl}" target="_blank" class="copy-pill" style="background:#0F172A;color:#fff;text-decoration:none;padding:6px 12px;border-radius:8px;font-weight:700">Open Email 2 (Login Credentials) &rarr;</a>` : ''}
+            </div>
+            <div style="margin-top:10px;padding-top:8px;border-top:1px dashed #FCD34D;font-size:11.5px;color:#B45309">
+              💡 <strong>Want them directly in your real Gmail inbox?</strong> Add your 16-character Google App Password in <code>data/email-config.json</code>.
+            </div>
+          </div>
+        `;
+      }
+    }
+  }).catch(err => {
+    console.warn('API sync fallback', err);
+  });
+
+  document.getElementById('calendar-panel').style.display = 'none';
+  document.getElementById('confirmed-panel').style.display = 'block';
+
+  showToast(`2 emails dispatched to ${email}!`);
+  document.getElementById('confirmed-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function copyPassword(pwd) {
+  navigator.clipboard.writeText(pwd).then(() => {
+    showToast('Password "Clipora#2026" copied to clipboard!');
+  });
+}
+
+function toggleEmailPreview() {
+  const el = document.getElementById('email-previews-container');
+  if (!el) return;
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function handleMsgSubmit(e) {
+  e.preventDefault();
+  const name = document.getElementById('msg-name').value;
+  const email = document.getElementById('msg-email').value;
+  showToast(`Thank you ${name}! Message received.`);
+  document.getElementById('quick-msg-form').reset();
+}
+
+function copyEmail(email) {
+  navigator.clipboard.writeText(email).then(() => {
+    const badge = document.getElementById('copy-badge');
+    badge.textContent = 'Copied!';
+    badge.style.background = 'var(--accent)';
+    badge.style.color = '#fff';
+    showToast('hello@clipora.com copied to clipboard');
+    setTimeout(() => {
+      badge.textContent = 'Click to copy';
+      badge.style.background = 'var(--line)';
+      badge.style.color = 'var(--ink)';
+    }, 2500);
+  });
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  const toastText = document.getElementById('toast-text');
+  toastText.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+function addToGoogleCal() {
+  const title = encodeURIComponent("Clipora Content Strategy Session");
+  const details = encodeURIComponent("15-minute Strategy Call with Md Rayhan Sadik (Founder & CEO, Clipora).\nGoogle Meet: meet.google.com/clip-ora-call\n\nDiscussion: Personal branding, content hooks, and interview workflow.");
+  const location = encodeURIComponent("Google Meet (https://meet.google.com/clip-ora-call)");
+  
+  // Format YYYYMMDD
+  const y = selectedDate.getFullYear();
+  const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+  const d = String(selectedDate.getDate()).padStart(2, '0');
+  const dates = `${y}${m}${d}T173000Z/${y}${m}${d}T174500Z`;
+
+  const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${dates}`;
+  window.open(url, '_blank');
+}
+
+function downloadIcs() {
+  const y = selectedDate.getFullYear();
+  const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+  const d = String(selectedDate.getDate()).padStart(2, '0');
+  
+  const icsData = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Clipora//Content Strategy Session//EN",
+    "BEGIN:VEVENT",
+    `SUMMARY:Clipora 15-Min Strategy Session`,
+    `DESCRIPTION:Strategy Call with Md Rayhan Sadik (Founder & CEO, Clipora). Google Meet: meet.google.com/clip-ora-call`,
+    `LOCATION:Google Meet (https://meet.google.com/clip-ora-call)`,
+    `DTSTART:${y}${m}${d}T173000Z`,
+    `DTEND:${y}${m}${d}T174500Z`,
+    "STATUS:CONFIRMED",
+    "END:VEVENT",
+    "END:VCALENDAR"
+  ].join("\r\n");
+
+  const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.setAttribute('download', 'clipora-strategy-session.ics');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast(".ICS calendar invite downloaded!");
+}
+
+// Initial Launch
+document.addEventListener('DOMContentLoaded', () => {
+  renderCalendar();
+  updateSlots();
+  updateDateDisplay();
+});
+</script>
+
+</body>
+</html>

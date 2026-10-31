@@ -1,0 +1,12 @@
+{
+  "name": "sadikmed-tracker",
+  "version": "1.0.0",
+  "description": "SadikMed Medication Tracker Web Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "nodemailer": "^10.2.1"
+  }
+}
