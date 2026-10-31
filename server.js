@@ -1035,7 +1035,7 @@ function serveFile(filePath, req, res) {
   // Compute lightweight ETag
   const etag = `W/"${fileSize.toString(16)}-${Math.floor(stat.mtimeMs).toString(16)}"`;
   const isAsset = filePath.includes(path.sep + 'assets' + path.sep) || ['.png', '.jpg', '.jpeg', '.webp', '.svg', '.woff2', '.ttf', '.ico'].includes(ext);
-  const cacheControl = isAsset ? 'public, max-age=86400, stale-while-revalidate=604800' : 'no-cache';
+  const cacheControl = isAsset ? 'public, max-age=86400, stale-while-revalidate=604800' : 'no-cache, no-store, must-revalidate';
 
   // Conditional 304 Not Modified
   const ifNoneMatch = req.headers['if-none-match'];
