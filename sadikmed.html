@@ -58,12 +58,85 @@ body::before {
   background-repeat: repeat;
   background-size: 580px 580px;
   background-position: top center;
-  opacity: 0.12;
+  opacity: 0.16;
 }
 
 #app, #auth {
   position: relative;
   z-index: 1;
+}
+
+/* Ambient Medical Sketch Icons around Auth / Login Card */
+.auth-bg-decorations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+.auth-decor {
+  position: absolute;
+  opacity: 0.22;
+  transition: opacity 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(1, 62, 67, 0.04));
+}
+.auth-decor-tl {
+  top: 10%;
+  left: 8%;
+  width: 64px;
+  transform: rotate(28deg);
+}
+.auth-decor-tr {
+  top: 12%;
+  right: 9%;
+  width: 96px;
+  transform: rotate(-4deg);
+}
+.auth-decor-ml {
+  top: 52%;
+  left: 6%;
+  width: 52px;
+  transform: rotate(-12deg);
+}
+.auth-decor-mr {
+  top: 48%;
+  right: 7%;
+  width: 88px;
+  transform: rotate(18deg);
+}
+.auth-decor-bl {
+  bottom: 10%;
+  left: 12%;
+  width: 48px;
+  transform: rotate(15deg);
+}
+.auth-decor-br {
+  bottom: 8%;
+  right: 11%;
+  width: 58px;
+  transform: rotate(-22deg);
+}
+.auth-decor-tc {
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52px;
+}
+.auth-decor-bc {
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 46px;
+}
+
+@media (max-width: 768px) {
+  .auth-decor { opacity: 0.16; }
+  .auth-decor-tl { top: 4%; left: 3%; width: 44px; }
+  .auth-decor-tr { top: 4%; right: 3%; width: 68px; }
+  .auth-decor-ml, .auth-decor-mr { display: none; }
+  .auth-decor-bl { bottom: 4%; left: 4%; width: 38px; }
+  .auth-decor-br { bottom: 4%; right: 4%; width: 44px; }
+  .auth-decor-tc, .auth-decor-bc { display: none; }
 }
 
 h1 { font-size: 24px; margin: 0 0 16px; font-weight: 800; color: var(--teal); letter-spacing: -0.02em; }
@@ -829,7 +902,9 @@ button:disabled, button.a:disabled, button.p:disabled {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: radial-gradient(circle at top, rgba(234, 247, 244, 0.82) 0%, rgba(255, 255, 255, 0.92) 65%);
+  background: radial-gradient(circle at 50% 25%, rgba(234, 247, 244, 0.5) 0%, rgba(255, 255, 255, 0.25) 65%);
+  position: relative;
+  overflow: hidden;
 }
 .ac {
   background: #FFFFFF;
@@ -839,6 +914,8 @@ button:disabled, button.a:disabled, button.p:disabled {
   width: 100%;
   max-width: 420px;
   box-shadow: 0 14px 40px rgba(1, 62, 67, 0.08), 0 4px 12px rgba(1, 62, 67, 0.03);
+  position: relative;
+  z-index: 2;
 }
 .ac .br { justify-content: center; font-size: 22px; margin-bottom: 6px; }
 .ac .sub { text-align: center; margin-bottom: 16px; font-size: 13px; }
@@ -1502,6 +1579,75 @@ button:disabled, button.a:disabled, button.p:disabled {
 
 <!-- AUTHENTICATION VIEW -->
 <div id="auth" class="au" hidden>
+  <!-- Ambient floating medical icons around login card -->
+  <div class="auth-bg-decorations" aria-hidden="true">
+    <!-- Top-Left Capsule Pill -->
+    <svg class="auth-decor auth-decor-tl" viewBox="0 0 40 20" fill="none">
+      <rect x="1" y="1" width="38" height="17" rx="8.5" stroke="#013E43" stroke-width="1.6"/>
+      <line x1="20" y1="1" x2="20" y2="18" stroke="#00A889" stroke-width="1.6" stroke-dasharray="2 2"/>
+      <path d="M6 5 Q13 3 18 5" stroke="#013E43" stroke-width="1.1"/>
+      <line x1="24" y1="5" x2="29" y2="14" stroke="#013E43" stroke-width="1.1"/>
+      <line x1="29" y1="5" x2="34" y2="14" stroke="#013E43" stroke-width="1.1"/>
+    </svg>
+
+    <!-- Top-Right Heartbeat ECG Rhythm -->
+    <svg class="auth-decor auth-decor-tr" viewBox="0 0 75 40" fill="none">
+      <path d="M2 22 L18 22 L22 16 L26 28 L31 6 L37 38 L43 18 L47 24 L53 22 L73 22" stroke="#013E43" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M31 10 C28 3 18 3 18 13 C18 21 31 29 31 29 C31 29 44 21 44 13 C44 3 34 3 31 10 Z" stroke="#00A889" stroke-width="1.6" stroke-dasharray="2.5 2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <!-- Mid-Left Medicine Bottle -->
+    <svg class="auth-decor auth-decor-ml" viewBox="0 0 36 50" fill="none">
+      <rect x="10" y="2" width="16" height="6" rx="2" stroke="#013E43" stroke-width="1.5"/>
+      <line x1="13" y1="2" x2="13" y2="8" stroke="#013E43" stroke-width="1"/>
+      <line x1="16" y1="2" x2="16" y2="8" stroke="#013E43" stroke-width="1"/>
+      <line x1="19" y1="2" x2="19" y2="8" stroke="#013E43" stroke-width="1"/>
+      <path d="M13 8 V11 H23 V8" stroke="#013E43" stroke-width="1.5"/>
+      <path d="M10 11 Q5 14 5 20 V44 Q5 48 10 48 H26 Q31 48 31 44 V20 Q31 14 26 11 Z" stroke="#013E43" stroke-width="1.5"/>
+      <rect x="9" y="19" width="18" height="20" rx="2.5" stroke="#00A889" stroke-width="1.5"/>
+      <path d="M18 24 V32 M14 28 H22" stroke="#00A889" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Mid-Right DNA Double Helix -->
+    <svg class="auth-decor auth-decor-mr" viewBox="0 0 75 25" fill="none">
+      <path d="M2 12 Q14 -1 26 12 T50 12 T74 12" stroke="#013E43" stroke-width="1.6"/>
+      <path d="M2 12 Q14 25 26 12 T50 12 T74 12" stroke="#00A889" stroke-width="1.6"/>
+      <line x1="8" y1="5" x2="8" y2="19" stroke="#013E43" stroke-width="1.1"/>
+      <line x1="20" y1="5" x2="20" y2="19" stroke="#013E43" stroke-width="1.1"/>
+      <line x1="32" y1="5" x2="32" y2="19" stroke="#013E43" stroke-width="1.1"/>
+      <line x1="44" y1="5" x2="44" y2="19" stroke="#013E43" stroke-width="1.1"/>
+      <line x1="56" y1="5" x2="56" y2="19" stroke="#013E43" stroke-width="1.1"/>
+      <line x1="68" y1="5" x2="68" y2="19" stroke="#013E43" stroke-width="1.1"/>
+    </svg>
+
+    <!-- Bottom-Left Scored Tablet -->
+    <svg class="auth-decor auth-decor-bl" viewBox="0 0 35 35" fill="none">
+      <circle cx="17.5" cy="17.5" r="15" stroke="#013E43" stroke-width="1.6"/>
+      <circle cx="17.5" cy="17.5" r="11.5" stroke="#013E43" stroke-width="1.1"/>
+      <line x1="7" y1="11" x2="28" y2="24" stroke="#00A889" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Bottom-Right Capsule Pill -->
+    <svg class="auth-decor auth-decor-br" viewBox="0 0 40 20" fill="none">
+      <rect x="1" y="1" width="38" height="17" rx="8.5" stroke="#013E43" stroke-width="1.6"/>
+      <line x1="20" y1="1" x2="20" y2="18" stroke="#00A889" stroke-width="1.6" stroke-dasharray="2 2"/>
+      <path d="M6 5 Q13 3 18 5" stroke="#013E43" stroke-width="1.1"/>
+      <line x1="24" y1="5" x2="29" y2="14" stroke="#013E43" stroke-width="1.1"/>
+    </svg>
+
+    <!-- Top Center Tablet -->
+    <svg class="auth-decor auth-decor-tc" viewBox="0 0 40 20" fill="none">
+      <rect x="1" y="1" width="38" height="17" rx="8.5" stroke="#013E43" stroke-width="1.6"/>
+      <line x1="20" y1="1" x2="20" y2="18" stroke="#00A889" stroke-width="1.6" stroke-dasharray="2 2"/>
+    </svg>
+
+    <!-- Bottom Center Scored Tablet -->
+    <svg class="auth-decor auth-decor-bc" viewBox="0 0 35 35" fill="none">
+      <circle cx="17.5" cy="17.5" r="15" stroke="#013E43" stroke-width="1.6"/>
+      <line x1="7" y1="11" x2="28" y2="24" stroke="#00A889" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </div>
+
   <div class="ac">
     <div class="br">
       <img src="/assets/sadikmed-logo.png" alt="SadikMed Logo" class="brand-logo" width="68" height="68" loading="eager" fetchpriority="high" decoding="async">
