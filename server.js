@@ -981,7 +981,7 @@ function requestHandler(req, res) {
 
   let relativePath = reqPath;
   if (relativePath === '/' || relativePath === '' || relativePath === '/tracker' || relativePath === '/tracker/' || relativePath === '/sadikmed' || relativePath === '/sadikmed/' || relativePath === '/sadikmed-tracker' || relativePath === '/sadikmed-tracker/') {
-    relativePath = '/index.html';
+    relativePath = '/sadikmed.html';
   } else if (relativePath === '/sw.js') {
     relativePath = '/sw.js';
   } else if (relativePath === '/checkout' || relativePath === '/checkout/') {
