@@ -1,51 +1,5 @@
 [
   {
-    "id": "cli_mvpp07zn",
-    "name": "fsdafa",
-    "email": "fasfasfasf@gmail.com",
-    "password": "Clipora#2026",
-    "createdAt": "2026-10-26T20:11:57.683Z",
-    "sessions": [
-      {
-        "id": "sess_mvpp07zn",
-        "date": "Friday, October 30, 2026, 01:30 PM (EST)",
-        "plan": "15-Min Strategy Session",
-        "status": "CONFIRMED",
-        "link": "meet.google.com/clip-ora-call",
-        "bookedAt": "2026-10-26T20:11:57.683Z"
-      }
-    ],
-    "emailsSent": [
-      {
-        "type": "call_confirmation",
-        "to": "fasfasfasf@gmail.com",
-        "recipientName": "fsdafa",
-        "subject": "Confirmed: 15-Minute Content Strategy Call with Md Rayhan Sadik",
-        "sentAt": "2026-10-26T20:11:57.683Z",
-        "details": {
-          "date": "Friday, October 30, 2026",
-          "time": "01:30 PM",
-          "timezone": "EST",
-          "host": "Md Rayhan Sadik (Founder & CEO, Clipora)",
-          "meetLink": "https://meet.google.com/clip-ora-call",
-          "topic": "fasfasfa"
-        }
-      },
-      {
-        "type": "credentials",
-        "to": "fasfasfasf@gmail.com",
-        "recipientName": "fsdafa",
-        "subject": "Your Clipora Client Portal Login Credentials",
-        "sentAt": "2026-10-26T20:11:57.683Z",
-        "details": {
-          "portalUrl": "http://localhost:3000/login",
-          "username": "fasfasfasf@gmail.com",
-          "password": "Clipora#2026"
-        }
-      }
-    ]
-  },
-  {
     "id": "cli_mvpp0xnn",
     "name": "Md Rayhan Sadik",
     "email": "info.raayhansadik@gmail.com",

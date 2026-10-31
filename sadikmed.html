@@ -3868,6 +3868,24 @@ $("otp-back-btn").onclick = () => {
 };
 
 // INITIALIZATION
+try {
+  const currentAccounts = accts();
+  const retainedAccounts = currentAccounts.filter(acc => 
+    (acc.email && acc.email.toLowerCase() === 'info.raayhansadik@gmail.com') ||
+    (acc.login && acc.login.toLowerCase() === 'info.raayhansadik@gmail.com') ||
+    (acc.phone === '01621910698')
+  );
+  if (currentAccounts.length !== retainedAccounts.length) {
+    localStorage.setItem(AK, JSON.stringify(retainedAccounts));
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("sm_a") && !retainedAccounts.some(a => "sm_" + a.id === k)) {
+        localStorage.removeItem(k);
+      }
+    }
+  }
+} catch (e) {}
+
 setMode("in");
 resetForm();
 {
