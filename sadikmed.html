@@ -1545,10 +1545,12 @@ button:disabled, button.a:disabled, button.p:disabled {
         <label>Confirm password *</label>
         <input id="ap2" type="password" autocomplete="new-password" placeholder="Re-enter password">
 
-        <label>Send verification code via: *</label>
-        <div class="radio-group">
-          <label><input type="radio" name="otp_channel" value="phone" checked> 📱 SMS to Phone</label>
-          <label><input type="radio" name="otp_channel" value="email"> ✉️ Email</label>
+        <div style="background:rgba(0,168,137,0.08);border:1px solid rgba(0,168,137,0.25);border-radius:10px;padding:12px 14px;font-size:13px;color:#013E43;display:flex;align-items:center;gap:10px;margin-top:14px">
+          <span style="font-size:20px;line-height:1">✉️</span>
+          <div>
+            <strong style="display:block;color:#013E43">Email Verification Required</strong>
+            <span style="color:#2d5558">A 6-digit verification code will be sent directly to your email address.</span>
+          </div>
         </div>
       </div>
 
@@ -3553,7 +3555,7 @@ function setMode(m) {
   $("auth-main-fields").hidden = false;
   $("auth-otp-step").hidden = true;
   $("ab").textContent = m === "in" ? "Continue to Verification" : "Send Verification Code";
-  $("at").textContent = m === "in" ? "Welcome back. Sign in to track your medication." : "Create an account with mandatory phone verification.";
+  $("at").textContent = m === "in" ? "Welcome back. Sign in to track your medication." : "Create an account with email verification.";
   $("ae").textContent = "";
 }
 
@@ -3607,25 +3609,22 @@ async function requestOtp(recipient, channel, reason, name) {
     const json = await res.json();
     return json;
   } catch (e) {
-    // Local fallback if offline
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    return { success: true, demoCode: code };
+    return { success: false, error: 'Could not connect to verification server. Please check your internet connection.' };
   }
 }
 
 // VERIFY OTP CALL
-async function verifyOtp(recipient, code) {
+async function verifyOtp(recipient, code, token) {
   try {
     const res = await fetch('/api/sadikmed/verify-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recipient, code })
+      body: JSON.stringify({ recipient, code, token })
     });
     const json = await res.json();
     return json;
   } catch (e) {
-    if (pendingAuth && pendingAuth.code === code) return { success: true };
-    return { success: false, error: 'Verification failed' };
+    return { success: false, error: 'Could not connect to verification server. Please try again.' };
   }
 }
 
@@ -3676,7 +3675,17 @@ async function submit() {
     // Two-factor security verification for login
     const recipient = a.phone || a.email || a.login;
     const channel = recipient.includes('@') ? 'email' : 'phone';
+
+    $("ab").disabled = true;
+    $("ab").textContent = "Sending code...";
     const otpRes = await requestOtp(recipient, channel, 'login', a.name);
+    $("ab").disabled = false;
+    $("ab").textContent = "Continue to Verification";
+
+    if (!otpRes.success) {
+      e.textContent = otpRes.error || "Failed to send verification code. Please try again.";
+      return;
+    }
 
     pendingAuth = {
       type: 'login',
@@ -3684,29 +3693,31 @@ async function submit() {
       userData: serverData,
       recipient,
       channel,
-      code: otpRes.demoCode
+      token: otpRes.otpToken || null
     };
 
     $("auth-main-fields").hidden = true;
     $("auth-otp-step").hidden = false;
     $("otp-title").textContent = "Security Login Verification";
-    $("otp-subtitle").textContent = `Code sent to ${recipient} (${channel === 'email' ? 'Email' : 'SMS'})`;
+    $("otp-subtitle").textContent = channel === 'email' 
+      ? `6-digit verification code sent to ${recipient}` 
+      : `6-digit verification code sent to ${recipient} (SMS)`;
     $("otp-code-input").value = "";
     $("otp-error").textContent = "";
-    if (otpRes.demoCode) {
-      $("otp-notice").textContent = `Demo code: ${otpRes.demoCode}`;
-    }
+    $("otp-notice").textContent = channel === 'email' 
+      ? "Please check your email inbox for the verification code." 
+      : "Please check your phone for the verification code.";
   } else {
-    // REGISTRATION FLOW WITH MANDATORY PHONE
+    // REGISTRATION FLOW (OTP SENT EXCLUSIVELY TO USER EMAIL)
     const name = $("an").value.trim();
     const phone = $("apn").value.trim();
     const email = $("aem").value.trim().toLowerCase();
     const pw2 = $("ap2").value;
-    const channel = document.querySelector('input[name="otp_channel"]:checked').value;
+    const channel = 'email'; // Registration OTP is strictly and exclusively sent to email
 
     if (!name) { e.textContent = "Please enter your full name."; return; }
     if (!phone || phone.length < 8) { e.textContent = "A valid phone number is mandatory."; return; }
-    if (!email || !email.includes('@')) { e.textContent = "A valid email address is required."; return; }
+    if (!email || !email.includes('@') || !email.includes('.')) { e.textContent = "A valid email address is required for verification."; return; }
     if (pw.length < 8) { e.textContent = "Password must be at least 8 characters."; return; }
     if (pw !== pw2) { e.textContent = "Passwords do not match."; return; }
 
@@ -3716,8 +3727,17 @@ async function submit() {
       return;
     }
 
-    const recipient = channel === 'email' ? email : phone;
+    const recipient = email;
+    $("ab").disabled = true;
+    $("ab").textContent = "Sending code to email...";
     const otpRes = await requestOtp(recipient, channel, 'register', name);
+    $("ab").disabled = false;
+    $("ab").textContent = "Send Verification Code";
+
+    if (!otpRes.success) {
+      e.textContent = otpRes.error || "Failed to send verification code to your email. Please try again.";
+      return;
+    }
 
     const salt = [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, "0")).join("");
     const hash = await hx(pw, salt);
@@ -3737,18 +3757,16 @@ async function submit() {
       },
       recipient,
       channel,
-      code: otpRes.demoCode
+      token: otpRes.otpToken || null
     };
 
     $("auth-main-fields").hidden = true;
     $("auth-otp-step").hidden = false;
-    $("otp-title").textContent = "Verify Your Account";
-    $("otp-subtitle").textContent = `6-digit code sent to ${recipient} (${channel === 'email' ? 'Email' : 'SMS'})`;
+    $("otp-title").textContent = "Verify Your Email";
+    $("otp-subtitle").textContent = `6-digit verification code sent to ${recipient}`;
     $("otp-code-input").value = "";
     $("otp-error").textContent = "";
-    if (otpRes.demoCode) {
-      $("otp-notice").textContent = `Demo verification code: ${otpRes.demoCode}`;
-    }
+    $("otp-notice").textContent = "A verification code has been sent to your email. Please check your inbox (and spam folder).";
   }
 }
 
@@ -3768,8 +3786,15 @@ async function verifyOtpStep() {
 
   if (!pendingAuth) return;
 
-  const res = await verifyOtp(pendingAuth.recipient, code);
-  if (!res.success && (!pendingAuth.code || pendingAuth.code !== code)) {
+  const verifyBtn = $("otp-verify-btn");
+  verifyBtn.disabled = true;
+  verifyBtn.textContent = "Verifying...";
+
+  const res = await verifyOtp(pendingAuth.recipient, code, pendingAuth.token);
+  verifyBtn.disabled = false;
+  verifyBtn.textContent = "Verify & Continue";
+
+  if (!res.success || !res.verified) {
     errEl.textContent = res.error || "Incorrect or expired verification code.";
     return;
   }
@@ -3807,9 +3832,21 @@ $("otp-verify-btn").onclick = verifyOtpStep;
 $("otp-resend-btn").onclick = async () => {
   if (!pendingAuth) return;
   const targetName = pendingAuth.account ? pendingAuth.account.name : (pendingAuth.data ? pendingAuth.data.name : "");
+  const resendBtn = $("otp-resend-btn");
+  resendBtn.disabled = true;
+  resendBtn.textContent = "Sending...";
   const otpRes = await requestOtp(pendingAuth.recipient, pendingAuth.channel, pendingAuth.type, targetName);
-  pendingAuth.code = otpRes.demoCode;
-  $("otp-notice").textContent = otpRes.demoCode ? `Resent code: ${otpRes.demoCode}` : "Verification code resent!";
+  resendBtn.disabled = false;
+  resendBtn.textContent = "Resend";
+  if (otpRes.success) {
+    pendingAuth.token = otpRes.otpToken || null;
+    $("otp-error").textContent = "";
+    $("otp-notice").textContent = pendingAuth.channel === 'email' 
+      ? "A new verification code has been sent to your email." 
+      : "A new verification code has been sent.";
+  } else {
+    $("otp-error").textContent = otpRes.error || "Failed to resend code. Please try again.";
+  }
 };
 
 $("otp-back-btn").onclick = () => {

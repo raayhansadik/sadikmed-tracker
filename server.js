@@ -40,18 +40,24 @@ async function dispatchMail(mailOptions) {
     return { sent: false, reason: 'nodemailer module not installed' };
   }
 
-  // 1. Real outbound SMTP delivery (when Gmail / SMTP credentials are provided in data/email-config.json)
-  if (config.enabled && config.auth && config.auth.pass && !config.auth.pass.includes('PASTE_YOUR')) {
+  // Detect email credentials from environment variables or data/email-config.json
+  const user = process.env.GMAIL_USER || process.env.SMTP_USER || (config.auth && config.auth.user);
+  const pass = process.env.GMAIL_PASS || process.env.SMTP_PASS || (config.auth && config.auth.pass);
+  const isRealPass = pass && !pass.includes('PASTE_YOUR');
+
+  // 1. Real outbound SMTP delivery (Gmail App Password or custom SMTP)
+  if (isRealPass && user) {
     try {
       const transporter = nodemailer.createTransport({
-        service: config.service || 'gmail',
+        service: process.env.SMTP_SERVICE || config.service || 'gmail',
         auth: {
-          user: config.auth.user,
-          pass: config.auth.pass
+          user,
+          pass
         }
       });
+      const senderFrom = process.env.MAIL_FROM || config.from || `"SadikMed Tracker" <${user}>`;
       const info = await transporter.sendMail({
-        from: config.from || `"Clipora" <${config.auth.user}>`,
+        from: senderFrom,
         to: mailOptions.to,
         subject: mailOptions.subject,
         html: mailOptions.html,
@@ -77,7 +83,7 @@ async function dispatchMail(mailOptions) {
       }
     });
     const info = await testTransporter.sendMail({
-      from: `"Clipora" <hello@clipora.com>`,
+      from: `"SadikMed Tracker" <verify@sadikmed.com>`,
       to: mailOptions.to,
       subject: mailOptions.subject,
       html: mailOptions.html,
@@ -421,23 +427,47 @@ function requestHandler(req, res) {
       }
     };
 
-    // 0. Send OTP (Phone or Email)
+    // 0. Send OTP (Strictly Email for Registration)
     if (reqPath === '/api/sadikmed/send-otp' && req.method === 'POST') {
       let body = '';
       req.on('data', chunk => { body += chunk; });
       req.on('end', async () => {
         try {
           const payload = JSON.parse(body || '{}');
-          const { recipient, channel, reason, name } = payload;
+          let { recipient, channel, reason, name } = payload;
           if (!recipient) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ success: false, error: 'Recipient phone or email is required' }));
+            return res.end(JSON.stringify({ success: false, error: 'Recipient is required' }));
+          }
+
+          // Registration OTP is strictly and exclusively sent via email
+          if (reason === 'register') {
+            channel = 'email';
+            recipient = recipient.trim().toLowerCase();
+            if (!recipient.includes('@') || !recipient.includes('.')) {
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              return res.end(JSON.stringify({ success: false, error: 'A valid email address is required for registration verification.' }));
+            }
+          } else {
+            channel = channel || (recipient.includes('@') ? 'email' : 'phone');
+            recipient = recipient.trim().toLowerCase();
           }
 
           // Generate 6-digit code
           const code = Math.floor(100000 + Math.random() * 900000).toString();
           const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
-          sadikmedOtps.set(recipient.toLowerCase(), { code, expiresAt, channel: channel || 'email' });
+          sadikmedOtps.set(recipient, { code, expiresAt, channel });
+
+          // Cryptographic HMAC token to guarantee stateless verification across Vercel serverless instances
+          const OTP_SECRET = process.env.OTP_SECRET || 'sadikmed-secure-otp-signature-2026';
+          const signature = crypto.createHmac('sha256', OTP_SECRET)
+            .update(`${recipient}:${code}:${expiresAt}`)
+            .digest('hex');
+          const otpToken = Buffer.from(JSON.stringify({
+            recipient,
+            expiresAt,
+            signature
+          })).toString('base64');
 
           console.log(`\n[SADIKMED OTP DISPATCHED]`);
           console.log(`Recipient: ${recipient} | Channel: ${channel} | Code: ${code} | Reason: ${reason || 'verification'}\n`);
@@ -450,19 +480,21 @@ function requestHandler(req, res) {
               html: `
                 <div style="font-family:system-ui,-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:24px;background:#EAF7F4;color:#013E43">
                   <div style="background:#013E43;color:#fff;padding:18px 24px;border-radius:14px;display:flex;align-items:center;gap:12px">
-                    <img src="http://localhost:3000/assets/sadikmed-logo.png" width="38" height="38" style="border-radius:9px;vertical-align:middle;margin-right:10px" alt="Logo">
+                    <span style="font-size:26px;margin-right:8px">💊</span>
                     <h2 style="margin:0;font-size:20px;color:#fff;display:inline-block">SadikMed <span style="color:#00A889">Tracker</span></h2>
                   </div>
                   <div style="background:#fff;padding:26px 24px;border-radius:14px;margin-top:14px;border:1px solid #DDE5E5">
                     <h3 style="color:#013E43;margin-top:0">Security Verification Code</h3>
                     <p>Hello${name ? ' ' + name : ''},</p>
-                    <p>Use the following 6-digit code to complete your verification:</p>
+                    <p>Use the following 6-digit verification code to complete your SadikMed Tracker verification:</p>
                     <div style="text-align:center;margin:24px 0">
-                      <span style="font-size:34px;letter-spacing:8px;font-weight:800;color:#00A889;background:#EAF7F4;padding:10px 22px;border-radius:10px;border:1px solid #00A889;display:inline-block">
+                      <span style="font-size:36px;letter-spacing:10px;font-weight:800;color:#00A889;background:#EAF7F4;padding:12px 24px;border-radius:10px;border:2px solid #00A889;display:inline-block;font-family:monospace">
                         ${code}
                       </span>
                     </div>
-                    <p style="font-size:13px;color:#4d7174">This code will expire in 10 minutes. If you did not request this verification, please ignore this email.</p>
+                    <p style="font-size:13px;color:#4d7174">This code is valid for 10 minutes. For your security, never share this code with anyone.</p>
+                    <hr style="border:none;border-top:1px solid #eee;margin:20px 0">
+                    <p style="font-size:12px;color:#8ba2a4;margin:0">If you did not request this verification code, please ignore this email.</p>
                   </div>
                 </div>
               `,
@@ -473,10 +505,11 @@ function requestHandler(req, res) {
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({
             success: true,
-            channel: channel || 'email',
+            channel,
             recipient,
-            demoCode: code, // returned for frictionless local preview / testing
-            emailDelivery
+            otpToken,
+            expiresIn: 600,
+            emailDelivery: emailDelivery ? { sent: emailDelivery.sent } : null
           }));
         } catch (err) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -493,27 +526,57 @@ function requestHandler(req, res) {
       req.on('end', () => {
         try {
           const payload = JSON.parse(body || '{}');
-          const { recipient, code } = payload;
+          const { recipient, code, token } = payload;
           if (!recipient || !code) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ success: false, error: 'Recipient and OTP code are required' }));
           }
-          const record = sadikmedOtps.get(recipient.toLowerCase());
-          if (!record) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ success: false, error: 'No OTP requested for this recipient or code has expired' }));
+
+          const cleanRecipient = recipient.trim().toLowerCase();
+          const cleanCode = code.toString().trim();
+
+          let verified = false;
+
+          // 1. In-memory check
+          const record = sadikmedOtps.get(cleanRecipient);
+          if (record) {
+            if (Date.now() > record.expiresAt) {
+              sadikmedOtps.delete(cleanRecipient);
+              res.writeHead(400, { 'Content-Type': 'application/json' });
+              return res.end(JSON.stringify({ success: false, error: 'Verification code has expired. Please request a new one.' }));
+            }
+            if (record.code.trim() === cleanCode) {
+              verified = true;
+              sadikmedOtps.delete(cleanRecipient);
+            }
           }
-          if (Date.now() > record.expiresAt) {
-            sadikmedOtps.delete(recipient.toLowerCase());
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ success: false, error: 'Verification code has expired. Please request a new one.' }));
+
+          // 2. Stateless HMAC check (covers serverless cold starts / container switches)
+          if (!verified && token) {
+            try {
+              const decoded = JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
+              if (decoded && decoded.recipient === cleanRecipient && decoded.expiresAt && decoded.signature) {
+                if (Date.now() > decoded.expiresAt) {
+                  res.writeHead(400, { 'Content-Type': 'application/json' });
+                  return res.end(JSON.stringify({ success: false, error: 'Verification code has expired. Please request a new one.' }));
+                }
+                const OTP_SECRET = process.env.OTP_SECRET || 'sadikmed-secure-otp-signature-2026';
+                const expectedSig = crypto.createHmac('sha256', OTP_SECRET)
+                  .update(`${cleanRecipient}:${cleanCode}:${decoded.expiresAt}`)
+                  .digest('hex');
+                if (decoded.signature === expectedSig) {
+                  verified = true;
+                  sadikmedOtps.delete(cleanRecipient);
+                }
+              }
+            } catch (tokenErr) {}
           }
-          if (record.code.trim() !== code.toString().trim()) {
+
+          if (!verified) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ success: false, error: 'Incorrect verification code. Please check and try again.' }));
           }
-          // Verification successful, consume code
-          sadikmedOtps.delete(recipient.toLowerCase());
+
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ success: true, verified: true }));
         } catch (err) {
