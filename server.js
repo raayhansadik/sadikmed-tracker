@@ -86,7 +86,8 @@ async function dispatchMail(mailOptions) {
         to: mailOptions.to,
         subject: mailOptions.subject,
         html: mailOptions.html,
-        text: mailOptions.text
+        text: mailOptions.text,
+        attachments: mailOptions.attachments || []
       });
       console.log(`[GOOGLE GMAIL DELIVERED] Sent to: ${mailOptions.to} (Message ID: ${info.messageId})`);
       return { sent: true, realSmtp: true, messageId: info.messageId };
@@ -112,7 +113,8 @@ async function dispatchMail(mailOptions) {
       to: mailOptions.to,
       subject: mailOptions.subject,
       html: mailOptions.html,
-      text: mailOptions.text
+      text: mailOptions.text,
+      attachments: mailOptions.attachments || []
     });
     const previewUrl = nodemailer.getTestMessageUrl(info);
     console.log(`[TEST INBOX READY] Click to view delivered message in webmail: ${previewUrl}`);
@@ -499,14 +501,32 @@ function requestHandler(req, res) {
 
           let emailDelivery = null;
           if (channel === 'email' && recipient.includes('@')) {
+            const logoPath = path.join(BASE_DIR, 'assets', 'sadikmed-logo.png');
+            const hasLogo = fs.existsSync(logoPath);
+            const logoSrc = hasLogo ? 'cid:sadikmedlogo' : 'https://sadikmed.vercel.app/assets/sadikmed-logo.png';
+            const attachments = hasLogo ? [{
+              filename: 'sadikmed-logo.png',
+              path: logoPath,
+              cid: 'sadikmedlogo'
+            }] : [];
+
             emailDelivery = await dispatchMail({
               to: recipient,
               subject: `🛡️ ${code} is your SadikMed Tracker verification code`,
+              attachments,
               html: `
                 <div style="font-family:system-ui,-apple-system,sans-serif;max-width:520px;margin:0 auto;padding:24px;background:#EAF7F4;color:#013E43">
-                  <div style="background:#013E43;color:#fff;padding:18px 24px;border-radius:14px;display:flex;align-items:center;gap:12px">
-                    <span style="font-size:26px;margin-right:8px">💊</span>
-                    <h2 style="margin:0;font-size:20px;color:#fff;display:inline-block">SadikMed <span style="color:#00A889">Tracker</span></h2>
+                  <div style="background:#013E43;color:#fff;padding:16px 22px;border-radius:14px">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:0">
+                      <tr>
+                        <td style="vertical-align:middle;padding-right:12px;line-height:0">
+                          <img src="${logoSrc}" width="40" height="40" style="display:block;width:40px;height:40px;border-radius:10px;object-fit:cover;border:0" alt="SadikMed Logo">
+                        </td>
+                        <td style="vertical-align:middle">
+                          <h2 style="margin:0;font-size:20px;line-height:24px;color:#ffffff;font-weight:700">SadikMed <span style="color:#00A889">Tracker</span></h2>
+                        </td>
+                      </tr>
+                    </table>
                   </div>
                   <div style="background:#fff;padding:26px 24px;border-radius:14px;margin-top:14px;border:1px solid #DDE5E5">
                     <h3 style="color:#013E43;margin-top:0">Security Verification Code</h3>
@@ -856,14 +876,32 @@ function requestHandler(req, res) {
             return res.end(JSON.stringify({ success: false, error: 'A valid email address is required.' }));
           }
 
+          const logoPath = path.join(BASE_DIR, 'assets', 'sadikmed-logo.png');
+          const hasLogo = fs.existsSync(logoPath);
+          const logoSrc = hasLogo ? 'cid:sadikmedlogo' : 'https://sadikmed.vercel.app/assets/sadikmed-logo.png';
+          const attachments = hasLogo ? [{
+            filename: 'sadikmed-logo.png',
+            path: logoPath,
+            cid: 'sadikmedlogo'
+          }] : [];
+
           const dispatchRes = await dispatchMail({
             to: email,
             subject: `⏰ SadikMed Reminder: Time to take ${medName} (${dose})`,
+            attachments,
             html: `
               <div style="font-family:system-ui,-apple-system,sans-serif;max-width:540px;margin:0 auto;padding:24px;background:#EAF7F4;color:#013E43">
-                <div style="background:#013E43;color:#fff;padding:18px 24px;border-radius:14px;display:flex;align-items:center;gap:12px">
-                  <img src="http://localhost:3000/assets/sadikmed-logo.png" width="38" height="38" style="border-radius:9px;vertical-align:middle;margin-right:10px" alt="Logo">
-                  <h2 style="margin:0;font-size:20px;color:#fff;display:inline-block">SadikMed <span style="color:#00A889">Tracker</span></h2>
+                <div style="background:#013E43;color:#fff;padding:16px 22px;border-radius:14px">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:0">
+                    <tr>
+                      <td style="vertical-align:middle;padding-right:12px;line-height:0">
+                        <img src="${logoSrc}" width="40" height="40" style="display:block;width:40px;height:40px;border-radius:10px;object-fit:cover;border:0" alt="SadikMed Logo">
+                      </td>
+                      <td style="vertical-align:middle">
+                        <h2 style="margin:0;font-size:20px;line-height:24px;color:#ffffff;font-weight:700">SadikMed <span style="color:#00A889">Tracker</span></h2>
+                      </td>
+                    </tr>
+                  </table>
                 </div>
                 <div style="background:#fff;padding:26px 24px;border-radius:14px;margin-top:14px;border:1px solid #DDE5E5">
                   <h3 style="color:#013E43;margin-top:0">Medication Reminder</h3>
@@ -874,14 +912,14 @@ function requestHandler(req, res) {
                     <p style="margin:0;color:#4d7174;font-size:14px">Scheduled Time: <strong>${time}</strong></p>
                   </div>
                   <p>Once taken, remember to mark it in your SadikMed Tracker to keep your adherence score up!</p>
-                  <a href="http://localhost:3000/tracker" style="display:inline-block;background:#00A889;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">Open SadikMed Tracker &rarr;</a>
+                  <a href="https://sadikmed.vercel.app/tracker" style="display:inline-block;background:#00A889;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">Open SadikMed Tracker &rarr;</a>
                   <p style="margin-top:24px;border-top:1px solid #DDE5E5;padding-top:14px;font-size:12px;color:#4d7174">
                     SadikMed Tracker · Automated Health Notification Service
                   </p>
                 </div>
               </div>
             `,
-            text: `SadikMed Reminder: Time to take ${medName} (${dose}) at ${time}. Open your tracker to log your dose: http://localhost:3000/tracker`
+            text: `SadikMed Reminder: Time to take ${medName} (${dose}) at ${time}. Open your tracker to log your dose: https://sadikmed.vercel.app/tracker`
           });
 
           res.writeHead(200, { 'Content-Type': 'application/json' });
