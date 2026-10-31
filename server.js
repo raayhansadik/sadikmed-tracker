@@ -981,7 +981,9 @@ function requestHandler(req, res) {
 
   let relativePath = reqPath;
   if (relativePath === '/' || relativePath === '' || relativePath === '/tracker' || relativePath === '/tracker/' || relativePath === '/sadikmed' || relativePath === '/sadikmed/' || relativePath === '/sadikmed-tracker' || relativePath === '/sadikmed-tracker/') {
-    relativePath = '/sadikmed.html';
+    relativePath = '/index.html';
+  } else if (relativePath === '/sw.js') {
+    relativePath = '/sw.js';
   } else if (relativePath === '/checkout' || relativePath === '/checkout/') {
     relativePath = '/checkout.html';
   } else if (relativePath === '/contact' || relativePath === '/contact/') {
@@ -990,8 +992,6 @@ function requestHandler(req, res) {
     relativePath = '/login.html';
   } else if (relativePath === '/dashboard' || relativePath === '/dashboard/') {
     relativePath = '/dashboard.html';
-  } else if (relativePath === '/tracker' || relativePath === '/tracker/' || relativePath === '/sadikmed' || relativePath === '/sadikmed/' || relativePath === '/sadikmed-tracker' || relativePath === '/sadikmed-tracker/') {
-    relativePath = '/sadikmed.html';
   }
 
   let filePath = path.join(BASE_DIR, relativePath);

@@ -17,14 +17,15 @@
     }
   ],
   "rewrites": [
-    { "source": "/", "destination": "/sadikmed.html" },
-    { "source": "/tracker", "destination": "/sadikmed.html" },
-    { "source": "/sadikmed", "destination": "/sadikmed.html" },
-    { "source": "/sadikmed-tracker", "destination": "/sadikmed.html" }
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/tracker", "destination": "/index.html" },
+    { "source": "/sadikmed", "destination": "/index.html" },
+    { "source": "/sadikmed-tracker", "destination": "/index.html" },
+    { "source": "/api/(.*)", "destination": "/server.js" }
   ],
   "functions": {
     "server.js": {
-      "includeFiles": "{*.html,assets/**,data/**}"
+      "includeFiles": "{*.html,sw.js,assets/**,data/**}"
     }
   }
 }
