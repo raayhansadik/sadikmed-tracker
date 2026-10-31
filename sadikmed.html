@@ -3865,22 +3865,41 @@ $("otp-back-btn").onclick = () => {
   $("auth-main-fields").hidden = false;
 };
 
-// INITIALIZATION
+// INITIALIZATION - STRICT DATA RETENTION (ONLY info.raayhansadik@gmail.com)
 try {
   const currentAccounts = accts();
   const retainedAccounts = currentAccounts.filter(acc => 
     (acc.email && acc.email.toLowerCase() === 'info.raayhansadik@gmail.com') ||
-    (acc.login && acc.login.toLowerCase() === 'info.raayhansadik@gmail.com') ||
-    (acc.phone === '01621910698')
+    (acc.login && acc.login.toLowerCase() === 'info.raayhansadik@gmail.com')
   );
-  if (currentAccounts.length !== retainedAccounts.length) {
-    localStorage.setItem(AK, JSON.stringify(retainedAccounts));
-    for (let i = localStorage.length - 1; i >= 0; i--) {
-      const k = localStorage.key(i);
-      if (k && k.startsWith("sm_a") && !retainedAccounts.some(a => "sm_" + a.id === k)) {
-        localStorage.removeItem(k);
-      }
+
+  if (!retainedAccounts.length) {
+    retainedAccounts.push({
+      id: "a1793214317575",
+      name: "Rayhan Sadik",
+      login: "01621910698",
+      phone: "01621910698",
+      email: "info.raayhansadik@gmail.com",
+      salt: "db1284eed4e1e460",
+      hash: "eec241c6cc926150664e81bf0e789891248a49e46d9a950f98d4a27aaada5f6a"
+    });
+  }
+
+  localStorage.setItem(AK, JSON.stringify(retainedAccounts));
+
+  // Purge every other account's data key from localStorage
+  const validKey = "sm_a1793214317575";
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith("sm_a") && k !== validKey) {
+      localStorage.removeItem(k);
     }
+  }
+
+  // Clear session if it belonged to an unauthorized or removed account
+  const currentSession = localStorage.getItem(SK);
+  if (currentSession && currentSession !== "a1793214317575") {
+    localStorage.removeItem(SK);
   }
 } catch (e) {}
 

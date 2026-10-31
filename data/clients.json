@@ -60,33 +60,6 @@
           "realSmtp": false,
           "previewUrl": "https://ethereal.email/message/at-1sgmyWJQGljlPat-1t7uQ5JWplExaAAAAAuXL9g-ha7VS67RnSgX8pqE"
         }
-      },
-      {
-        "type": "call_confirmation",
-        "to": "info.raayhansadik@gmail.com",
-        "recipientName": "debbi",
-        "subject": "Confirmed: 15-Minute Content Strategy Call with Md Rayhan Sadik",
-        "sentAt": "2026-10-26T20:12:30.946Z",
-        "details": {
-          "date": "Friday, October 30, 2026",
-          "time": "01:30 PM",
-          "timezone": "EST",
-          "host": "Md Rayhan Sadik (Founder & CEO, Clipora)",
-          "meetLink": "https://meet.google.com/clip-ora-call",
-          "topic": "real"
-        }
-      },
-      {
-        "type": "credentials",
-        "to": "info.raayhansadik@gmail.com",
-        "recipientName": "debbi",
-        "subject": "Your Clipora Client Portal Login Credentials",
-        "sentAt": "2026-10-26T20:12:30.946Z",
-        "details": {
-          "portalUrl": "http://localhost:3000/login",
-          "username": "info.raayhansadik@gmail.com",
-          "password": "Clipora#2026"
-        }
       }
     ]
   }
