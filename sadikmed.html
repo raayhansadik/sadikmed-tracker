@@ -3894,7 +3894,8 @@ $("test-email-btn").onclick = async () => {
   const sampleMed = (S && S.meds && S.meds.length) ? S.meds[0] : null;
   const medName = sampleMed ? sampleMed.name : "Cutin";
   const dose = sampleMed ? sampleMed.dose : "2.5";
-  const time = sampleMed ? (getMedTimes(sampleMed)[0] || "09:00") : "09:00";
+  const rawTime = sampleMed ? (getMedTimes(sampleMed)[0] || "21:00") : "21:00";
+  const time = (typeof fmtTime === 'function' ? fmtTime(rawTime) : rawTime) + " (GMT+6)";
 
   try {
     const res = await fetch('/api/sadikmed/test-reminder', {
@@ -3962,7 +3963,7 @@ setInterval(async () => {
           if (!sentAlerts.has(advKey)) {
             markAlertSent(advKey);
             await dispatchPushNotification(`🔔 Upcoming Dose: ${m.name}`, {
-              body: `In ${remindBeforeMin} mins (${fmtTime(t)}): ${m.name} (${m.dose}).`,
+              body: `In ${remindBeforeMin} mins (${fmtTime(t)} GMT+6): ${m.name} (${m.dose}).`,
               tag: advKey
             });
             playChime('alert');

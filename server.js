@@ -903,9 +903,26 @@ function requestHandler(req, res) {
         try {
           const payload = JSON.parse(body || '{}');
           const email = (payload.email || '').trim();
-          const medName = payload.medName || 'Metformin';
-          const dose = payload.dose || '500 mg';
-          const time = payload.time || '08:00';
+          const medName = payload.medName || 'Cutin';
+          const dose = payload.dose || '2.5';
+          let time = (payload.time || '21:00').trim();
+
+          // Standardize time formatting with (GMT+6)
+          if (!/GMT\+6/i.test(time)) {
+            const timeMatch = time.match(/^(\d{1,2}):(\d{2})$/);
+            if (timeMatch) {
+              let h = parseInt(timeMatch[1], 10);
+              const m = timeMatch[2];
+              const ampm = h >= 12 ? 'PM' : 'AM';
+              h = h % 12;
+              if (h === 0) h = 12;
+              time = `${h}:${m} ${ampm} (GMT+6)`;
+            } else if (/am|pm/i.test(time)) {
+              time = `${time} (GMT+6)`;
+            } else {
+              time = `${time} (GMT+6)`;
+            }
+          }
 
           if (!email || !email.includes('@')) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -916,7 +933,7 @@ function requestHandler(req, res) {
 
           const dispatchRes = await dispatchMail({
             to: email,
-            subject: `Medication Reminder: Time to take ${medName} (${dose})`,
+            subject: `Medication Reminder: Time to take ${medName} (${dose}) at ${time}`,
             replyTo: 'info.raayhansadik@gmail.com',
             html: `
               <div style="font-family:system-ui,-apple-system,sans-serif;max-width:540px;margin:0 auto;padding:24px;background:#EAF7F4;color:#013E43">
