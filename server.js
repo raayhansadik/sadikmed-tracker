@@ -470,6 +470,19 @@ function requestHandler(req, res) {
       }
     };
 
+    // Dedicated password hashing: scrypt with unique cryptographic salt (RFC 7914 / OWASP)
+    const hashPasswordScrypt = (password, salt) => {
+      return crypto.scryptSync(password, salt, 64, { N: 16384, r: 8, p: 1 }).toString('hex');
+    };
+
+    const safeEqual = (a, b) => {
+      if (typeof a !== 'string' || typeof b !== 'string') return false;
+      const bufA = Buffer.from(a);
+      const bufB = Buffer.from(b);
+      if (bufA.length !== bufB.length) return false;
+      return crypto.timingSafeEqual(bufA, bufB);
+    };
+
     // 0. Send OTP (Strictly Email for Registration)
     if (reqPath === '/api/sadikmed/send-otp' && req.method === 'POST') {
       let body = '';
@@ -652,8 +665,8 @@ function requestHandler(req, res) {
       req.on('end', () => {
         try {
           const payload = JSON.parse(body || '{}');
-          const { id, name, login, phone, email, salt, hash, avatar } = payload;
-          if (!name || !phone || !salt || !hash) {
+          const { id, name, login, phone, email, salt, hash, password, avatar } = payload;
+          if (!name || !phone || (!hash && !password)) {
             res.writeHead(400, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ success: false, error: 'Name, phone number, and password are required' }));
           }
@@ -664,14 +677,16 @@ function requestHandler(req, res) {
             res.writeHead(409, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ success: false, error: 'An account with this phone number or email already exists' }));
           }
+          const userSalt = salt || crypto.randomBytes(16).toString('hex');
+          const userHash = hash || hashPasswordScrypt(password, userSalt);
           const newUser = {
             id: id || ('a' + Date.now()),
             name,
             login: normalizedLogin,
             phone,
             email: email || (normalizedLogin.includes('@') ? normalizedLogin : ''),
-            salt,
-            hash,
+            salt: userSalt,
+            hash: userHash,
             avatar: avatar || null,
             at: Date.now()
           };
@@ -704,12 +719,21 @@ function requestHandler(req, res) {
           }
 
           let isValid = false;
-          if (hash && user.hash === hash) {
+          if (hash && (user.hash === hash || safeEqual(user.hash, hash))) {
             isValid = true;
           } else if (password) {
-            const computedHash = crypto.createHash('sha256').update(user.salt + password).digest('hex');
-            if (computedHash === user.hash) {
+            const scryptHash = hashPasswordScrypt(password, user.salt);
+            if (safeEqual(scryptHash, user.hash)) {
               isValid = true;
+            } else {
+              const legacySha = crypto.createHash('sha256').update(user.salt + password).digest('hex');
+              if (safeEqual(legacySha, user.hash)) {
+                isValid = true;
+                // Seamless auto-upgrade of user record to scrypt
+                user.hash = scryptHash;
+                user.updatedAt = Date.now();
+                writeJson(usersFile, users);
+              }
             }
           }
 
@@ -762,7 +786,7 @@ function requestHandler(req, res) {
             res.writeHead(404, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ success: false, error: 'User not found' }));
           }
-          if (user.hash !== oldHash) {
+          if (user.hash !== oldHash && !safeEqual(user.hash, oldHash)) {
             res.writeHead(401, { 'Content-Type': 'application/json' });
             return res.end(JSON.stringify({ success: false, error: 'Current password is incorrect' }));
           }

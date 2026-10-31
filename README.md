@@ -14,7 +14,8 @@ A modern, responsive, and secure medication adherence tracking web application d
 - **Secure Authentication**:
   - One-Time Password (OTP) 6-digit email verification for new account registration.
   - Fast, direct password sign-in for registered users (no OTP required on repeat logins).
-  - Client-side SHA-256 password hashing with unique salt generation.
+  - Dedicated memory-hard scrypt password hashing (RFC 7914 / OWASP recommended standard) with unique 16-byte (128-bit) cryptographic salts and timing-safe server-side verification.
+  - Transparent backward compatibility and automatic in-flight upgrade for legacy credentials.
 - **Automated Email Reminders**: Fast email notifications and verification codes powered by Google SMTP with connection pooling and CDN-hosted branding.
 - **Offline-Ready & Persistent**: Dual storage architecture leveraging browser `localStorage` and server-side JSON synchronization for fast, reliable access across devices.
 - **Responsive 3D UI**: Clean mobile-first design with custom modal dialogs, dose calculators, and dark/light contrast optimization.

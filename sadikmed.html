@@ -1583,7 +1583,7 @@ button:disabled, button.a:disabled, button.p:disabled {
     </div>
 
     <div class="note" style="text-align:center;margin-top:14px">
-      Encrypted client-side with SHA-256 and verified via local/cloud backend.
+      Secured with dedicated scrypt password hashing & unique cryptographic salts.
     </div>
   </div>
 </div>
@@ -3411,8 +3411,108 @@ $("psv").onclick = () => {
   }
 };
 
-// PASSWORD CHANGE FEATURE
-const hx = async (p, t) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t + p)))].map(b => b.toString(16).padStart(2, "0")).join("");
+// DEDICATED PASSWORD HASHING: SCRYPT WITH UNIQUE CRYPTOGRAPHIC SALTS (RFC 7914 / OWASP)
+async function hx(password, salt, N = 16384, r = 8, p = 1, dkLen = 64) {
+  const enc = new TextEncoder();
+  const passKey = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(password),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits']
+  );
+
+  async function pbkdf2(s, bytes) {
+    const derived = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: typeof s === 'string' ? enc.encode(s) : s,
+        iterations: 1,
+        hash: 'SHA-256'
+      },
+      passKey,
+      bytes * 8
+    );
+    return new Uint8Array(derived);
+  }
+
+  function salsa20_8(B) {
+    const B32 = new Uint32Array(B.buffer, B.byteOffset, 16);
+    const x = new Uint32Array(16);
+    for (let i = 0; i < 16; i++) x[i] = B32[i];
+    const R = (a, b) => (a << b) | (a >>> (32 - b));
+    for (let i = 0; i < 8; i += 2) {
+      x[ 4] ^= R(x[ 0] + x[12],  7);  x[ 8] ^= R(x[ 4] + x[ 0],  9);
+      x[12] ^= R(x[ 8] + x[ 4], 13);  x[ 0] ^= R(x[12] + x[ 8], 18);
+      x[ 9] ^= R(x[ 5] + x[ 1],  7);  x[13] ^= R(x[ 9] + x[ 5],  9);
+      x[ 1] ^= R(x[13] + x[ 9], 13);  x[ 5] ^= R(x[ 1] + x[13], 18);
+      x[14] ^= R(x[10] + x[ 6],  7);  x[ 2] ^= R(x[14] + x[10],  9);
+      x[ 6] ^= R(x[ 2] + x[14], 13);  x[10] ^= R(x[ 6] + x[ 2], 18);
+      x[ 3] ^= R(x[15] + x[11],  7);  x[ 7] ^= R(x[ 3] + x[15],  9);
+      x[11] ^= R(x[ 7] + x[ 3], 13);  x[15] ^= R(x[11] + x[ 7], 18);
+      x[ 1] ^= R(x[ 0] + x[ 3],  7);  x[ 2] ^= R(x[ 1] + x[ 0],  9);
+      x[ 3] ^= R(x[ 2] + x[ 1], 13);  x[ 0] ^= R(x[ 3] + x[ 2], 18);
+      x[ 6] ^= R(x[ 5] + x[ 4],  7);  x[ 7] ^= R(x[ 6] + x[ 5],  9);
+      x[ 4] ^= R(x[ 7] + x[ 6], 13);  x[ 5] ^= R(x[ 4] + x[ 7], 18);
+      x[11] ^= R(x[10] + x[ 9],  7);  x[ 8] ^= R(x[11] + x[10],  9);
+      x[ 9] ^= R(x[ 8] + x[11], 13);  x[10] ^= R(x[ 9] + x[ 8], 18);
+      x[12] ^= R(x[15] + x[14],  7);  x[13] ^= R(x[12] + x[15],  9);
+      x[14] ^= R(x[13] + x[12], 13);  x[15] ^= R(x[14] + x[13], 18);
+    }
+    for (let i = 0; i < 16; i++) B32[i] += x[i];
+  }
+
+  function blockMix(B, Y, r) {
+    const X = new Uint8Array(64);
+    const chunkLen = 64;
+    X.set(B.subarray((2 * r - 1) * chunkLen, 2 * r * chunkLen));
+    for (let i = 0; i < 2 * r; i++) {
+      for (let k = 0; k < chunkLen; k++) X[k] ^= B[i * chunkLen + k];
+      salsa20_8(X);
+      const destIdx = (i % 2 === 0) ? (i / 2) : (r + (i - 1) / 2);
+      Y.set(X, destIdx * chunkLen);
+    }
+    B.set(Y);
+  }
+
+  function roMix(B, N, r) {
+    const blockLen = 128 * r;
+    const V = new Uint8Array(N * blockLen);
+    const Y = new Uint8Array(blockLen);
+    for (let i = 0; i < N; i++) {
+      V.set(B, i * blockLen);
+      blockMix(B, Y, r);
+    }
+    const B32 = new Uint32Array(B.buffer, B.byteOffset, blockLen / 4);
+    for (let i = 0; i < N; i++) {
+      const offset = (2 * r - 1) * 64 / 4;
+      const j = B32[offset] % N;
+      const Vj = V.subarray(j * blockLen, (j + 1) * blockLen);
+      for (let k = 0; k < blockLen; k++) B[k] ^= Vj[k];
+      blockMix(B, Y, r);
+    }
+  }
+
+  const B = await pbkdf2(salt, p * 128 * r);
+  const blockLen = 128 * r;
+  for (let i = 0; i < p; i++) {
+    const chunk = B.subarray(i * blockLen, (i + 1) * blockLen);
+    roMix(chunk, N, r);
+  }
+
+  const finalDerived = await pbkdf2(B, dkLen);
+  return Array.from(finalDerived).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Verification helper supporting scrypt + backward-compatibility fallback
+async function verifyPass(pw, salt, targetHash) {
+  const scryptHash = await hx(pw, salt);
+  if (scryptHash === targetHash) return { ok: true, isScrypt: true, newHash: scryptHash };
+  // Check legacy SHA-256 (salt + pw)
+  const legacySha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(salt + pw)))].map(b => b.toString(16).padStart(2, "0")).join("");
+  if (legacySha === targetHash) return { ok: true, isScrypt: false, newHash: scryptHash };
+  return { ok: false };
+}
 
 $("cpw-btn").onclick = async () => {
   $("pwe").textContent = "";
@@ -3438,13 +3538,14 @@ $("cpw-btn").onclick = async () => {
   const a = list.find(x => x.id === cur.id);
   if (!a) return;
 
-  const currentHash = await hx(oldPw, a.salt);
-  if (currentHash !== a.hash) {
+  const check = await verifyPass(oldPw, a.salt, a.hash);
+  if (!check.ok) {
     $("pwe").textContent = "Current password is incorrect.";
     return;
   }
 
-  const newSalt = [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, "0")).join("");
+  const previousHash = a.hash;
+  const newSalt = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, "0")).join("");
   const newHash = await hx(newPw, newSalt);
 
   a.salt = newSalt;
@@ -3458,7 +3559,7 @@ $("cpw-btn").onclick = async () => {
     await fetch('/api/sadikmed/update-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: cur.id, oldHash: currentHash, newSalt, newHash })
+      body: JSON.stringify({ userId: cur.id, oldHash: previousHash, newSalt, newHash })
     });
   } catch (e) {}
 
@@ -3663,11 +3764,25 @@ async function submit() {
 
     if (a) {
       // User found in this browser's localStorage
-      if (await hx(pw, a.salt) !== a.hash) {
+      const check = await verifyPass(pw, a.salt, a.hash);
+      if (!check.ok) {
         $("ab").disabled = false;
         $("ab").textContent = "Sign in";
         e.textContent = "Incorrect phone/email or password.";
         return;
+      }
+      if (!check.isScrypt) {
+        const oldLegacyHash = a.hash;
+        a.hash = check.newHash;
+        const idx = L.findIndex(x => x.id === a.id);
+        if (idx >= 0) { L[idx].hash = check.newHash; localStorage.setItem(AK, JSON.stringify(L)); }
+        try {
+          fetch('/api/sadikmed/update-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: a.id, oldHash: oldLegacyHash, newSalt: a.salt, newHash: check.newHash })
+          });
+        } catch (_) {}
       }
     } else {
       // User not found in this browser's localStorage (e.g. new browser, incognito, or different device)
@@ -3741,7 +3856,7 @@ async function submit() {
       return;
     }
 
-    const salt = [...crypto.getRandomValues(new Uint8Array(8))].map(b => b.toString(16).padStart(2, "0")).join("");
+    const salt = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, "0")).join("");
     const hash = await hx(pw, salt);
 
     pendingAuth = {
