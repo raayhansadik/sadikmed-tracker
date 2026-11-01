@@ -486,6 +486,17 @@ function requestHandler(req, res) {
       return crypto.timingSafeEqual(bufA, bufB);
     };
 
+    // Health & Uptime Status Checks
+    if ((reqPath === '/api/health' || reqPath === '/api/sadikmed/status') && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+      return res.end(JSON.stringify({
+        status: 'healthy',
+        service: 'SadikMed Tracker',
+        uptime: Math.round(process.uptime()),
+        timestamp: new Date().toISOString()
+      }));
+    }
+
     // 0. Send OTP (Strictly Email for Registration)
     if (reqPath === '/api/sadikmed/send-otp' && req.method === 'POST') {
       let body = '';

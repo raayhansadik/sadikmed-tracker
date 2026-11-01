@@ -2,7 +2,7 @@
   "cleanUrls": true,
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/sw.js",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
         { "key": "Pragma", "value": "no-cache" },
@@ -14,13 +14,18 @@
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
       ]
+    },
+    {
+      "source": "/((?!api|assets|sw\\.js).*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
     }
   ],
   "rewrites": [
-    { "source": "/", "destination": "/sadikmed.html" },
-    { "source": "/tracker", "destination": "/sadikmed.html" },
-    { "source": "/sadikmed", "destination": "/sadikmed.html" },
-    { "source": "/sadikmed-tracker", "destination": "/sadikmed.html" }
+    { "source": "/tracker", "destination": "/" },
+    { "source": "/sadikmed", "destination": "/" },
+    { "source": "/sadikmed-tracker", "destination": "/" }
   ],
   "functions": {
     "server.js": {
