@@ -454,6 +454,17 @@ function requestHandler(req, res) {
     return;
   }
 
+  // Root Health / Status Check
+  if (reqPath === '/api/health' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+    return res.end(JSON.stringify({
+      status: 'healthy',
+      service: 'SadikMed Tracker',
+      uptime: Math.round(process.uptime()),
+      timestamp: new Date().toISOString()
+    }));
+  }
+
   // SadikMed API Routes
   if (reqPath.startsWith('/api/sadikmed/')) {
     const usersFile = path.join(BASE_DIR, 'data', 'sadikmed-users.json');
