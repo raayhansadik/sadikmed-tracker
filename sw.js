@@ -1,5 +1,5 @@
 // SadikMed Tracker Service Worker (Offline Resilience, Instant Loading & Push Notifications)
-const CACHE_NAME = 'sadikmed-v3-prod';
+const CACHE_NAME = 'sadikmed-v4-prod';
 const STATIC_ASSETS = [
   '/',
   '/sadikmed',

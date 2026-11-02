@@ -46,9 +46,9 @@ body::before {
   z-index: 60;
 }
 
-/* Creative Faded Medical Sketches Background - Login / Auth Page ONLY */
-#auth .bg-medical-sketches {
-  position: absolute;
+/* Creative Faded Medical Sketches Background - Global App & Login Background */
+.bg-medical-sketches {
+  position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -58,7 +58,7 @@ body::before {
   background-repeat: repeat;
   background-size: 580px 580px;
   background-position: top center;
-  opacity: 0.16;
+  opacity: 0.18;
 }
 
 #app, #auth {
@@ -1574,10 +1574,11 @@ button:disabled, button.a:disabled, button.p:disabled {
 </head>
 <body>
 
+<!-- CREATIVE FADED MEDICAL SKETCHES BACKGROUND (Global App Background) -->
+<div class="bg-medical-sketches" aria-hidden="true"></div>
+
 <!-- AUTHENTICATION VIEW -->
 <div id="auth" class="au" hidden>
-  <!-- Creative Faded Medical Sketches Background - ONLY on login page -->
-  <div class="bg-medical-sketches" aria-hidden="true"></div>
 
   <!-- Ambient floating medical icons around login card -->
   <div class="auth-bg-decorations" aria-hidden="true">
